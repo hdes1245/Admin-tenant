@@ -410,7 +410,7 @@ export default function ClientPortfolioPage() {
                   {pieVisit.map((d,i) => <Cell key={i} fill={d.color} stroke="none" />)}
                 </Pie>
                 <RTooltip
-                  formatter={(v:number, _:string, entry:any) => [`${fmt(v)} (${kpi.total ? Math.round((v/kpi.total)*100) : 0}%)`, entry.name]}
+                  formatter={(v: any, _: any, entry: any) => [`${fmt(v)} (${kpi.total ? Math.round((v/kpi.total)*100) : 0}%)`, entry.name]}
                   contentStyle={{ fontSize: 12, borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,.12)" }} />
               </PieChart>
             </ResponsiveContainer>
@@ -449,7 +449,7 @@ export default function ClientPortfolioPage() {
                   {pieRisk.map((d,i) => <Cell key={i} fill={d.color} stroke="none" />)}
                 </Pie>
                 <RTooltip
-                  formatter={(v:number, _:string, entry:any) => {
+                  formatter={(v: any, _: any, entry: any) => {
                     const total = (risk.souffrant??0)+(risk.perte??0)+(risk.encours??0);
                     return [`${fmt(v)} (${total ? Math.round((v/total)*100) : 0}%)`, entry.name];
                   }}
@@ -528,12 +528,12 @@ export default function ClientPortfolioPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
               <YAxis type="category" dataKey="agence" width={210} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <RTooltip formatter={(v: number, n: string) => [fmt(v), n]} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+              <RTooltip formatter={(v: any, n: any) => [fmt(v), n]} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
               <Legend />
               <Bar dataKey="souffrant" name="Souffrant" fill={RED}     radius={[0,3,3,0]} stackId="a" barSize={16} />
               <Bar dataKey="perte"     name="Perte"     fill="#7f1d1d" radius={[0,3,3,0]} stackId="a" barSize={16}>
                 <LabelList dataKey="capital_impaye" position="right" style={{ fontSize: 10, fill: RED }}
-                  formatter={(v: number) => v > 0 ? fmtM(v) : ""} />
+                  formatter={(v: any) => v > 0 ? fmtM(v) : ""} />
               </Bar>
               <Bar dataKey="never_visited" name="Jamais visités" fill={ORANGE} radius={[0,3,3,0]} stackId="b" barSize={16} />
             </BarChart>

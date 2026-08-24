@@ -25,7 +25,7 @@ import {
   loadForms, saveForm, defaultField,
   FIELD_TYPES, CATEGORY_LABELS,
 } from "@/lib/forms";
-import { saveCaptureConfig, fetchCaptureConfig, CaptureFormConfig } from "@/lib/captureConfig";
+import { saveCaptureConfig, fetchCaptureConfig, CaptureFormConfig, CaptureFieldType } from "@/lib/captureConfig";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchLocationTypes, createLocationType, updateLocationType, deleteLocationType,
@@ -45,7 +45,12 @@ async function syncCaptureConfigFromForm(form: FormTemplate): Promise<void> {
     .filter((f) => !reservedIds.has(f.id) && f.type !== "gps")
     .map((f, idx) => ({
       id:          f.id,
-      type:        f.type,
+      // Le constructeur de formulaire (FieldType) autorise des types
+      // (email, phone, date, time, signature) que la config de capture
+      // mobile (CaptureFieldType) ne modélise pas encore — non bloquant à
+      // l'exécution (le rendu applique déjà un fallback texte par défaut
+      // pour un type non reconnu), juste un cast pour satisfaire le typage.
+      type:        f.type as CaptureFieldType,
       label:       f.label,
       placeholder: f.placeholder,
       required:    f.required,

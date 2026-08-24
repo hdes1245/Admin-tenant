@@ -21,7 +21,7 @@ import TextFieldsIcon       from "@mui/icons-material/TextFields";
 import { SidebarLayout }    from "@/components/layout/SidebarLayout";
 import {
   fetchLocationTypes, createLocationType, updateLocationType, deleteLocationType, reorderLocationTypes,
-  fetchCaptureConfig, saveCaptureConfig, saveCaptureConfigLocal, createExtraField,
+  fetchCaptureConfig, saveCaptureConfig, saveCaptureConfigLocal, loadCaptureConfig, createExtraField,
   CaptureFormConfig, LocationType, CaptureExtraField, EXTRA_FIELD_TYPES, DEFAULT_CONFIG,
 } from "@/lib/captureConfig";
 
@@ -514,8 +514,9 @@ function ExtraFieldEditDialog({ field, onSave, onClose }: { field: CaptureExtraF
 
 // ── MobilePreviewTab ──────────────────────────────────────────────────────────
 function MobilePreviewTab() {
-  const cfg   = loadCaptureConfig();
-  const types = loadLocationTypes();
+  const cfg = loadCaptureConfig();
+  const [types, setTypes] = useState<LocationType[]>([]);
+  useEffect(() => { fetchLocationTypes().then(setTypes).catch(() => {}); }, []);
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center", pt: 2 }}>
@@ -586,7 +587,7 @@ function MobilePreviewTab() {
             )}
 
             {/* Extra fields */}
-            {cfg.extraFields.filter((f) => f.enabled).map((f) => (
+            {cfg.extraFields.filter((f: CaptureExtraField) => f.enabled).map((f: CaptureExtraField) => (
               <PreviewField key={f.id} label={f.label} required={f.required}>
                 {f.type === "textarea" ? (
                   <Box sx={{ border: "1px solid #CBD5E1", borderRadius: 1.5, px: 1.5, py: 1, bgcolor: "#fff", height: 52 }}>
@@ -599,7 +600,7 @@ function MobilePreviewTab() {
                   </Box>
                 ) : f.type === "checkbox" ? (
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                    {f.options.slice(0, 3).map((o) => (
+                    {f.options.slice(0, 3).map((o: string) => (
                       <Box key={o} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Box sx={{ width: 14, height: 14, border: "1.5px solid #CBD5E1", borderRadius: 0.5, bgcolor: "#fff" }} />
                         <Typography fontSize={11} color="#334155">{o}</Typography>
