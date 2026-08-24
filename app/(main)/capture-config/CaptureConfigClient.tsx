@@ -496,7 +496,7 @@ function ExtraFieldEditDialog({ field, onSave, onClose }: { field: CaptureExtraF
               ))}
               <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
                 <TextField size="small" value={newOption} onChange={(e) => setNewOption(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") addOpt(); }} placeholder="Nouvelle option..." sx={{ flex: 1 }} />
+                  onKeyDown={(e) => { if (e.key === "Enter") addOpt(); }} placeholder="Nouvelle option..." ee sx={{ flex: 1 }} />
                 <Button variant="outlined" size="small" onClick={addOpt} sx={{ borderColor: STEEL, color: STEEL }}>Ajouter</Button>
               </Box>
             </Box>
