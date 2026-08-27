@@ -70,9 +70,9 @@ import BoltIcon from "@mui/icons-material/Bolt";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 const PAGE_SIZE = 15;
 
 const TENANT_ROLES = [
@@ -176,14 +176,14 @@ function MyNotificationsTab() {
 
   return (
     <Box>
-      <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+      <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
         <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
           <TextField
             size="small" placeholder="Rechercher dans les notifications..."
             value={search} onChange={(e) => setSearch(e.target.value)}
-            sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s", "&:hover": { bgcolor: "white" }, "&.Mui-focused": { bgcolor: "white" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
+            sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
             InputProps={{
-              startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: "#94A3B8" }} /></InputAdornment>,
+              startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} /></InputAdornment>,
               endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
             }}
           />
@@ -191,14 +191,14 @@ function MyNotificationsTab() {
             variant="outlined" size="small" startIcon={<DoneAllIcon />}
             onClick={async () => { setActionError(null); try { await markAllMutation.mutateAsync(); } catch (e) { setActionError(e instanceof Error ? e.message : "Erreur"); } }}
             disabled={markAllMutation.isPending || unread === 0}
-            sx={{ borderColor: NAVY, color: NAVY, fontWeight: 600, borderRadius: 2, flexShrink: 0 }}
+            sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 600, borderRadius: 2, flexShrink: 0 }}
           >
             Tout marquer lu
           </Button>
         </Box>
         <Box display="flex" gap={1} alignItems="center" mt={1.5} pt={1} sx={{ borderTop: "1px solid #F1F5F9" }}>
           <Typography variant="caption" color="text.secondary">{filteredItems.length} notification{filteredItems.length !== 1 ? "s" : ""}{search ? ` sur ${total}` : ` au total`}</Typography>
-          {unread > 0 && <><Typography variant="caption" sx={{ color: "#CBD5E1" }}>·</Typography><Typography variant="caption" sx={{ color: STEEL, fontWeight: 600 }}>{unread} non lue{unread > 1 ? "s" : ""}</Typography></>}
+          {unread > 0 && <><Typography variant="caption" sx={{ color: "var(--border-strong)" }}>·</Typography><Typography variant="caption" sx={{ color: STEEL, fontWeight: 600 }}>{unread} non lue{unread > 1 ? "s" : ""}</Typography></>}
         </Box>
       </Paper>
 
@@ -215,11 +215,11 @@ function MyNotificationsTab() {
       <Box display="flex" flexDirection="column" gap={1.5}>
         {filteredItems.map((n, idx) => (
           <motion.div key={n.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.04, duration: 0.25 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: n.isRead ? "#E2E8F0" : STEEL + "60", borderRadius: 3, bgcolor: n.isRead ? "white" : "#F0F6FF" }}>
+            <Card elevation={0} sx={{ border: "1px solid", borderColor: n.isRead ? "var(--border)" : STEEL + "60", borderRadius: 3, bgcolor: n.isRead ? "var(--bg-surface)" : "#F0F6FF" }}>
               <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1}>
                   <Box display="flex" gap={1.5} flex={1}>
-                    <Box sx={{ width: 4, minHeight: 40, borderRadius: 4, bgcolor: n.isRead ? "#E2E8F0" : STEEL, flexShrink: 0 }} />
+                    <Box sx={{ width: 4, minHeight: 40, borderRadius: 4, bgcolor: n.isRead ? "var(--border)" : STEEL, flexShrink: 0 }} />
                     <Box flex={1}>
                       <Box display="flex" alignItems="center" gap={1} mb={0.3} flexWrap="wrap">
                         <Typography variant="subtitle2" fontWeight={700}>{n.title}</Typography>
@@ -410,31 +410,31 @@ function MessagingTab() {
       {/* En-tête + entrée unique */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap="wrap" gap={1}>
         <Box>
-          <Typography variant="h6" fontWeight={700} color={NAVY}>Diffusions &amp; alertes</Typography>
+          <Typography variant="h6" fontWeight={700} color="var(--text-primary)">Diffusions &amp; alertes</Typography>
           <Typography variant="body2" color="text.secondary">
             Envoyez un message ponctuel aux équipes, ou créez une alerte automatique déclenchée par les clients à risque.
           </Typography>
         </Box>
         <Box display="flex" gap={1} flexWrap="wrap">
           <Button variant="outlined" startIcon={<CampaignIcon />} onClick={() => openNew("broadcast")}
-            sx={{ borderColor: NAVY, color: NAVY, fontWeight: 700 }}>
+            sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 700 }}>
             Diffusion
           </Button>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => openNew("alert")}
-            sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}>
+            sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}>
             Nouvelle alerte
           </Button>
         </Box>
       </Box>
 
       {/* Recherche */}
-      <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+      <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
         <TextField
           fullWidth size="small" placeholder="Rechercher une diffusion ou une alerte..."
           value={search} onChange={(e) => setSearch(e.target.value)}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s", "&:hover": { bgcolor: "white" }, "&.Mui-focused": { bgcolor: "white" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
           InputProps={{
-            startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: "#94A3B8" }} /></InputAdornment>,
+            startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} /></InputAdornment>,
             endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
           }}
         />
@@ -461,14 +461,14 @@ function MessagingTab() {
             <WarningAmberIcon sx={{ fontSize: 42, opacity: 0.28 }} />
             <Typography fontSize={13.5} fontWeight={500}>Aucune alerte automatique configurée.</Typography>
             <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => openNew("alert")}
-              sx={{ borderColor: NAVY, color: NAVY, fontWeight: 600 }}>Créer une alerte</Button>
+              sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 600 }}>Créer une alerte</Button>
           </Box>
         )}
         <Box display="flex" flexDirection="column" gap={1.25}>
           {filteredRules.map((r) => {
             const m = criterionMeta(r.criterion);
             return (
-              <Card key={r.id} elevation={0} sx={{ border: "1px solid", borderColor: r.isActive ? STEEL + "50" : "#E2E8F0", borderRadius: 3, bgcolor: r.isActive ? "#FBFDFF" : "#F8FAFC", opacity: r.isActive ? 1 : 0.75 }}>
+              <Card key={r.id} elevation={0} sx={{ border: "1px solid", borderColor: r.isActive ? STEEL + "50" : "var(--border)", borderRadius: 3, bgcolor: r.isActive ? "#FBFDFF" : "var(--bg-page)", opacity: r.isActive ? 1 : 0.75 }}>
                 <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
                   <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1} flexWrap="wrap">
                     <Box display="flex" gap={1.5} flex={1} minWidth={240}>
@@ -480,13 +480,13 @@ function MessagingTab() {
                           <Typography variant="subtitle2" fontWeight={700}>{r.name}</Typography>
                           <Chip label={alertSummary(r)} size="small" sx={{ bgcolor: "#FFF7ED", color: "#b45309", fontWeight: 700, fontSize: 10, height: 18 }} />
                           <Chip label={r.digest ? "Récap" : "Par dossier"} size="small" sx={{ bgcolor: "#EFF6FF", color: STEEL, fontWeight: 700, fontSize: 10, height: 18 }} />
-                          {!r.isActive && <Chip label="Inactive" size="small" sx={{ bgcolor: "#F1F5F9", color: "#64748B", fontWeight: 600, fontSize: 10, height: 18 }} />}
+                          {!r.isActive && <Chip label="Inactive" size="small" sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontWeight: 600, fontSize: 10, height: 18 }} />}
                         </Box>
                         <Typography variant="caption" color="text.secondary">{m.help}</Typography>
                         <Box display="flex" gap={0.5} flexWrap="wrap" mt={0.6}>
                           {r.targetRoles.map((role) => (
                             <Chip key={role} label={TENANT_ROLES.find((t) => t.code === role)?.label ?? role} size="small"
-                              sx={{ bgcolor: "#F1F5F9", color: "#475569", fontSize: 10, height: 16 }} />
+                              sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontSize: 10, height: 16 }} />
                           ))}
                         </Box>
                         <Typography variant="caption" color="text.disabled" display="block" mt={0.6}>
@@ -553,7 +553,7 @@ function MessagingTab() {
             <CampaignIcon sx={{ fontSize: 42, opacity: 0.25 }} />
             <Typography fontSize={13.5} fontWeight={500}>Aucune diffusion envoyée pour l&apos;instant.</Typography>
             <Button size="small" variant="outlined" startIcon={<CampaignIcon />} onClick={() => openNew("broadcast")}
-              sx={{ borderColor: NAVY, color: NAVY, fontWeight: 600 }}>Nouvelle diffusion</Button>
+              sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 600 }}>Nouvelle diffusion</Button>
           </Box>
         )}
         <Box display="flex" flexDirection="column" gap={1.5}>
@@ -592,10 +592,10 @@ function MessagingTab() {
                     <Box key={opt.m} onClick={() => switchMode(opt.m)}
                       sx={{
                         cursor: "pointer", borderRadius: 2, p: 1.25,
-                        border: "1.5px solid", borderColor: selected ? NAVY : "#E2E8F0",
-                        bgcolor: selected ? "#F0F6FF" : "white", transition: "all .15s",
+                        border: "1.5px solid", borderColor: selected ? NAVY : "var(--border)",
+                        bgcolor: selected ? "#F0F6FF" : "var(--bg-surface)", transition: "all .15s",
                       }}>
-                      <Box display="flex" alignItems="center" gap={0.75} sx={{ color: selected ? NAVY : "#64748B" }}>
+                      <Box display="flex" alignItems="center" gap={0.75} sx={{ color: selected ? "var(--text-primary)" : "var(--text-secondary)" }}>
                         {opt.icon}
                         <Typography variant="body2" fontWeight={700} fontSize={13}>{opt.label}</Typography>
                       </Box>
@@ -623,7 +623,7 @@ function MessagingTab() {
             {mode === "alert" && (
               <>
                 <Box>
-                  <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8, mb: 0.75, display: "block" }}>
+                  <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 0.75, display: "block" }}>
                     Critère déclencheur *
                   </Typography>
                   <Select fullWidth size="small" value={criterion} onChange={(e) => onCriterionChange(e.target.value as AlertCriterion)}>
@@ -638,7 +638,7 @@ function MessagingTab() {
                 )}
                 {meta.needsTranches && (
                   <Box>
-                    <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8, mb: 0.75, display: "block" }}>
+                    <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 0.75, display: "block" }}>
                       Tranches de retard surveillées *
                     </Typography>
                     <Box display="flex" gap={0.75} flexWrap="wrap">
@@ -649,8 +649,8 @@ function MessagingTab() {
                             variant={on ? "filled" : "outlined"} size="small"
                             sx={{ fontWeight: 700, cursor: "pointer",
                               bgcolor: on ? "#FFF7ED" : "transparent",
-                              color: on ? "#b45309" : "#64748B",
-                              borderColor: on ? "#FED7AA" : "#CBD5E1" }} />
+                              color: on ? "#b45309" : "var(--text-secondary)",
+                              borderColor: on ? "#FED7AA" : "var(--border-strong)" }} />
                         );
                       })}
                     </Box>
@@ -661,7 +661,7 @@ function MessagingTab() {
                   Chaque destinataire ne reçoit que les clients de son périmètre : un CAF ses propres clients, un chef d&apos;agence son agence, un responsable de zone sa zone, les autres rôles l&apos;ensemble du portefeuille.
                 </Alert>
 
-                <Box sx={{ border: "1px solid #E2E8F0", borderRadius: 2, p: 1.25 }}>
+                <Box sx={{ border: "1px solid var(--border)", borderRadius: 2, p: 1.25 }}>
                   <FormControlLabel
                     control={<Switch checked={digest} onChange={(e) => setDigest(e.target.checked)} size="small" sx={{ "& .Mui-checked": { color: STEEL }, "& .Mui-checked + .MuiSwitch-track": { bgcolor: STEEL } }} />}
                     label={<Typography variant="body2" fontWeight={600}>Notification récapitulative</Typography>}
@@ -678,18 +678,18 @@ function MessagingTab() {
             {/* Rôles destinataires (commun) */}
             <Box>
               <Box display="flex" alignItems="center" gap={1} mb={1}>
-                <GroupsIcon sx={{ fontSize: 16, color: "#64748B" }} />
-                <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                <GroupsIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
+                <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
                   Rôles destinataires *
                 </Typography>
               </Box>
-              <Box sx={{ border: "1px solid #E2E8F0", borderRadius: 2, p: 1.5 }}>
+              <Box sx={{ border: "1px solid var(--border)", borderRadius: 2, p: 1.5 }}>
                 <FormGroup>
                   <Box display="grid" gridTemplateColumns="1fr 1fr" gap={0.5}>
                     {TENANT_ROLES.map((r) => (
                       <FormControlLabel key={r.code} control={
                         <Checkbox size="small" checked={roles.includes(r.code)} onChange={() => toggleRole(r.code)}
-                          sx={{ color: "#CBD5E1", "&.Mui-checked": { color: NAVY } }} />
+                          sx={{ color: "var(--border-strong)", "&.Mui-checked": { color: NAVY } }} />
                       } label={<Typography variant="body2" fontSize={13}>{r.label}</Typography>} />
                     ))}
                   </Box>
@@ -707,10 +707,10 @@ function MessagingTab() {
               <Box>
                 <FormControlLabel control={
                   <Checkbox checked={scheduleMode} onChange={(e) => setScheduleMode(e.target.checked)}
-                    sx={{ color: "#CBD5E1", "&.Mui-checked": { color: NAVY } }} />
+                    sx={{ color: "var(--border-strong)", "&.Mui-checked": { color: NAVY } }} />
                 } label={
                   <Box display="flex" alignItems="center" gap={0.5}>
-                    <ScheduleIcon sx={{ fontSize: 16, color: "#64748B" }} />
+                    <ScheduleIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
                     <Typography variant="body2" fontWeight={600}>Planifier pour plus tard</Typography>
                   </Box>
                 } />
@@ -750,7 +750,7 @@ function MessagingTab() {
 
 function BroadcastCard({ broadcast: b, onCancel, cancelling }: { broadcast: BroadcastDto; onCancel?: () => void; cancelling?: boolean }) {
   return (
-    <Card elevation={0} sx={{ border: "1px solid", borderColor: b.isSent ? "#E2E8F0" : "#FEF3C7", borderRadius: 3, bgcolor: b.isSent ? "white" : "#FFFBEB" }}>
+    <Card elevation={0} sx={{ border: "1px solid", borderColor: b.isSent ? "var(--border)" : "#FEF3C7", borderRadius: 3, bgcolor: b.isSent ? "var(--bg-surface)" : "#FFFBEB" }}>
       <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
         <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1} flexWrap="wrap">
           <Box flex={1}>
@@ -761,12 +761,12 @@ function BroadcastCard({ broadcast: b, onCancel, cancelling }: { broadcast: Broa
                   <Chip label={`${b.recipientCount} destinataire${b.recipientCount !== 1 ? "s" : ""}`} size="small" sx={{ bgcolor: "#F0FDF4", color: "#16a34a", fontWeight: 700, fontSize: 10, height: 18 }} />
                   <Tooltip title={`${b.readCount} agent${b.readCount !== 1 ? "s ont" : " a"} lu ce message`} arrow>
                     <Chip
-                      icon={<VisibilityIcon sx={{ fontSize: 11, color: b.readCount > 0 ? "#1B4F72 !important" : "#94A3B8 !important" }} />}
+                      icon={<VisibilityIcon sx={{ fontSize: 11, color: b.readCount > 0 ? "#1E6091 !important" : "var(--text-muted) !important" }} />}
                       label={`${b.readCount} / ${b.recipientCount} lu${b.readCount !== 1 ? "s" : ""}`}
                       size="small"
                       sx={{
                         bgcolor: b.readCount > 0 ? "#EFF6FF" : "#F1F5F9",
-                        color: b.readCount > 0 ? "#1B4F72" : "#94A3B8",
+                        color: b.readCount > 0 ? "#1E6091" : "var(--text-muted)",
                         fontWeight: 700,
                         fontSize: 10,
                         height: 18,
@@ -782,7 +782,7 @@ function BroadcastCard({ broadcast: b, onCancel, cancelling }: { broadcast: Broa
             {b.body && <Typography variant="body2" color="text.secondary" mb={0.5}>{b.body}</Typography>}
             <Box display="flex" gap={0.5} flexWrap="wrap" mb={0.5}>
               {b.targetRoles.map((r) => (
-                <Chip key={r} label={r} size="small" sx={{ bgcolor: "#F1F5F9", color: "#475569", fontSize: 10, height: 16 }} />
+                <Chip key={r} label={r} size="small" sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontSize: 10, height: 16 }} />
               ))}
             </Box>
             <Typography variant="caption" color="text.disabled">
@@ -853,12 +853,12 @@ export default function NotificationsPage() {
           ].map((kpi, i) => (
             <Grid item xs={6} sm={3} key={i}>
               <Box sx={{
-                borderRadius: 3, border: "1px solid #E2E8F0", bgcolor: "white",
+                borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
                 px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
                 position: "relative", overflow: "hidden",
-                boxShadow: "0 1px 3px rgba(13,27,42,0.05)",
+                boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
                 "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" },
-                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" },
+                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
               }}>
                 <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
                 <Box>
@@ -871,10 +871,10 @@ export default function NotificationsPage() {
         </Grid>
 
         {/* Onglets */}
-        <Box sx={{ borderBottom: "1px solid #E2E8F0", mb: 3 }}>
+        <Box sx={{ borderBottom: "1px solid var(--border)", mb: 3 }}>
           <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{
-            "& .MuiTab-root": { fontWeight: 600, fontSize: 14, textTransform: "none", minHeight: 44, color: "#64748B" },
-            "& .Mui-selected": { color: NAVY },
+            "& .MuiTab-root": { fontWeight: 600, fontSize: 14, textTransform: "none", minHeight: 44, color: "var(--text-secondary)" },
+            "& .Mui-selected": { color: "var(--text-primary)" },
             "& .MuiTabs-indicator": { bgcolor: GOLD, height: 3, borderRadius: "3px 3px 0 0" },
           }}>
             <Tab value="mine" label={

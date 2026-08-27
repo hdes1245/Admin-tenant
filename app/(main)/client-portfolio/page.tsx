@@ -31,9 +31,9 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { apiClient } from "@/lib/apiClient";
 import { KpiInfoIcon } from "@/components/KpiInfoIcon";
 
-const NAVY   = "#0D1B2A";
-const STEEL  = "#1B4F72";
-const GOLD   = "#C49A2E";
+const NAVY   = "#0F3B5C";
+const STEEL  = "#1E6091";
+const GOLD   = "#3C8047";
 const RED    = "#dc2626";
 const ORANGE = "#d97706";
 const GREEN  = "#16a34a";
@@ -345,7 +345,7 @@ export default function ClientPortfolioPage() {
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <StoreIcon sx={{ color: GOLD, fontSize: 32 }} />
           <Box>
-            <Typography variant="h5" fontWeight={800} color={NAVY}>Portefeuille Clients</Typography>
+            <Typography variant="h5" fontWeight={800} color="var(--text-primary)">Portefeuille Clients</Typography>
             <Typography fontSize={13} color="text.secondary">Centre d'analyse — couverture visites & risque crédit</Typography>
           </Box>
         </Stack>
@@ -399,7 +399,7 @@ export default function ClientPortfolioPage() {
 
         {/* Répartition visite */}
         <Paper sx={{ p: 2.5, borderRadius: 3 }}>
-          <Typography fontWeight={700} fontSize={13} mb={1.5} color={NAVY}>Répartition visites</Typography>
+          <Typography fontWeight={700} fontSize={13} mb={1.5} color="var(--text-primary)">Répartition visites</Typography>
           {statsLoading ? <Skeleton variant="circular" width={140} height={140} sx={{ mx:"auto" }} /> : (
             <ResponsiveContainer width="100%" height={140}>
               <PieChart>
@@ -440,7 +440,7 @@ export default function ClientPortfolioPage() {
 
         {/* Répartition risque */}
         <Paper sx={{ p: 2.5, borderRadius: 3 }}>
-          <Typography fontWeight={700} fontSize={13} mb={1.5} color={NAVY}>Répartition risque crédit</Typography>
+          <Typography fontWeight={700} fontSize={13} mb={1.5} color="var(--text-primary)">Répartition risque crédit</Typography>
           {riskLoading ? <Skeleton variant="circular" width={140} height={140} sx={{ mx:"auto" }} /> : (
             <ResponsiveContainer width="100%" height={140}>
               <PieChart>
@@ -487,7 +487,7 @@ export default function ClientPortfolioPage() {
 
         {/* Retard par tranche */}
         <Paper sx={{ p: 2.5, borderRadius: 3 }}>
-          <Typography fontWeight={700} fontSize={13} mb={1.5} color={NAVY}>Retards par tranche</Typography>
+          <Typography fontWeight={700} fontSize={13} mb={1.5} color="var(--text-primary)">Retards par tranche</Typography>
           {riskLoading ? <Skeleton height={160} /> : (
             <Box>
               {[
@@ -522,7 +522,7 @@ export default function ClientPortfolioPage() {
       {/* ── Risque par agence ───────────────────────────────────────────── */}
       {!riskLoading && agStatsRisk.length > 0 && (
         <Paper sx={{ p: 2.5, borderRadius: 3, mb: 3 }}>
-          <Typography fontWeight={700} fontSize={13} mb={1.5} color={NAVY}>Risque par agence — capital impayé & dossiers critiques</Typography>
+          <Typography fontWeight={700} fontSize={13} mb={1.5} color="var(--text-primary)">Risque par agence — capital impayé & dossiers critiques</Typography>
           <ResponsiveContainer width="100%" height={Math.max(agStatsRisk.length * 44, 160)}>
             <BarChart data={agStatsRisk} layout="vertical" margin={{ left: 8, right: 60, top: 4, bottom: 4 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
@@ -567,7 +567,7 @@ export default function ClientPortfolioPage() {
 
         {/* ── Filtres tableau visite ────────────────────────────────────── */}
         {tab < 3 && (
-          <Box sx={{ p: 2, background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+          <Box sx={{ p: 2, background: "var(--bg-surface-alt)", borderBottom: "1px solid var(--border)" }}>
             <Stack direction="row" spacing={2} alignItems="center">
               <FormControl size="small" sx={{ minWidth: 160 }}>
                 <InputLabel>Agence</InputLabel>
@@ -603,7 +603,7 @@ export default function ClientPortfolioPage() {
             <Box sx={{ overflowX: "auto" }}>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ background: "#f8fafc" }}>
+                  <TableRow sx={{ background: "var(--bg-surface-alt)" }}>
                     {["Client","Code","Agence","Statut visite","Visites total","7j","30j","Dernière visite"].map(h =>
                       <TableCell key={h} sx={{ fontWeight: 600, fontSize: 11 }}>{h}</TableCell>)}
                   </TableRow>
@@ -711,7 +711,7 @@ export default function ClientPortfolioPage() {
                     <Box key={a.name} mb={3}>
                       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={0.5}>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                          <ApartmentIcon sx={{ fontSize: 16, color: NAVY }} />
+                          <ApartmentIcon sx={{ fontSize: 16, color: "var(--text-primary)" }} />
                           <Typography fontWeight={700}>{a.name}</Typography>
                           {riskA && riskA.souffrant + riskA.perte > 0 && (
                             <Chip label={`${fmt(riskA.souffrant + riskA.perte)} à risque`} size="small"

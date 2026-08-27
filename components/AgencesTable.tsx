@@ -17,9 +17,9 @@ import { motion } from "framer-motion";
 import { useMemo } from "react";
 import { PaginationBar } from "./PaginationBar";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 interface AgencesTableProps {
   agences: Agence[];
@@ -63,7 +63,7 @@ export function AgencesTable({
   return (
     <Box>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2.5, border: "1px solid #E2E8F0", overflow: "hidden" }}>
+        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}>
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -101,7 +101,7 @@ export function AgencesTable({
                   <TableCell colSpan={COLS.length + 2} align="center" sx={{ py: 8, border: "none" }}>
                     <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
                       <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <BusinessIcon sx={{ fontSize: 24, color: "#CBD5E1" }} />
+                        <BusinessIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
                       </Box>
                       <Typography variant="body2" color="text.disabled">Aucune agence trouvee.</Typography>
                     </Box>
@@ -111,7 +111,7 @@ export function AgencesTable({
                 paginated.map((agence, idx) => {
                   const isSelected = selectedSet.has(agence.id);
                   const s = stats?.get(agence.id);
-                  const bg = isSelected ? "#F0F6FF" : "white";
+                  const bg = isSelected ? "#F0F6FF" : "var(--bg-surface)";
                   const cellSx = { bgcolor: bg, borderBottom: "1px solid #F1F5F9" };
                   return (
                     <motion.tr key={agence.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: idx * 0.015 }} style={{ display: "table-row" }}>
@@ -132,17 +132,17 @@ export function AgencesTable({
                       </TableCell>
 
                       <TableCell sx={cellSx}>
-                        <Typography variant="body2" fontWeight={600} sx={{ color: NAVY }}>{agence.name}</Typography>
+                        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>{agence.name}</Typography>
                       </TableCell>
 
                       <TableCell sx={cellSx}>
                         {agence.zoneName ? (
                           <Box display="flex" alignItems="center" gap={0.75}>
-                            <MapIcon sx={{ fontSize: 14, color: "#94A3B8" }} />
-                            <Typography variant="body2" sx={{ color: "#334155", fontSize: 13 }}>{agence.zoneName}</Typography>
+                            <MapIcon sx={{ fontSize: 14, color: "var(--text-muted)" }} />
+                            <Typography variant="body2" sx={{ color: "var(--text-primary)", fontSize: 13 }}>{agence.zoneName}</Typography>
                           </Box>
                         ) : (
-                          <Typography variant="body2" sx={{ color: "#CBD5E1" }}>—</Typography>
+                          <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
                         )}
                       </TableCell>
 
@@ -158,7 +158,7 @@ export function AgencesTable({
                           ) : (stat.val ?? 0) > 0 ? (
                             <Chip icon={stat.icon} label={stat.val} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${stat.color}15`, color: stat.color, "& .MuiChip-icon": { color: stat.color } }} />
                           ) : (
-                            <Typography variant="caption" sx={{ color: "#CBD5E1" }}>—</Typography>
+                            <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>—</Typography>
                           )}
                         </TableCell>
                       ))}
@@ -166,12 +166,12 @@ export function AgencesTable({
                       <TableCell align="right" sx={{ ...cellSx, pr: 2 }}>
                         <Box display="flex" justifyContent="flex-end" gap={0.5} sx={{ opacity: 0.4, transition: "opacity 0.15s", "tr:hover &": { opacity: 1 } }}>
                           <Tooltip title="Modifier">
-                            <IconButton size="small" onClick={() => onEdit?.(agence)} sx={{ color: "#94A3B8", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
+                            <IconButton size="small" onClick={() => onEdit?.(agence)} sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
                               <EditOutlinedIcon sx={{ fontSize: 16 }} />
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Supprimer">
-                            <IconButton size="small" onClick={() => onDelete?.(agence)} sx={{ color: "#94A3B8", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}>
+                            <IconButton size="small" onClick={() => onDelete?.(agence)} sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}>
                               <DeleteOutlineIcon sx={{ fontSize: 16 }} />
                             </IconButton>
                           </Tooltip>

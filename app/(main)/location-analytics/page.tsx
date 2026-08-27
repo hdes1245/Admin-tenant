@@ -18,9 +18,9 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-const NAVY = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD = "#C49A2E";
+const NAVY = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD = "#3C8047";
 
 function arr(v: any): any[] {
   if (Array.isArray(v)) return v;
@@ -96,7 +96,7 @@ export default function LocationAnalyticsPage() {
         <Stack direction="row" alignItems="center" spacing={1}>
           <LocationOnIcon sx={{ color: GOLD, fontSize: 32 }} />
           <Box>
-            <Typography variant="h5" fontWeight={800} color={NAVY}>Analytics Localisations</Typography>
+            <Typography variant="h5" fontWeight={800} color="var(--text-primary)">Analytics Localisations</Typography>
             <Typography fontSize={13} color="text.secondary">Analyse approfondie des captures GPS terrain</Typography>
           </Box>
         </Stack>
@@ -195,12 +195,12 @@ export default function LocationAnalyticsPage() {
                     {Array.from({ length: 24 }, (_, h) => {
                       const count = heatMatrix.get(`${d}-${h}`) ?? 0;
                       const intensity = count / maxHeat;
-                      const bg = intensity === 0 ? "#f1f5f9" : `rgba(196,154,46,${0.1 + intensity * 0.9})`;
+                      const bg = intensity === 0 ? "#f1f5f9" : `rgba(60,128,71,${0.1 + intensity * 0.9})`;
                       return (
                         <Box
                           key={`${d}-${h}`}
                           title={`${dow} ${h}h: ${count} captures`}
-                          sx={{ height: 28, borderRadius: 1, background: bg, cursor: "default", "&:hover": { outline: "2px solid #C49A2E" } }}
+                          sx={{ height: 28, borderRadius: 1, background: bg, cursor: "default", "&:hover": { outline: "2px solid #3C8047" } }}
                         />
                       );
                     })}
@@ -210,7 +210,7 @@ export default function LocationAnalyticsPage() {
               <Stack direction="row" alignItems="center" spacing={1} mt={2} justifyContent="center">
                 <Typography fontSize={11} color="text.secondary">Faible</Typography>
                 {[0.1, 0.3, 0.5, 0.7, 0.9].map((v) => (
-                  <Box key={v} sx={{ width: 24, height: 16, borderRadius: 1, background: `rgba(196,154,46,${v})` }} />
+                  <Box key={v} sx={{ width: 24, height: 16, borderRadius: 1, background: `rgba(60,128,71,${v})` }} />
                 ))}
                 <Typography fontSize={11} color="text.secondary">Élevé</Typography>
               </Stack>
@@ -246,7 +246,7 @@ export default function LocationAnalyticsPage() {
         {tab === 3 && (
           <Box sx={{ p: 3, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
             <Box>
-              <Typography fontWeight={700} mb={2} color={NAVY}>Top agents ({period}j)</Typography>
+              <Typography fontWeight={700} mb={2} color="var(--text-primary)">Top agents ({period}j)</Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={byUser.slice(0, 10)} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -258,7 +258,7 @@ export default function LocationAnalyticsPage() {
               </ResponsiveContainer>
             </Box>
             <Box>
-              <Typography fontWeight={700} mb={2} color={NAVY}>Par agence ({period}j)</Typography>
+              <Typography fontWeight={700} mb={2} color="var(--text-primary)">Par agence ({period}j)</Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={byAgence}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />

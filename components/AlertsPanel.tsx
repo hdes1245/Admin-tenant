@@ -17,9 +17,9 @@ import {
   DEFAULT_THRESHOLDS, saveThresholds,
 } from "@/lib/alertsConfig";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 interface Props {
   open:             boolean;
@@ -135,7 +135,7 @@ export default function AlertsPanel({ open, onClose, thresholds, triggeredAlerts
                 {/* Row 1: name + toggle */}
                 <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.5}>
                   <Box flex={1}>
-                    <Typography fontSize={13} fontWeight={600} color={NAVY}>{t.label}</Typography>
+                    <Typography fontSize={13} fontWeight={600} color="var(--text-primary)">{t.label}</Typography>
                     <Typography fontSize={11} color="text.secondary" lineHeight={1.4}>{t.description}</Typography>
                   </Box>
                   <Switch
@@ -165,7 +165,7 @@ export default function AlertsPanel({ open, onClose, thresholds, triggeredAlerts
                           "& .MuiSlider-thumb": { width: 14, height: 14 } }}
                       />
                       <Box sx={{ minWidth: 46, textAlign: "right" }}>
-                        <Typography fontSize={12} fontWeight={700} color={NAVY}>
+                        <Typography fontSize={12} fontWeight={700} color="var(--text-primary)">
                           {t.value}{t.unit}
                         </Typography>
                       </Box>
@@ -178,7 +178,7 @@ export default function AlertsPanel({ open, onClose, thresholds, triggeredAlerts
                         <Select
                           value={t.severity}
                           onChange={(e) => update(t.id, { severity: e.target.value as AlertSeverity })}
-                          sx={{ fontSize: 12, "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(27,79,114,0.25)" } }}
+                          sx={{ fontSize: 12, "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(30,96,145,0.25)" } }}
                         >
                           <MenuItem value="warning">
                             <Box display="flex" alignItems="center" gap={0.8}>

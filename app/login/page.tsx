@@ -24,9 +24,9 @@ import { motion } from "framer-motion";
 import { apiClient } from "@/lib/apiClient";
 import { isMobileOnlyRole, isSupervisorRole, landingPathForRole } from "@/lib/roles";
 
-const NAVY = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 function StatCard({ icon, title, desc, delay, top, left }: { icon: React.ReactNode; title: string; desc: string; delay: number; top?: number | string; left?: number | string }) {
   return (
@@ -110,7 +110,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#F8FAFC" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "var(--bg-page)" }}>
 
       {/* Left panel — branding */}
       <Box
@@ -126,8 +126,8 @@ export default function LoginPage() {
         }}
       >
         {/* Subtle decorative element */}
-        <Box sx={{ position: "absolute", top: -100, right: -100, width: 350, height: 350, borderRadius: "50%", background: `radial-gradient(circle, rgba(196,154,46,0.08) 0%, transparent 65%)`, pointerEvents: "none" }} />
-        <Box sx={{ position: "absolute", bottom: -80, left: -80, width: 280, height: 280, borderRadius: "50%", background: `radial-gradient(circle, rgba(27,79,114,0.25) 0%, transparent 65%)`, pointerEvents: "none" }} />
+        <Box sx={{ position: "absolute", top: -100, right: -100, width: 350, height: 350, borderRadius: "50%", background: `radial-gradient(circle, rgba(60,128,71,0.08) 0%, transparent 65%)`, pointerEvents: "none" }} />
+        <Box sx={{ position: "absolute", bottom: -80, left: -80, width: 280, height: 280, borderRadius: "50%", background: `radial-gradient(circle, rgba(30,96,145,0.25) 0%, transparent 65%)`, pointerEvents: "none" }} />
 
         {/* Gold top bar */}
         <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD }} />
@@ -190,7 +190,7 @@ export default function LoginPage() {
             {/* Mobile logo */}
             <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", gap: 1.5, mb: 4, mt: 2 }}>
               {tenantLogoUrl ? (
-                <Box sx={{ width: 52, height: 36, borderRadius: 1.5, bgcolor: "white", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", p: 0.5, border: "1px solid #E2E8F0" }}>
+                <Box sx={{ width: 52, height: 36, borderRadius: 1.5, bgcolor: "white", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", p: 0.5, border: "1px solid var(--border)" }}>
                   <img src={tenantLogoUrl} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%" }} />
                 </Box>
               ) : (
@@ -198,15 +198,15 @@ export default function LoginPage() {
                   <Typography sx={{ color: NAVY, fontWeight: 900, fontSize: 18 }}>S</Typography>
                 </Box>
               )}
-              <Typography sx={{ fontWeight: 800, fontSize: 18, color: NAVY }}>SiteCheck</Typography>
+              <Typography sx={{ fontWeight: 800, fontSize: 18, color: "var(--text-primary)" }}>SiteCheck</Typography>
             </Box>
 
             {/* Heading */}
             <Box mb={4}>
-              <Typography variant="h5" fontWeight={800} sx={{ color: NAVY, mb: 0.75, letterSpacing: -0.3 }}>
+              <Typography variant="h5" fontWeight={800} sx={{ color: "var(--text-primary)", mb: 0.75, letterSpacing: -0.3 }}>
                 Connexion
               </Typography>
-              <Typography variant="body2" sx={{ color: "#64748B", lineHeight: 1.6 }}>
+              <Typography variant="body2" sx={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
                 Connectez-vous : vous serez dirigé vers votre espace selon votre profil (administrateur ou superviseur).
               </Typography>
             </Box>
@@ -214,7 +214,7 @@ export default function LoginPage() {
             {/* Form */}
             <Box component="form" onSubmit={handleSubmit}>
               <Box mb={2.5}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "#374151", mb: 0.75, fontSize: 13 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
                   Identifiant
                 </Typography>
                 <TextField
@@ -226,14 +226,14 @@ export default function LoginPage() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <PersonOutlineIcon sx={{ fontSize: 18, color: "#9CA3AF" }} />
+                        <PersonOutlineIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} />
                       </InputAdornment>
                     ),
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      bgcolor: "#FFFFFF",
-                      "&:hover fieldset": { borderColor: "#CBD5E1" },
+                      bgcolor: "var(--bg-surface)",
+                      "&:hover fieldset": { borderColor: "var(--border-strong)" },
                       "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
                     },
                   }}
@@ -241,7 +241,7 @@ export default function LoginPage() {
               </Box>
 
               <Box mb={3}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "#374151", mb: 0.75, fontSize: 13 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
                   Mot de passe
                 </Typography>
                 <TextField
@@ -254,12 +254,12 @@ export default function LoginPage() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockOutlinedIcon sx={{ fontSize: 18, color: "#9CA3AF" }} />
+                        <LockOutlinedIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} />
                       </InputAdornment>
                     ),
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton size="small" onClick={() => setShowPwd((v) => !v)} edge="end" sx={{ color: "#9CA3AF" }}>
+                        <IconButton size="small" onClick={() => setShowPwd((v) => !v)} edge="end" sx={{ color: "var(--text-muted)" }}>
                           {showPassword ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
                         </IconButton>
                       </InputAdornment>
@@ -267,8 +267,8 @@ export default function LoginPage() {
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      bgcolor: "#FFFFFF",
-                      "&:hover fieldset": { borderColor: "#CBD5E1" },
+                      bgcolor: "var(--bg-surface)",
+                      "&:hover fieldset": { borderColor: "var(--border-strong)" },
                       "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
                     },
                   }}
@@ -291,7 +291,7 @@ export default function LoginPage() {
                   fontSize: 15,
                   letterSpacing: 0,
                   "&:hover": { bgcolor: STEEL },
-                  "&:disabled": { bgcolor: "#E2E8F0", color: "#94A3B8" },
+                  "&:disabled": { bgcolor: "#E2E8F0", color: "var(--text-muted)" },
                   transition: "background .2s ease",
                 }}
               >
@@ -302,11 +302,11 @@ export default function LoginPage() {
             </Box>
 
             {/* Info note */}
-            <Box mt={4} pt={3} sx={{ borderTop: "1px solid #E2E8F0" }}>
-              <Box sx={{ display: "flex", gap: 1.5, p: 2, bgcolor: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 2 }}>
+            <Box mt={4} pt={3} sx={{ borderTop: "1px solid var(--border)" }}>
+              <Box sx={{ display: "flex", gap: 1.5, p: 2, bgcolor: "var(--bg-page)", border: "1px solid var(--border)", borderRadius: 2 }}>
                 <PlaceIcon sx={{ fontSize: 18, color: GOLD, flexShrink: 0, mt: 0.1 }} />
-                <Typography variant="caption" sx={{ color: "#64748B", lineHeight: 1.7 }}>
-                  Espace <strong style={{ color: NAVY }}>administrateurs</strong> et <strong style={{ color: NAVY }}>superviseurs</strong> (chefs d&apos;agence, responsables de zone, direction, analystes, contrôle, audit) — chacun est dirigé vers son interface. Agents terrain (CAF, recouvrement) : utilisez l&apos;application mobile SiteCheck.
+                <Typography variant="caption" sx={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                  Espace <strong style={{ color: "var(--text-primary)" }}>administrateurs</strong> et <strong style={{ color: "var(--text-primary)" }}>superviseurs</strong> (chefs d&apos;agence, responsables de zone, direction, analystes, contrôle, audit) — chacun est dirigé vers son interface. Agents terrain (CAF, recouvrement) : utilisez l&apos;application mobile SiteCheck.
                 </Typography>
               </Box>
             </Box>

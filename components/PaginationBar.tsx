@@ -36,7 +36,7 @@ export const PaginationBar = memo(function PaginationBar({
         mt: 2,
         px: 2,
         py: 1.5,
-        bgcolor: "#f8fafc",
+        bgcolor: "var(--bg-page)",
         border: "1px solid",
         borderColor: "divider",
         borderRadius: 2,

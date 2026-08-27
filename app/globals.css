@@ -1,14 +1,65 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background: var(--bg-page); }
+
+/* ── Jetons de couleur — mode clair (par défaut) ─────────────────────────── */
+:root {
+  --bg-page:            #F8FAFC;
+  --bg-surface:         #FFFFFF;
+  --bg-surface-alt:     #F8FAFC;
+  --bg-hover:           #F1F5F9;
+  --border:             #E2E8F0;
+  --border-strong:      #CBD5E1;
+  --text-primary:       #0F3B5C;
+  --text-secondary:     #64748B;
+  --text-muted:         #94A3B8;
+  --scrollbar-thumb:    #CBD5E1;
+  --scrollbar-thumb-hover: #94A3B8;
+  --shadow-color:       15,23,42;
+}
+
+/* ── Jetons de couleur — mode nuit ───────────────────────────────────────── */
+:root[data-color-scheme="dark"] {
+  --bg-page:            #0A1420;
+  --bg-surface:         #0F1D2E;
+  --bg-surface-alt:     #13233687;
+  --bg-hover:           rgba(255,255,255,0.05);
+  --border:             #22334A;
+  --border-strong:      #32475F;
+  --text-primary:       #E8EEF5;
+  --text-secondary:     #9AAEC4;
+  --text-muted:         #6E829A;
+  --scrollbar-thumb:    #32475F;
+  --scrollbar-thumb-hover: #46607F;
+  --shadow-color:       0,0,0;
+}
+
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #F8FAFC;
+  background: var(--bg-page);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color .15s ease, color .15s ease;
 }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+/* ── Animation de bascule du mode nuit ───────────────────────────────────── */
+/* On désactive le fondu croisé par défaut de la View Transitions API : seul
+   le cercle animé en JS (ThemeModeContext.toggleMode), qui se propage depuis
+   le bouton cliqué, doit être visible. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}

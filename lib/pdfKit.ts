@@ -6,9 +6,10 @@ import { jsPDF } from "jspdf";
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
 export const C = {
-  navy:   [13,  27,  42 ] as [number,number,number],
-  steel:  [27,  79,  114] as [number,number,number],
-  gold:   [196, 154, 46 ] as [number,number,number],
+  navy:   [15,  59,  92 ] as [number,number,number],
+  steel:  [30,  96,  145] as [number,number,number],
+  gold:   [60, 128, 71 ] as [number,number,number],
+  goldDark: [32, 82, 43] as [number,number,number],
   green:  [5,   150, 105] as [number,number,number],
   red:    [220, 38,  38 ] as [number,number,number],
   orange: [217, 119, 6  ] as [number,number,number],
@@ -251,7 +252,6 @@ export function kpiBlock(
     const sh = h/steps;
     fr(doc, x, y+s*sh, w, sh+0.5, [r,g,b]);
   }
-  fr(doc, x, y, w, 2.5, C.gold);
   txt(doc, value,      x+w/2, y+h*0.46, 17, C.white, "center", true);
   txt(doc, label,      x+w/2, y+h*0.70, 7.5, [255,255,255], "center", true);
   txt(doc, sub,        x+w/2, y+h*0.87, 6,   [210,225,240], "center", false);

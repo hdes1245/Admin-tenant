@@ -75,7 +75,7 @@ export function generateDashboardPdf(data: PdfReportData) {
   [
     {l:"Agences",      v:String(data.kpis.agences),   s:"actives",       c1:C.navy,                              c2:C.steel},
     {l:"CAFs",         v:String(data.kpis.cafs),      s:"agents terrain",c1:C.steel,                             c2:[22,76,115] as [number,number,number]},
-    {l:"Clients",      v:String(data.kpis.clients),   s:"portefeuille",  c1:C.gold,                              c2:[160,120,32] as [number,number,number]},
+    {l:"Clients",      v:String(data.kpis.clients),   s:"portefeuille",  c1:C.gold,                              c2:C.goldDark},
     {l:"Localisations",v:String(data.kpis.locations), s:"GPS capturées", c1:[5,101,70] as [number,number,number], c2:C.green},
   ].forEach((k,i)=>{
     kpiBlock(doc,M+i*(bw+3),157,bw,30,k.l,k.v,k.s,k.c1,k.c2);
@@ -111,7 +111,7 @@ export function generateDashboardPdf(data: PdfReportData) {
   const row1=[
     {l:"Agences",      v:String(data.kpis.agences),   s:"agences enregistrées", c1:C.navy,              c2:C.steel},
     {l:"CAFs",         v:String(data.kpis.cafs),      s:"agents de terrain",    c1:C.steel,             c2:[22,76,115] as [number,number,number]},
-    {l:"Clients",      v:String(data.kpis.clients),   s:"portefeuille clients", c1:C.gold,              c2:[160,120,32] as [number,number,number]},
+    {l:"Clients",      v:String(data.kpis.clients),   s:"portefeuille clients", c1:C.gold,              c2:C.goldDark},
     {l:"Localisations",v:String(data.kpis.locations), s:"positions GPS",        c1:[5,101,70] as [number,number,number], c2:C.green},
   ];
   row1.forEach((k,i)=>{ kpiBlock(doc,M+i*(mbw+3),y,mbw,mbh,k.l,k.v,k.s,k.c1,k.c2); });

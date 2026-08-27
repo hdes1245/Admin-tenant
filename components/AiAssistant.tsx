@@ -12,9 +12,9 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 interface AiContext {
   kpis:       Record<string, number>;
@@ -177,7 +177,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
             flexDirection: "column",
             borderRadius: 3,
             overflow: "hidden",
-            border: `1px solid rgba(27,79,114,0.15)`,
+            border: `1px solid rgba(30,96,145,0.15)`,
           }}
         >
           {/* Header */}
@@ -216,7 +216,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
-              bgcolor: "#F8FAFC",
+              bgcolor: "var(--bg-page)",
             }}
           >
             {messages.map((msg, idx) => (
@@ -248,8 +248,8 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
                       px: 1.5,
                       py: 1,
                       borderRadius: msg.role === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
-                      bgcolor: msg.role === "user" ? STEEL : "#fff",
-                      border: msg.role === "assistant" ? "0.5px solid rgba(27,79,114,0.15)" : "none",
+                      bgcolor: msg.role === "user" ? STEEL : "var(--bg-surface)",
+                      border: msg.role === "assistant" ? "0.5px solid rgba(30,96,145,0.15)" : "none",
                       boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
                       position: "relative",
                     }}
@@ -257,7 +257,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
                     <Typography
                       fontSize={13}
                       lineHeight={1.6}
-                      color={msg.role === "user" ? "#fff" : NAVY}
+                      color={msg.role === "user" ? "#fff" : "var(--text-primary)"}
                       sx={{ whiteSpace: "pre-wrap" }}
                     >
                       {msg.content}
@@ -287,7 +287,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
               <Box display="flex" alignItems="center" gap={1}>
                 <Box sx={{
                   px: 1.5, py: 1, borderRadius: "12px 12px 12px 2px",
-                  bgcolor: "#fff", border: "0.5px solid rgba(27,79,114,0.15)",
+                  bgcolor: "var(--bg-surface)", border: "0.5px solid rgba(30,96,145,0.15)",
                   display: "flex", alignItems: "center", gap: 1,
                 }}>
                   <CircularProgress size={12} sx={{ color: STEEL }} />
@@ -301,7 +301,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
 
           {/* Quick questions */}
           {messages.length <= 1 && (
-            <Box px={1.5} pb={1} sx={{ bgcolor: "#F8FAFC" }}>
+            <Box px={1.5} pb={1} sx={{ bgcolor: "var(--bg-page)" }}>
               <Typography fontSize={11} color="text.secondary" mb={0.8} px={0.5}>
                 Questions rapides :
               </Typography>
@@ -317,9 +317,9 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
                       fontSize: 10,
                       height: 24,
                       cursor: "pointer",
-                      borderColor: `rgba(27,79,114,0.25)`,
+                      borderColor: `rgba(30,96,145,0.25)`,
                       color: STEEL,
-                      "&:hover": { bgcolor: `rgba(27,79,114,0.06)`, borderColor: STEEL },
+                      "&:hover": { bgcolor: `rgba(30,96,145,0.06)`, borderColor: STEEL },
                     }}
                   />
                 ))}
@@ -332,8 +332,8 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
             sx={{
               px: 1.5,
               py: 1.2,
-              borderTop: "0.5px solid rgba(27,79,114,0.12)",
-              bgcolor: "#fff",
+              borderTop: "0.5px solid rgba(30,96,145,0.12)",
+              bgcolor: "var(--bg-surface)",
               display: "flex",
               gap: 1,
               alignItems: "flex-end",
@@ -354,7 +354,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
                 "& .MuiOutlinedInput-root": {
                   fontSize: 13,
                   borderRadius: 2,
-                  "& fieldset": { borderColor: "rgba(27,79,114,0.2)" },
+                  "& fieldset": { borderColor: "rgba(30,96,145,0.2)" },
                   "&:hover fieldset": { borderColor: STEEL },
                   "&.Mui-focused fieldset": { borderColor: STEEL },
                 },

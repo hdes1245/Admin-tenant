@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import {
@@ -19,9 +19,9 @@ import { fetchAgences } from "@/lib/agences";
 import { fetchMe } from "@/lib/auth";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 type ObjectiveType = {
   id: number; code: string; label: string; description: string | null;
@@ -224,7 +224,7 @@ export default function ObjectifsCafPage() {
         )}
 
         {/* ── Sélection CAF + période ── */}
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5 }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5 }}>
           <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
             <Autocomplete
               size="small"
@@ -267,7 +267,7 @@ export default function ObjectifsCafPage() {
 
         {/* ── Attribution des objectifs ── */}
         {cafCode ? (
-          <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, overflow: "hidden", mb: 3 }}>
+          <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, overflow: "hidden", mb: 3 }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -347,15 +347,15 @@ export default function ObjectifsCafPage() {
             </Table>
           </Paper>
         ) : (
-          <Paper sx={{ p: 4, textAlign: "center", border: "2px dashed #E2E8F0", borderRadius: 3, bgcolor: "transparent", mb: 3 }}>
-            <FlagIcon sx={{ fontSize: 40, color: "#CBD5E1", mb: 1 }} />
+          <Paper sx={{ p: 4, textAlign: "center", border: "2px dashed var(--border)", borderRadius: 3, bgcolor: "transparent", mb: 3 }}>
+            <FlagIcon sx={{ fontSize: 40, color: "var(--border-strong)", mb: 1 }} />
             <Typography fontSize={13} color="text.secondary">Sélectionnez un CAF pour attribuer ou modifier ses objectifs.</Typography>
           </Paper>
         )}
 
         {/* ── Gestion des types d'objectifs ── */}
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2.5 }}>
-          <Typography fontWeight={700} color={NAVY} mb={0.5}>Types d&apos;objectifs</Typography>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2.5 }}>
+          <Typography fontWeight={700} color="var(--text-primary)" mb={0.5}>Types d&apos;objectifs</Typography>
           <Typography fontSize={12} color="text.secondary" mb={2}>
             La liste des types est partagée avec l&apos;application mobile — désactiver un type le retire des
             écrans sans effacer l&apos;historique déjà attribué.
@@ -363,7 +363,7 @@ export default function ObjectifsCafPage() {
           <Stack gap={1}>
             {types.map((t) => (
               <Box key={t.id} display="flex" alignItems="center" gap={1.5}
-                sx={{ px: 1.5, py: 0.75, borderRadius: 2, bgcolor: "#F8FAFC", border: "1px solid #E2E8F0" }}>
+                sx={{ px: 1.5, py: 0.75, borderRadius: 2, bgcolor: "var(--bg-page)", border: "1px solid var(--border)" }}>
                 <Avatar sx={{ width: 28, height: 28, bgcolor: NAVY }}><FlagIcon sx={{ fontSize: 14, color: GOLD }} /></Avatar>
                 <Typography fontSize={13} fontWeight={600} flex={1}>{t.label}</Typography>
                 <Chip label={t.unit === "fcfa" ? "FCFA" : "Nombre"} size="small" sx={{ fontSize: 10 }} />

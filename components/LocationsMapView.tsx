@@ -2,6 +2,19 @@
 
 import { useEffect, useRef } from "react";
 import type { LocationItem } from "@/lib/locations";
+import { useThemeMode } from "@/components/ThemeModeContext";
+
+// Les tuiles OSM standard sont toujours claires (blanches) — en mode nuit on
+// bascule sur les tuiles sombres CartoDB pour que le fond de carte suive le
+// thème au lieu de rester une zone blanche au milieu d'une interface sombre.
+const TILE_LIGHT = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+// CartoDB dark_all exige désormais une clé API (tuiles bloquées sans elle) —
+// Esri "Dark Gray Canvas" reste gratuit et sans clé (ordre y/x, pas de {s}).
+const TILE_DARK = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+const ATTR_LIGHT = "&copy; OpenStreetMap contributors";
+const ATTR_DARK = "Esri, HERE, Garmin, &copy; OpenStreetMap contributors";
+const MAXZOOM_LIGHT = 19;
+const MAXZOOM_DARK = 16;
 
 interface Props {
   items: LocationItem[];
@@ -10,7 +23,7 @@ interface Props {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  activite: "#1B4F72",
+  activite: "#1E6091",
   garantie: "#15803d",
   domicile: "#7c3aed",
   caution: "#b45309",
@@ -38,9 +51,11 @@ function injectLeafletCss() {
 }
 
 export default function LocationsMapView({ items, selectedItem, onSelectItem }: Props) {
+  const { mode } = useThemeMode();
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const tileLayerRef = useRef<any>(null);
   const initDoneRef = useRef(false);
 
   // Init map once
@@ -62,9 +77,9 @@ export default function LocationsMapView({ items, selectedItem, onSelectItem }: 
 
       mapRef.current = map;
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-        maxZoom: 19,
+      tileLayerRef.current = L.tileLayer(mode === "dark" ? TILE_DARK : TILE_LIGHT, {
+        attribution: mode === "dark" ? ATTR_DARK : ATTR_LIGHT,
+        maxZoom: mode === "dark" ? MAXZOOM_DARK : MAXZOOM_LIGHT,
         keepBuffer: 4,
       }).addTo(map);
 
@@ -73,7 +88,21 @@ export default function LocationsMapView({ items, selectedItem, onSelectItem }: 
     }, 50);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Basculer le calque de tuiles si le mode change après l'init de la carte.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !tileLayerRef.current) return;
+    import("leaflet").then(({ default: Leaflet }) => {
+      map.removeLayer(tileLayerRef.current);
+      tileLayerRef.current = Leaflet.tileLayer(mode === "dark" ? TILE_DARK : TILE_LIGHT, {
+        attribution: mode === "dark" ? ATTR_DARK : ATTR_LIGHT,
+        maxZoom: mode === "dark" ? MAXZOOM_DARK : MAXZOOM_LIGHT,
+        keepBuffer: 4,
+      }).addTo(map);
+    });
+  }, [mode]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -127,12 +156,12 @@ export default function LocationsMapView({ items, selectedItem, onSelectItem }: 
 
         const popupHtml = [
           `<div style="font-family:system-ui,sans-serif;font-size:13px;line-height:1.6;min-width:200px">`,
-          `<strong style="font-size:14px;color:#0D1B2A">${clientLabel}</strong>`,
-          loc.clientCode ? `<div style="color:#94A3B8;font-size:11px;margin-bottom:6px">${loc.clientCode}</div>` : "",
+          `<strong style="font-size:14px;color:var(--text-primary)">${clientLabel}</strong>`,
+          loc.clientCode ? `<div style="color:var(--text-muted);font-size:11px;margin-bottom:6px">${loc.clientCode}</div>` : "",
           `<div><b>Operateur:</b> ${operateur}</div>`,
           `<div><b>Type:</b> ${typeLabel}</div>`,
           `<div><b>Date:</b> ${dateStr}</div>`,
-          loc.address ? `<div style="color:#475569;margin-top:4px;font-size:12px">${loc.address}</div>` : "",
+          loc.address ? `<div style="color:var(--text-secondary);margin-top:4px;font-size:12px">${loc.address}</div>` : "",
           `<a href="https://www.google.com/maps?q=${loc.latitude},${loc.longitude}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:6px;color:#1A73E8;font-size:12px">Voir dans Google Maps</a>`,
           `</div>`,
         ].join("");

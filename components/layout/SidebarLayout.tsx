@@ -12,6 +12,7 @@ import { fetchMe, AuthUserProfile } from "@/lib/auth";
 import { apiClient } from "@/lib/apiClient";
 import { SessionExpiredDialog } from "@/components/SessionExpiredDialog";
 import { isSupervisorRole, isPathAllowedForSupervisor, landingPathForRole, normalizeRole } from "@/lib/roles";
+import { useThemeMode } from "@/components/ThemeModeContext";
 
 // Icons — nav items
 import MenuIcon              from "@mui/icons-material/Menu";
@@ -31,6 +32,8 @@ import SecurityIcon          from "@mui/icons-material/Security";
 import LogoutIcon            from "@mui/icons-material/Logout";
 import ExpandMoreIcon        from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon        from "@mui/icons-material/ExpandLess";
+import DarkModeIcon          from "@mui/icons-material/DarkMode";
+import LightModeIcon         from "@mui/icons-material/LightMode";
 
 // Icons — group headers
 import LayersIcon            from "@mui/icons-material/Layers";
@@ -41,14 +44,19 @@ import PublicIcon            from "@mui/icons-material/Public";
 
 // ── Design tokens (identiques GeoTrust) ───────────────────────────────────
 const DRAWER_WIDTH          = 264;
-const NAVY                  = "#0D1B2A";
-const STEEL                 = "#1B4F72";
-const GOLD                  = "#C49A2E";
+const NAVY                  = "#0F3B5C";
+const STEEL                 = "#1E6091";
+const GOLD                  = "#3C8047";
 const SIDEBAR_TEXT          = "#7A8FA6";
 const SIDEBAR_TEXT_ACTIVE   = "#FFFFFF";
-const SIDEBAR_ACTIVE_BG     = "rgba(196,154,46,0.12)";
-const SIDEBAR_ACTIVE_BORDER = "#C49A2E";
+const SIDEBAR_ACTIVE_BG     = "rgba(74,222,128,0.14)";
+const SIDEBAR_ACTIVE_BORDER = "#4ADE80";
 const SIDEBAR_HOVER_BG      = "rgba(255,255,255,0.04)";
+// GOLD (#3C8047) est un vert foncé lisible sur fond clair (boutons, badges
+// blancs) mais illisible en texte/icône directement sur le fond sidebar
+// navy — SIDEBAR_ACCENT est la variante claire réservée à cet usage.
+const SIDEBAR_ACCENT        = "#4ADE80";
+const SIDEBAR_ACCENT_SOFT   = "#86EFAC";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type NavItem  = { label: string; icon: React.ReactNode; href: string; badge?: number };
@@ -194,8 +202,8 @@ function NavGroupSection({
           borderRadius: 2,
           px: 1.5,
           py: 0.75,
-          color: hasActive ? GOLD : "#475569",
-          "&:hover": { bgcolor: SIDEBAR_HOVER_BG, color: hasActive ? GOLD : "#94a3b8" },
+          color: hasActive ? SIDEBAR_ACCENT : SIDEBAR_TEXT,
+          "&:hover": { bgcolor: SIDEBAR_HOVER_BG, color: hasActive ? SIDEBAR_ACCENT : "#94a3b8" },
           transition: "all .15s ease",
         }}
       >
@@ -240,7 +248,7 @@ function NavGroupSection({
                     color: selected ? SIDEBAR_TEXT_ACTIVE : "#CBD5E1",
                   },
                   transition: "all .15s ease",
-                  "& .MuiListItemIcon-root": { color: selected ? GOLD : SIDEBAR_TEXT },
+                  "& .MuiListItemIcon-root": { color: selected ? SIDEBAR_ACCENT : SIDEBAR_TEXT },
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 34 }}>
@@ -253,7 +261,7 @@ function NavGroupSection({
                   primaryTypographyProps={{ fontSize: 13.5, fontWeight: selected ? 600 : 400, lineHeight: 1.3 }}
                 />
                 {selected && (
-                  <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: GOLD, flexShrink: 0 }} />
+                  <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: SIDEBAR_ACCENT, flexShrink: 0 }} />
                 )}
               </ListItemButton>
             );
@@ -277,6 +285,7 @@ function SidebarContent({
   // Groupes de navigation filtrés selon le rôle (superviseur = pages
   // opérationnelles uniquement).
   const groups = navGroupsForRole(normalizeRole(user?.role));
+  const { mode, toggleMode } = useThemeMode();
 
   const getDefaultExpanded = useCallback(() => {
     const state: Record<string, boolean> = {};
@@ -310,16 +319,16 @@ function SidebarContent({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: NAVY, overflow: "hidden" }}>
 
-      {/* Gold accent top bar */}
-      <Box sx={{ height: 3, background: `linear-gradient(90deg, ${GOLD}, #e8b94a)`, flexShrink: 0 }} />
+      {/* Accent top bar */}
+      <Box sx={{ height: 3, background: `linear-gradient(90deg, ${GOLD}, ${SIDEBAR_ACCENT_SOFT})`, flexShrink: 0 }} />
 
       {/* Logo */}
       <Box sx={{ px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 1.5 }}>
         <Box sx={{
           width: 40, height: 40, borderRadius: 2,
-          background: `linear-gradient(135deg, ${GOLD}, #e8b94a)`,
+          background: `linear-gradient(135deg, ${GOLD}, ${SIDEBAR_ACCENT_SOFT})`,
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-          boxShadow: `0 4px 12px rgba(196,154,46,0.35)`,
+          boxShadow: `0 4px 12px rgba(60,128,71,0.35)`,
         }}>
           <PublicIcon sx={{ color: NAVY, fontSize: 22 }} />
         </Box>
@@ -327,7 +336,7 @@ function SidebarContent({
           <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 17, letterSpacing: -0.5, lineHeight: 1 }}>
             GeoTrust
           </Typography>
-          <Typography sx={{ color: GOLD, fontSize: 11, mt: 0.3, fontWeight: 600, letterSpacing: 0.5 }}>
+          <Typography sx={{ color: SIDEBAR_ACCENT, fontSize: 11, mt: 0.3, fontWeight: 600, letterSpacing: 0.5 }}>
             {user?.tenantName ?? "Administration"}
           </Typography>
         </Box>
@@ -361,17 +370,17 @@ function SidebarContent({
       <Box sx={{ px: 2, pb: 1.5 }}>
         <Box sx={{
           borderRadius: 2,
-          background: "rgba(196,154,46,0.06)",
-          border: "1px solid rgba(196,154,46,0.15)",
+          background: "rgba(60,128,71,0.06)",
+          border: "1px solid rgba(60,128,71,0.15)",
           px: 2, py: 1.2,
           display: "flex", alignItems: "center", gap: 1,
         }}>
           <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: "#22c55e", flexShrink: 0 }} />
           <Box>
-            <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: "#475569", textTransform: "uppercase" }}>
+            <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: SIDEBAR_TEXT, textTransform: "uppercase" }}>
               Système
             </Typography>
-            <Typography sx={{ fontSize: 12, fontWeight: 600, color: GOLD, lineHeight: 1 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 600, color: SIDEBAR_ACCENT, lineHeight: 1 }}>
               Opérationnel
             </Typography>
           </Box>
@@ -389,16 +398,30 @@ function SidebarContent({
           <Typography sx={{ color: "#E2E8F0", fontWeight: 600, fontSize: 13, lineHeight: 1.2 }} noWrap>
             {user?.name ?? "Chargement…"}
           </Typography>
-          <Typography sx={{ color: "#475569", fontSize: 11, mt: 0.25 }} noWrap>
+          <Typography sx={{ color: SIDEBAR_TEXT, fontSize: 11, mt: 0.25 }} noWrap>
             {user ? roleLabel(user.role) : ""}
           </Typography>
         </Box>
+        <Tooltip title={mode === "dark" ? "Mode clair" : "Mode nuit"}>
+          <IconButton
+            size="small"
+            onClick={(e) => toggleMode({ x: e.clientX, y: e.clientY })}
+            sx={{
+              color: SIDEBAR_TEXT,
+              "&:hover": { color: SIDEBAR_ACCENT, bgcolor: SIDEBAR_HOVER_BG },
+              transition: "all .15s",
+              flexShrink: 0,
+            }}
+          >
+            {mode === "dark" ? <LightModeIcon sx={{ fontSize: 17 }} /> : <DarkModeIcon sx={{ fontSize: 17 }} />}
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Déconnexion">
           <IconButton
             size="small"
             onClick={onLogout}
             sx={{
-              color: "#475569",
+              color: SIDEBAR_TEXT,
               "&:hover": { color: "#EF4444", bgcolor: "rgba(239,68,68,0.08)" },
               transition: "all .15s",
               flexShrink: 0,
@@ -495,19 +518,19 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
       <AppBar position="fixed" elevation={0} sx={{
         display: { sm: "none" },
         zIndex: (t) => t.zIndex.drawer + 1,
-        bgcolor: "#FFFFFF",
-        borderBottom: "1px solid #E2E8F0",
-        color: NAVY,
+        bgcolor: "var(--bg-surface)",
+        borderBottom: "1px solid var(--border)",
+        color: "var(--text-primary)",
       }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box display="flex" alignItems="center" gap={1.5}>
-            <IconButton edge="start" onClick={() => setMobileOpen(true)} sx={{ color: NAVY }}>
+            <IconButton edge="start" onClick={() => setMobileOpen(true)} sx={{ color: "var(--text-primary)" }}>
               <MenuIcon />
             </IconButton>
             <Box sx={{ width: 28, height: 28, borderRadius: 1.5, bgcolor: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <PublicIcon sx={{ color: NAVY, fontSize: 16 }} />
             </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: 15, color: NAVY }}>GeoTrust</Typography>
+            <Typography sx={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)" }}>GeoTrust</Typography>
           </Box>
           {user && (
             <Avatar sx={{ width: 32, height: 32, fontSize: 12, fontWeight: 700, bgcolor: STEEL }}>
@@ -523,12 +546,12 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
         zIndex: (t) => t.zIndex.drawer + 1,
         left: DRAWER_WIDTH,
         width: `calc(100% - ${DRAWER_WIDTH}px)`,
-        bgcolor: "#FFFFFF",
-        borderBottom: "1px solid #E2E8F0",
-        color: NAVY,
+        bgcolor: "var(--bg-surface)",
+        borderBottom: "1px solid var(--border)",
+        color: "var(--text-primary)",
       }}>
         <Toolbar>
-          <Typography fontWeight={700} fontSize={16} color={NAVY}>{pageTitle}</Typography>
+          <Typography fontWeight={700} fontSize={16} color="var(--text-primary)">{pageTitle}</Typography>
           <Box flex={1} />
           <Box sx={{
             display: "flex", alignItems: "center", gap: 0.75,
@@ -563,7 +586,7 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
       </Box>
 
       {/* Main content */}
-      <Box component="main" sx={{ flexGrow: 1, width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: "100vh", bgcolor: "#F8FAFC" }}>
+      <Box component="main" sx={{ flexGrow: 1, width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: "100vh", bgcolor: "var(--bg-page)" }}>
         <Toolbar />
         {supervisorBlocked ? (
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>

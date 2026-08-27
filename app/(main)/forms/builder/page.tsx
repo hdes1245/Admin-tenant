@@ -71,9 +71,9 @@ async function syncCaptureConfigFromForm(form: FormTemplate): Promise<void> {
   await saveCaptureConfig(config);
 }
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const GROUPS = ["Basique", "Choix", "Date & heure", "Terrain"];
 
@@ -92,14 +92,14 @@ function PaletteItem({ ft, onAdd }: { ft: typeof FIELD_TYPES[0]; onAdd: () => vo
       p: 1, borderRadius: 1.5, cursor: "pointer",
       border: "0.5px solid var(--border)",
       bgcolor: "var(--bg-card)",
-      "&:hover": { bgcolor: "rgba(27,79,114,0.05)", borderColor: STEEL },
+      "&:hover": { bgcolor: "rgba(30,96,145,0.05)", borderColor: STEEL },
       transition: "all .15s",
     }}>
       <Box sx={{ width: 28, height: 28, borderRadius: 1, bgcolor: `${fieldTypeColor(ft.type)}15`,
         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <i className={`ti ${ft.icon}`} style={{ fontSize: 14, color: fieldTypeColor(ft.type) }} aria-hidden />
       </Box>
-      <Typography fontSize={12} fontWeight={500} color={NAVY} noWrap>{ft.label}</Typography>
+      <Typography fontSize={12} fontWeight={500} color="var(--text-primary)" noWrap>{ft.label}</Typography>
       <AddIcon sx={{ fontSize: 14, color: STEEL, ml: "auto", opacity: 0.5 }} />
     </Box>
   );
@@ -117,18 +117,18 @@ function FieldCard({ field, selected, onSelect, onDelete, onMoveUp, onMoveDown, 
     <Box onClick={onSelect} sx={{
       p: 1.5, borderRadius: 2, cursor: "pointer",
       border: selected ? `1.5px solid ${STEEL}` : "1px solid rgba(0,0,0,0.08)",
-      bgcolor: selected ? "rgba(27,79,114,0.03)" : "#fff",
-      boxShadow: selected ? `0 0 0 3px rgba(27,79,114,0.12)` : "0 1px 4px rgba(0,0,0,0.05)",
+      bgcolor: selected ? "rgba(30,96,145,0.03)" : "var(--bg-surface)",
+      boxShadow: selected ? `0 0 0 3px rgba(30,96,145,0.12)` : "0 1px 4px rgba(0,0,0,0.05)",
       transition: "all .15s",
       display: "flex", alignItems: "center", gap: 1.5,
     }}>
-      <DragIndicatorIcon sx={{ fontSize: 18, color: "#CBD5E1", flexShrink: 0 }} />
+      <DragIndicatorIcon sx={{ fontSize: 18, color: "var(--border-strong)", flexShrink: 0 }} />
       <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: `${fieldTypeColor(field.type)}15`,
         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <i className={`ti ${ftInfo?.icon ?? "ti-forms"}`} style={{ fontSize: 15, color: fieldTypeColor(field.type) }} aria-hidden />
       </Box>
       <Box flex={1} minWidth={0}>
-        <Typography fontSize={13} fontWeight={600} color={NAVY} noWrap>{field.label}</Typography>
+        <Typography fontSize={13} fontWeight={600} color="var(--text-primary)" noWrap>{field.label}</Typography>
         <Typography fontSize={11} color="text.secondary">{ftInfo?.label}</Typography>
       </Box>
       {field.required && <Chip label="Requis" size="small" sx={{ fontSize: 10, height: 18, bgcolor: "#FEF2F2", color: "#991B1B" }} />}
@@ -141,7 +141,7 @@ function FieldCard({ field, selected, onSelect, onDelete, onMoveUp, onMoveDown, 
         </IconButton>
       </Box>
       <IconButton size="small" onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        sx={{ p: 0.4, color: "#94A3B8", "&:hover": { color: "#DC2626", bgcolor: "#FEF2F2" } }}>
+        sx={{ p: 0.4, color: "var(--text-muted)", "&:hover": { color: "#DC2626", bgcolor: "#FEF2F2" } }}>
         <DeleteOutlineIcon sx={{ fontSize: 16 }} />
       </IconButton>
     </Box>
@@ -228,7 +228,7 @@ function LocationTypeOptionsEditor({ onNamesChanged }: { onNamesChanged: (names:
             {/* Couleur du marqueur */}
             <Tooltip title="Couleur du marqueur">
               <Box component="label" sx={{ width: 22, height: 22, borderRadius: "50%", bgcolor: t.color,
-                border: "2px solid #E2E8F0", cursor: "pointer", flexShrink: 0, position: "relative", overflow: "hidden" }}>
+                border: "2px solid var(--border)", cursor: "pointer", flexShrink: 0, position: "relative", overflow: "hidden" }}>
                 <input type="color" defaultValue={t.color}
                   onBlur={(e) => { if (e.target.value !== t.color) updateMut.mutate({ id: t.id, dto: { color: e.target.value } }); }}
                   style={{ opacity: 0, position: "absolute", inset: 0, width: "100%", height: "100%", cursor: "pointer" }} />
@@ -253,7 +253,7 @@ function LocationTypeOptionsEditor({ onNamesChanged }: { onNamesChanged: (names:
             </Box>
             <IconButton size="small" onClick={() => deleteMut.mutate(t.id)}
               disabled={types.length <= 1 || deleteMut.isPending}
-              sx={{ p: 0.4, color: "#94A3B8", "&:hover": { color: "#DC2626" } }}>
+              sx={{ p: 0.4, color: "var(--text-muted)", "&:hover": { color: "#DC2626" } }}>
               <CloseIcon sx={{ fontSize: 14 }} />
             </IconButton>
           </Box>
@@ -340,7 +340,7 @@ function FieldSettings({ field, onChange, locationTypeMode = false }: {
                   sx={{ "& input": { fontSize: 12, py: 0.6 } }} />
                 <IconButton size="small" onClick={() => removeOption(idx)}
                   disabled={field.options.length <= 1}
-                  sx={{ p: 0.4, color: "#94A3B8", "&:hover": { color: "#DC2626" } }}>
+                  sx={{ p: 0.4, color: "var(--text-muted)", "&:hover": { color: "#DC2626" } }}>
                   <CloseIcon sx={{ fontSize: 14 }} />
                 </IconButton>
               </Box>
@@ -362,7 +362,7 @@ function PreviewDialog({ open, onClose, form }: { open: boolean; onClose: () => 
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
       <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1 }}>
         <Box>
-          <Typography fontWeight={700} color={NAVY}>{form.name}</Typography>
+          <Typography fontWeight={700} color="var(--text-primary)">{form.name}</Typography>
           <Typography fontSize={12} color="text.secondary">{form.description}</Typography>
         </Box>
         <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
@@ -385,7 +385,7 @@ function PreviewDialog({ open, onClose, form }: { open: boolean; onClose: () => 
               const isSpecial = ["gps","photo","signature"].includes(f.type);
               return (
                 <Box key={f.id}>
-                  <Typography fontSize={13} fontWeight={600} color={NAVY} mb={0.4}>
+                  <Typography fontSize={13} fontWeight={600} color="var(--text-primary)" mb={0.4}>
                     {f.label}{f.required && <span style={{ color: "#DC2626" }}> *</span>}
                   </Typography>
                   {f.helpText && <Typography fontSize={11} color="text.secondary" mb={0.6}>{f.helpText}</Typography>}
@@ -410,7 +410,7 @@ function PreviewDialog({ open, onClose, form }: { open: boolean; onClose: () => 
                     <Stack gap={0.5} mt={0.5}>
                       {f.options.map((o) => (
                         <Box key={o} display="flex" alignItems="center" gap={1}>
-                          <Box sx={{ width: 14, height: 14, borderRadius: "50%", border: "1.5px solid #CBD5E1" }} />
+                          <Box sx={{ width: 14, height: 14, borderRadius: "50%", border: "1.5px solid var(--border-strong)" }} />
                           <Typography fontSize={13} color="text.secondary">{o}</Typography>
                         </Box>
                       ))}
@@ -420,7 +420,7 @@ function PreviewDialog({ open, onClose, form }: { open: boolean; onClose: () => 
                     <Stack gap={0.5} mt={0.5}>
                       {f.options.map((o) => (
                         <Box key={o} display="flex" alignItems="center" gap={1}>
-                          <Box sx={{ width: 14, height: 14, borderRadius: 0.5, border: "1.5px solid #CBD5E1" }} />
+                          <Box sx={{ width: 14, height: 14, borderRadius: 0.5, border: "1.5px solid var(--border-strong)" }} />
                           <Typography fontSize={13} color="text.secondary">{o}</Typography>
                         </Box>
                       ))}
@@ -430,10 +430,10 @@ function PreviewDialog({ open, onClose, form }: { open: boolean; onClose: () => 
                     <TextField size="small" type={f.type} fullWidth disabled sx={{ "& input": { fontSize: 13 } }} />
                   )}
                   {isSpecial && (
-                    <Box sx={{ p: 1.5, borderRadius: 1.5, border: "1px dashed #CBD5E1", bgcolor: "#F8FAFC",
+                    <Box sx={{ p: 1.5, borderRadius: 1.5, border: "1px dashed var(--border-strong)", bgcolor: "var(--bg-page)",
                       display: "flex", alignItems: "center", gap: 1 }}>
                       <i className={`ti ${FIELD_TYPES.find((t) => t.type === f.type)?.icon}`}
-                        style={{ fontSize: 18, color: "#94A3B8" }} aria-hidden />
+                        style={{ fontSize: 18, color: "var(--text-muted)" }} aria-hidden />
                       <Typography fontSize={12} color="text.secondary">{ftLabel} — disponible sur mobile</Typography>
                     </Box>
                   )}
@@ -522,22 +522,22 @@ export default function FormBuilderPage() {
   return (
     <>
       {/* Top bar */}
-      <Box sx={{ bgcolor: "#fff", borderBottom: "1px solid #E2E8F0", px: 3, py: 1.5,
+      <Box sx={{ bgcolor: "var(--bg-surface)", borderBottom: "1px solid var(--border)", px: 3, py: 1.5,
         display: "flex", alignItems: "center", gap: 2, position: "sticky", top: 64, zIndex: 100 }}>
-        <IconButton size="small" onClick={() => router.push("/forms")} sx={{ border: "1px solid #E2E8F0", borderRadius: 1.5 }}>
+        <IconButton size="small" onClick={() => router.push("/forms")} sx={{ border: "1px solid var(--border)", borderRadius: 1.5 }}>
           <ArrowBackIcon sx={{ fontSize: 18 }} />
         </IconButton>
         <Box flex={1}>
           <TextField value={form.name} onChange={(e) => updateForm({ name: e.target.value })}
             variant="standard" size="small"
-            inputProps={{ style: { fontSize: 16, fontWeight: 700, color: NAVY } }}
+            inputProps={{ style: { fontSize: 16, fontWeight: 700, color: "var(--text-primary)" } }}
             sx={{ "& .MuiInput-underline:before": { borderBottomColor: "transparent" },
-              "& .MuiInput-underline:hover:before": { borderBottomColor: "#E2E8F0" } }} />
+              "& .MuiInput-underline:hover:before": { borderBottomColor: "var(--border)" } }} />
           <Box display="flex" alignItems="center" gap={1} mt={0.3}>
             <Chip label={form.status === "published" ? "Publié" : form.status === "draft" ? "Brouillon" : "Archivé"}
               size="small" color={form.status === "published" ? "success" : "warning"} sx={{ height: 18, fontSize: 10 }} />
             <Chip label={CATEGORY_LABELS[form.category]} size="small"
-              sx={{ height: 18, fontSize: 10, bgcolor: "rgba(27,79,114,0.08)", color: STEEL }} />
+              sx={{ height: 18, fontSize: 10, bgcolor: "rgba(30,96,145,0.08)", color: STEEL }} />
             {form.offlineSync && (
               <Chip icon={<WifiOffIcon sx={{ fontSize: 11 }} />} label="Sync hors-ligne"
                 size="small" sx={{ height: 18, fontSize: 10, bgcolor: "rgba(124,58,237,0.08)", color: "#5B21B6",
@@ -548,7 +548,7 @@ export default function FormBuilderPage() {
         </Box>
         <Box display="flex" gap={1}>
           <Button size="small" variant="outlined" startIcon={<PreviewIcon sx={{ fontSize: 15 }} />}
-            onClick={() => setPreview(true)} sx={{ fontSize: 12, borderColor: "#E2E8F0", color: "text.secondary" }}>
+            onClick={() => setPreview(true)} sx={{ fontSize: 12, borderColor: "var(--border)", color: "text.secondary" }}>
             Aperçu
           </Button>
           <Button size="small" variant="outlined" startIcon={<SaveIcon sx={{ fontSize: 15 }} />}
@@ -566,10 +566,10 @@ export default function FormBuilderPage() {
       </Box>
 
       {/* Builder body */}
-      <Box sx={{ display: "flex", height: "calc(100vh - 128px)", bgcolor: "#F8FAFC" }}>
+      <Box sx={{ display: "flex", height: "calc(100vh - 128px)", bgcolor: "var(--bg-page)" }}>
 
         {/* LEFT: Field palette */}
-        <Box sx={{ width: 220, borderRight: "1px solid #E2E8F0", bgcolor: "#fff",
+        <Box sx={{ width: 220, borderRight: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
           overflowY: "auto", flexShrink: 0 }}>
           <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #F1F5F9" }}>
             <Typography fontSize={11} fontWeight={700} color="text.secondary"
@@ -630,11 +630,11 @@ export default function FormBuilderPage() {
               </Typography>
               {selectedFieldId && (
                 <Chip label="Cliquer sur un champ pour le sélectionner" size="small"
-                  sx={{ fontSize: 10, bgcolor: "rgba(27,79,114,0.06)", color: STEEL }} />
+                  sx={{ fontSize: 10, bgcolor: "rgba(30,96,145,0.06)", color: STEEL }} />
               )}
             </Box>
             {form.fields.length === 0 ? (
-              <Box sx={{ border: "2px dashed #E2E8F0", borderRadius: 2, p: 6, textAlign: "center" }}>
+              <Box sx={{ border: "2px dashed var(--border)", borderRadius: 2, p: 6, textAlign: "center" }}>
                 <Typography color="text.secondary" fontSize={14} mb={1}>
                   Aucun champ ajouté
                 </Typography>
@@ -661,7 +661,7 @@ export default function FormBuilderPage() {
         </Box>
 
         {/* RIGHT: Field settings */}
-        <Box sx={{ width: selectedField ? 280 : 0, borderLeft: "1px solid #E2E8F0", bgcolor: "#fff",
+        <Box sx={{ width: selectedField ? 280 : 0, borderLeft: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
           overflowY: "auto", flexShrink: 0, transition: "width .2s ease",
           overflow: "hidden" }}>
           {selectedField && (

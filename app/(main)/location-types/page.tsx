@@ -49,9 +49,9 @@ import CategoryIcon from "@mui/icons-material/Category";
 import { ChangeEvent, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 type FormState = { code: string; name: string; sort_order: string };
 const emptyForm = (): FormState => ({ code: "", name: "", sort_order: "" });
@@ -180,7 +180,7 @@ export default function LocationTypesPage() {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={openCreate}
-          sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}
+          sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}
         >
           Nouveau type
         </Button>
@@ -200,18 +200,18 @@ export default function LocationTypesPage() {
           <Grid container spacing={2} mb={3}>
             <Grid item xs={12} sm={4}>
               <Box sx={{
-                borderRadius: 3, border: "1px solid #E2E8F0", bgcolor: "white",
+                borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
                 px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
                 position: "relative", overflow: "hidden",
-                boxShadow: "0 1px 3px rgba(13,27,42,0.05)",
+                boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
                 "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: NAVY, borderRadius: "3px 0 0 3px" },
-                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" },
+                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
               }}>
                 <Avatar sx={{ width: 44, height: 44, bgcolor: NAVY, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${NAVY}44`, flexShrink: 0 }}>
                   <CategoryIcon sx={{ fontSize: 22 }} />
                 </Avatar>
                 <Box>
-                  <Typography variant="h5" fontWeight={800} sx={{ color: NAVY, lineHeight: 1, letterSpacing: -0.5 }}>{types.length}</Typography>
+                  <Typography variant="h5" fontWeight={800} sx={{ color: "var(--text-primary)", lineHeight: 1, letterSpacing: -0.5 }}>{types.length}</Typography>
                   <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ lineHeight: 1.3 }}>Total types</Typography>
                 </Box>
               </Box>
@@ -220,14 +220,14 @@ export default function LocationTypesPage() {
         )}
 
         {/* Filter bar */}
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
           <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
             <TextField
               size="small" placeholder="Rechercher par nom ou code..."
               value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s", "&:hover": { bgcolor: "white" }, "&.Mui-focused": { bgcolor: "white" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: NAVY }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: NAVY, borderWidth: 1.5 } } }}
+              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: NAVY }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: NAVY, borderWidth: 1.5 } } }}
               InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} /></InputAdornment>,
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
                 endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
               }}
             />
@@ -239,7 +239,7 @@ export default function LocationTypesPage() {
           </Box>
         </Paper>
 
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, overflow: "hidden" }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, overflow: "hidden" }}>
           <TableContainer>
             <Table size="small">
               <TableHead>
@@ -279,7 +279,7 @@ export default function LocationTypesPage() {
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}>
                       <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
-                        <CategoryIcon sx={{ fontSize: 40, color: "#CBD5E1" }} />
+                        <CategoryIcon sx={{ fontSize: 40, color: "var(--border-strong)" }} />
                         <Typography variant="body2" color="text.disabled">
                           Aucun type de lieu configuré. Créez-en un pour commencer.
                         </Typography>
@@ -295,38 +295,38 @@ export default function LocationTypesPage() {
                     transition={{ duration: 0.15, delay: idx * 0.025 }}
                     style={{ display: "table-row" }}
                   >
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white", pl: 2.5 }}>
-                      <Typography variant="caption" sx={{ fontFamily: "monospace", fontSize: 11, color: "#94A3B8", fontWeight: 500 }}>
+                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)", pl: 2.5 }}>
+                      <Typography variant="caption" sx={{ fontFamily: "monospace", fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
                         #{t.id}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
-                      <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#F1F5F9", border: "1px solid #E2E8F0" }}>
+                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
+                      <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#F1F5F9", border: "1px solid var(--border)" }}>
                         <Typography variant="caption" sx={{ fontFamily: "monospace", fontSize: 12, fontWeight: 700, color: STEEL }}>
                           {t.code}
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
+                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
                       <Box display="flex" alignItems="center" gap={1}>
                         <PlaceIcon sx={{ fontSize: 15, color: GOLD }} />
-                        <Typography variant="body2" fontWeight={600} sx={{ color: NAVY }}>{t.name}</Typography>
+                        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>{t.name}</Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
-                      <Typography variant="caption" sx={{ color: "#64748B", fontFamily: "monospace" }}>{t.sort_order}</Typography>
+                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
+                      <Typography variant="caption" sx={{ color: "var(--text-secondary)", fontFamily: "monospace" }}>{t.sort_order}</Typography>
                     </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white", pr: 1.5 }}>
+                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)", pr: 1.5 }}>
                       <Box display="flex" alignItems="center" gap={0.5}>
                         <Tooltip title="Modifier" arrow>
                           <IconButton size="small" onClick={() => openEdit(t)}
-                            sx={{ width: 30, height: 30, borderRadius: 1.5, color: "#94A3B8", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
+                            sx={{ width: 30, height: 30, borderRadius: 1.5, color: "var(--text-muted)", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
                             <EditIcon sx={{ fontSize: 15 }} />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Supprimer" arrow>
                           <IconButton size="small" onClick={() => { setActionError(null); setDeleteTarget(t); }}
-                            sx={{ width: 30, height: 30, borderRadius: 1.5, color: "#94A3B8", "&:hover": { color: "#EF4444", bgcolor: "#FFF1F2" } }}>
+                            sx={{ width: 30, height: 30, borderRadius: 1.5, color: "var(--text-muted)", "&:hover": { color: "#EF4444", bgcolor: "#FFF1F2" } }}>
                             <DeleteOutlineIcon sx={{ fontSize: 15 }} />
                           </IconButton>
                         </Tooltip>
@@ -407,7 +407,7 @@ export default function LocationTypesPage() {
           <DialogContent sx={{ pt: 2 }}>
             <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
               <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-              <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "white", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name,sort_order</Typography>
+              <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name,sort_order</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
                 <b>code</b> — obligatoire (ex: domicile)<br /><b>name</b> — obligatoire (ex: Domicile)<br /><b>sort_order</b> — optionnel, entier (ex: 1)
               </Typography>

@@ -49,9 +49,9 @@ import {
 } from "@/lib/alertsConfig";
 
 // ─── Palette ────────────────────────────────────────────────────────────────
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 const PIE_COLORS = [NAVY, STEEL, GOLD, "#059669", "#DC2626", "#D97706", "#7c3aed"];
 
 // ─── Countdown isolé — ne re-render que lui-même, pas le dashboard ──────────
@@ -97,10 +97,10 @@ function fmtDate(iso: string) {
 
 function actionColor(action: string): string {
   const m: Record<string, string> = {
-    LOGIN: "#059669", LOGOUT: "#6B7280", CREATE: "#1B4F72",
+    LOGIN: "#059669", LOGOUT: "#6B7280", CREATE: "#1E6091",
     UPDATE: "#D97706", DELETE: "#DC2626", VIEW: "#7c3aed",
   };
-  return m[action?.toUpperCase()] ?? "#0D1B2A";
+  return m[action?.toUpperCase()] ?? "#0F3B5C";
 }
 
 function statusLabel(s: string) {
@@ -377,7 +377,7 @@ export default function DashboardPage() {
         overflow: "hidden",
         background: `linear-gradient(135deg,${NAVY} 0%,${STEEL} 100%)`,
         px: 4, py: 2.75, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap",
-        borderBottom: `1px solid rgba(196,154,46,0.4)`,
+        borderBottom: `1px solid rgba(60,128,71,0.4)`,
         boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
       }}>
         {/* Taches de couleur douces, floutées — donnent la profondeur du verre */}
@@ -390,7 +390,7 @@ export default function DashboardPage() {
           position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
           width: 44, height: 44, borderRadius: "14px",
           background: `linear-gradient(135deg, ${GOLD} 0%, #A9832A 100%)`,
-          boxShadow: "0 4px 14px rgba(196,154,46,0.35)",
+          boxShadow: "0 4px 14px rgba(60,128,71,0.35)",
         }}>
           <TrendingUpIcon sx={{ color: "white", fontSize: 24 }} />
         </Box>
@@ -421,7 +421,7 @@ export default function DashboardPage() {
               "&.Mui-selected": {
                 background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)`,
                 color: "white", fontWeight: 700,
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(196,154,46,0.4)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(60,128,71,0.4)",
                 "&:hover": { background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)` },
               },
             },
@@ -453,7 +453,7 @@ export default function DashboardPage() {
               "&.Mui-selected": {
                 background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)`,
                 color: "white", fontWeight: 700,
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(196,154,46,0.4)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(60,128,71,0.4)",
               },
             }}}>
             {REFRESH_OPTIONS.map((o) => (
@@ -497,15 +497,15 @@ export default function DashboardPage() {
               sx={{
                 position: "relative",
                 color: GOLD,
-                background: "rgba(196,154,46,0.14)",
+                background: "rgba(60,128,71,0.14)",
                 backdropFilter: "blur(20px) saturate(180%)",
                 WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                border: `1px solid rgba(196,154,46,0.4)`,
+                border: `1px solid rgba(60,128,71,0.4)`,
                 borderRadius: "999px", p: 1,
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px rgba(0,0,0,0.18)",
                 transition: "all .2s ease",
-                "&:hover": { background: "rgba(196,154,46,0.24)", transform: "translateY(-1px) rotate(90deg)" },
-                "&.Mui-disabled": { color: "rgba(196,154,46,0.4)", borderColor: "rgba(196,154,46,0.2)" },
+                "&:hover": { background: "rgba(60,128,71,0.24)", transform: "translateY(-1px) rotate(90deg)" },
+                "&.Mui-disabled": { color: "rgba(60,128,71,0.4)", borderColor: "rgba(60,128,71,0.2)" },
               }}>
               <Badge color="warning" variant="dot" invisible={!refreshInterval}>
                 <RefreshIcon sx={{ fontSize: 20 }} />
@@ -521,19 +521,19 @@ export default function DashboardPage() {
               sx={{
                 position: "relative",
                 color: "white",
-                background: "rgba(196,154,46,0.16)",
+                background: "rgba(60,128,71,0.16)",
                 backdropFilter: "blur(20px) saturate(180%)",
                 WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                border: `1px solid rgba(196,154,46,0.45)`,
+                border: `1px solid rgba(60,128,71,0.45)`,
                 borderRadius: "999px", p: 1,
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px rgba(0,0,0,0.18)",
                 transition: "all .2s ease",
                 "&:hover": {
                   background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)`,
                   color: NAVY, transform: "translateY(-1px)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), 0 4px 16px rgba(196,154,46,0.5)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), 0 4px 16px rgba(60,128,71,0.5)",
                 },
-                "&.Mui-disabled": { color: "rgba(255,255,255,0.35)", borderColor: "rgba(196,154,46,0.2)" },
+                "&.Mui-disabled": { color: "rgba(255,255,255,0.35)", borderColor: "rgba(60,128,71,0.2)" },
               }}>
               <PictureAsPdfIcon sx={{ fontSize: 20 }} />
             </IconButton>
@@ -694,7 +694,7 @@ export default function DashboardPage() {
           <Grid item xs={12} md={7}>
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography fontWeight={700} color={NAVY}>Activité / jour — {days} derniers jours</Typography>
+                <Typography fontWeight={700} color="var(--text-primary)">Activité / jour — {days} derniers jours</Typography>
                 {drillAction && (
                   <Chip size="small" icon={<FilterAltIcon />} label={`Action: ${drillAction}`}
                     onDelete={() => setDrillAction(null)} color="warning" variant="outlined" />
@@ -728,7 +728,7 @@ export default function DashboardPage() {
           <Grid item xs={12} md={5}>
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", height: "100%" }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography fontWeight={700} color={NAVY}>Tickets par statut</Typography>
+                <Typography fontWeight={700} color="var(--text-primary)">Tickets par statut</Typography>
                 {drillStatus && (
                   <Chip size="small" icon={<FilterAltIcon />} label={`Statut: ${statusLabel(drillStatus)}`}
                     onDelete={() => setDrillStatus(null)} color="warning" variant="outlined" />
@@ -762,7 +762,7 @@ export default function DashboardPage() {
           {/* Bar chart: clients par agence */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color={NAVY} mb={2}>Clients par agence (top 8)</Typography>
+              <Typography fontWeight={700} color="var(--text-primary)" mb={2}>Clients par agence (top 8)</Typography>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={cData.clientsByAgency.slice(0, 8)} layout="vertical"
                   onClick={(e) => { if (e?.activeLabel) setDrillAction(null); }}>
@@ -787,7 +787,7 @@ export default function DashboardPage() {
           {/* Bar chart: logs par action */}
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color={NAVY} mb={2}>Événements par type d'action</Typography>
+              <Typography fontWeight={700} color="var(--text-primary)" mb={2}>Événements par type d'action</Typography>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={cData.activityByAction}
                   onClick={(e: any) => {
@@ -827,7 +827,7 @@ export default function DashboardPage() {
           {/* Grouped bar: CAFs + utilisateurs par agence */}
           <Grid item xs={12} md={7}>
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color={NAVY} mb={0.5}>CAFs & Utilisateurs par agence</Typography>
+              <Typography fontWeight={700} color="var(--text-primary)" mb={0.5}>CAFs & Utilisateurs par agence</Typography>
               <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
                 Répartition des ressources humaines par agence
               </Typography>
@@ -854,7 +854,7 @@ export default function DashboardPage() {
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", height: "100%" }}>
               <Box display="flex" alignItems="center" gap={1} mb={0.5}>
                 <MapIcon sx={{ color: STEEL, fontSize: 18 }} />
-                <Typography fontWeight={700} color={NAVY}>Agences par zone</Typography>
+                <Typography fontWeight={700} color="var(--text-primary)">Agences par zone</Typography>
               </Box>
               <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
                 {(() => {
@@ -887,7 +887,7 @@ export default function DashboardPage() {
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", height: "100%" }}>
               <Box display="flex" alignItems="center" gap={1} mb={0.5}>
                 <CheckCircleOutlineIcon sx={{ color: "#059669", fontSize: 18 }} />
-                <Typography fontWeight={700} color={NAVY}>Résolution tickets détail</Typography>
+                <Typography fontWeight={700} color="var(--text-primary)">Résolution tickets détail</Typography>
               </Box>
               <Typography variant="caption" color="text.secondary" display="block" mb={2}>
                 {derived.totalTickets} tickets au total — taux {derived.tauxResolution}%
@@ -921,7 +921,7 @@ export default function DashboardPage() {
           {/* Line chart: activité vs moyenne mobile */}
           <Grid item xs={12} md={7}>
             <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color={NAVY} mb={0.5}>Activité vs moyenne mobile</Typography>
+              <Typography fontWeight={700} color="var(--text-primary)" mb={0.5}>Activité vs moyenne mobile</Typography>
               <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
                 Événements journaliers et tendance cumulée sur {days} jours
               </Typography>
@@ -953,7 +953,7 @@ export default function DashboardPage() {
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Box display="flex" alignItems="center" gap={1}>
               <AccessTimeIcon sx={{ color: STEEL }} />
-              <Typography fontWeight={700} color={NAVY}>Fil d'activité récente</Typography>
+              <Typography fontWeight={700} color="var(--text-primary)">Fil d'activité récente</Typography>
               {hasDrill && (
                 <Chip size="small" color="warning" variant="outlined" icon={<FilterAltIcon />}
                   label={`Filtre actif${drillAction ? ` — ${drillAction}` : ""}${drillStatus ? ` — ${statusLabel(drillStatus)}` : ""}`}
@@ -974,8 +974,8 @@ export default function DashboardPage() {
                 <Box key={log.id}
                   sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 0.75, px: 1.5,
                     borderRadius: 1, cursor: "pointer",
-                    "&:hover": { background: "#F8FAFC" },
-                    background: drillAction === log.action ? "rgba(196,154,46,0.06)" : "transparent",
+                    "&:hover": { background: "var(--bg-hover)" },
+                    background: drillAction === log.action ? "rgba(60,128,71,0.06)" : "transparent",
                   }}
                   onClick={() => setDrillAction((d) => d === log.action ? null : log.action)}>
                   <Chip label={log.action} size="small"

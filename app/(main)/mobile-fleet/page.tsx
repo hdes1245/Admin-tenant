@@ -25,9 +25,9 @@ import InfoIcon from "@mui/icons-material/Info";
 import { apiClient } from "@/lib/apiClient";
 import { fetchAgences } from "@/lib/agences";
 
-const NAVY = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD = "#C49A2E";
+const NAVY = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD = "#3C8047";
 
 function apiFetch(path: string, init?: RequestInit) {
   if (init?.method && init.method !== "GET") {
@@ -133,7 +133,7 @@ export default function MobileFleetPage() {
         <Stack direction="row" alignItems="center" spacing={1}>
           <PhoneAndroidIcon sx={{ color: GOLD, fontSize: 32 }} />
           <Box>
-            <Typography variant="h5" fontWeight={800} color={NAVY}>Flotte Mobile</Typography>
+            <Typography variant="h5" fontWeight={800} color="var(--text-primary)">Flotte Mobile</Typography>
             <Typography fontSize={13} color="text.secondary">Gestion et supervision des appareils SiteCheck terrain</Typography>
           </Box>
         </Stack>
@@ -176,12 +176,12 @@ export default function MobileFleetPage() {
         <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
           <Stack direction="row" alignItems="center" spacing={1} mb={2}>
             <HistoryIcon sx={{ color: STEEL }} />
-            <Typography fontWeight={700} color={NAVY}>Historique synchronisations récentes</Typography>
+            <Typography fontWeight={700} color="var(--text-primary)">Historique synchronisations récentes</Typography>
           </Stack>
           <Box sx={{ overflowX: "auto" }}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ background: "#f8fafc" }}>
+                <TableRow sx={{ background: "var(--bg-surface-alt)" }}>
                   {["Date", "Réussies", "Échouées", "Action", "Ignorées"].map((h) => (
                     <TableCell key={h} sx={{ fontWeight: 600, fontSize: 11 }}>{h}</TableCell>
                   ))}

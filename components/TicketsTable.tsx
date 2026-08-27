@@ -38,8 +38,8 @@ import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { PaginationBar } from "./PaginationBar";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
 
 const STANDARD_CATEGORIES = [
   "Connexion & Accès",
@@ -109,8 +109,8 @@ type SortDir = "asc" | "desc";
 function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
   if (!active) return <UnfoldMoreIcon sx={{ fontSize: 13, opacity: 0.4, ml: 0.5 }} />;
   return dir === "asc"
-    ? <ArrowUpwardIcon sx={{ fontSize: 13, ml: 0.5, color: "#C49A2E" }} />
-    : <ArrowDownwardIcon sx={{ fontSize: 13, ml: 0.5, color: "#C49A2E" }} />;
+    ? <ArrowUpwardIcon sx={{ fontSize: 13, ml: 0.5, color: "#3C8047" }} />
+    : <ArrowDownwardIcon sx={{ fontSize: 13, ml: 0.5, color: "#3C8047" }} />;
 }
 
 export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: TicketsTableProps) {
@@ -184,8 +184,8 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
     height: 36,
     fontSize: 13,
     borderRadius: 2,
-    bgcolor: "#F8FAFC",
-    "& .MuiOutlinedInput-notchedOutline": { borderColor: "#E2E8F0" },
+    bgcolor: "var(--bg-page)",
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" },
     "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 },
   };
@@ -219,7 +219,7 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
   return (
     <Box>
       {/* Barre de recherche + filtres */}
-      <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+      <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
         <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
           <TextField
             size="small"
@@ -229,15 +229,15 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
             sx={{
               flex: 1, minWidth: 240,
               "& .MuiOutlinedInput-root": {
-                borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s",
-                "&:hover": { bgcolor: "white" },
-                "&.Mui-focused": { bgcolor: "white" },
+                borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s",
+                "&:hover": { bgcolor: "var(--bg-surface)" },
+                "&.Mui-focused": { bgcolor: "var(--bg-surface)" },
                 "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL },
                 "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 },
               },
             }}
             InputProps={{
-              startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} /></InputAdornment>,
+              startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
               endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
             }}
           />
@@ -271,7 +271,7 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
           </Select>
           {activeFilterCount > 0 && (
             <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={clearFilters}
-              sx={{ fontWeight: 500, borderRadius: 2, color: "#64748B", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
+              sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
               Effacer ({activeFilterCount})
             </Button>
           )}
@@ -291,7 +291,7 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
         <TableContainer
           component={Paper}
           elevation={0}
-          sx={{ borderRadius: 2.5, border: "1px solid #E2E8F0", overflow: "hidden" }}
+          sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}
         >
           <Table size="small">
             <TableHead>
@@ -321,7 +321,7 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
                   <TableCell colSpan={7} align="center" sx={{ py: 8, border: "none" }}>
                     <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
                       <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <BugReportIcon sx={{ fontSize: 24, color: "#CBD5E1" }} />
+                        <BugReportIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
                       </Box>
                       <Typography variant="body2" color="text.disabled">
                         Aucun ticket ne correspond aux filtres.
@@ -351,8 +351,8 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
                       style={{ display: "table-row", cursor: onChangeStatus ? "pointer" : "default" }}
                       onClick={() => onChangeStatus?.(ticket)}
                     >
-                      <TableCell sx={{ pl: 3, maxWidth: 260, borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
-                        <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.3, color: NAVY }} noWrap>
+                      <TableCell sx={{ pl: 3, maxWidth: 260, borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
+                        <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.3, color: "var(--text-primary)" }} noWrap>
                           #{ticket.id} — {ticket.title}
                         </Typography>
                         {ticket.category && (
@@ -360,40 +360,40 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
                         )}
                       </TableCell>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
+                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
                         {ticket.requesterName ? (
                           <Box display="flex" alignItems="center" gap={1}>
                             <Avatar sx={{ width: 28, height: 28, fontSize: 11, fontWeight: 700, bgcolor: NAVY }}>
                               {userInitials(ticket.requesterName)}
                             </Avatar>
                             <Box>
-                              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2, color: NAVY }}>{ticket.requesterName}</Typography>
+                              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2, color: "var(--text-primary)" }}>{ticket.requesterName}</Typography>
                               {ticket.requesterEmail && (
                                 <Typography variant="caption" color="text.secondary">{ticket.requesterEmail}</Typography>
                               )}
                             </Box>
                           </Box>
                         ) : (
-                          <Typography variant="body2" sx={{ color: "#CBD5E1" }}>—</Typography>
+                          <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
                         )}
                       </TableCell>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
+                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
                         <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: sv.color }}>
                           {sv.label}
                         </Typography>
                       </TableCell>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
+                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
                         <Box display="flex" alignItems="center" gap={0.75}>
                           <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: sc.dot, flexShrink: 0 }} />
-                          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: 11.5, color: "#334155" }}>
+                          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: 11.5, color: "var(--text-primary)" }}>
                             {sc.label}
                           </Typography>
                         </Box>
                       </TableCell>
 
-                      <TableCell sx={{ maxWidth: 240, borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
+                      <TableCell sx={{ maxWidth: 240, borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
                         {ticket.itResponse ? (
                           <Tooltip title={ticket.itResponse} arrow placement="top">
                             <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200, fontSize: 12 }}>
@@ -401,21 +401,21 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
                             </Typography>
                           </Tooltip>
                         ) : (
-                          <Typography variant="body2" sx={{ color: "#CBD5E1" }}>—</Typography>
+                          <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
                         )}
                       </TableCell>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "white" }}>
+                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
                         <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
                           {formatDate(ticket.createdAt)}
                         </Typography>
                       </TableCell>
 
-                      <TableCell sx={{ pr: 2, borderBottom: "1px solid #F1F5F9", bgcolor: "white" }} onClick={(e) => e.stopPropagation()}>
+                      <TableCell sx={{ pr: 2, borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }} onClick={(e) => e.stopPropagation()}>
                         <Box display="flex" alignItems="center" gap={0.5}>
                           {onChangeStatus && (
                             <Tooltip title="Ouvrir la conversation">
-                              <IconButton size="small" onClick={(e) => { e.stopPropagation(); onChangeStatus(ticket); }} sx={{ color: "#CBD5E1", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
+                              <IconButton size="small" onClick={(e) => { e.stopPropagation(); onChangeStatus(ticket); }} sx={{ color: "var(--border-strong)", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
                                 <OpenInFullIcon sx={{ fontSize: 16 }} />
                               </IconButton>
                             </Tooltip>
@@ -427,7 +427,7 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
                                 onClick={(e) => { e.stopPropagation(); onEscalate(ticket); }}
                                 sx={ticket.escalated
                                   ? { color: "#92400E", bgcolor: "#FEF3C7", "&:hover": { bgcolor: "#FDE68A" } }
-                                  : { color: "#CBD5E1", "&:hover": { color: "#92400E", bgcolor: "#FEF3C7" } }
+                                  : { color: "var(--border-strong)", "&:hover": { color: "#92400E", bgcolor: "#FEF3C7" } }
                                 }
                               >
                                 <NorthIcon sx={{ fontSize: 16 }} />

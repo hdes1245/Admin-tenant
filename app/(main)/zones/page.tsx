@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   Alert, Avatar, Box, Button, Chip, Checkbox, CircularProgress,
@@ -28,9 +28,9 @@ import { motion } from "framer-motion";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { PaginationBar } from "@/components/PaginationBar";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 // ── Onglet Zones ─────────────────────────────────────────────────────────────
 function ZonesTab() {
@@ -172,7 +172,7 @@ function ZonesTab() {
   return (
     <>
       {/* Action bar */}
-      <Box sx={{ px: 3, py: 1.5, borderBottom: "1px solid #e2e8f0", background: "#fafbfc", display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+      <Box sx={{ px: 3, py: 1.5, borderBottom: "1px solid var(--border)", background: "#fafbfc", display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
         <Tooltip title="Exporter les zones en CSV">
           <Button variant="outlined" size="small" startIcon={<DownloadIcon />}
             onClick={() => downloadCsv(filteredZones, [{ key: "code", label: "Code" }, { key: "name", label: "Nom" }], "zones.csv")}
@@ -187,7 +187,7 @@ function ZonesTab() {
         </Button>
         <Box flex={1} />
         <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={openCreate}
-          sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}>
+          sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}>
           Ajouter une zone
         </Button>
       </Box>
@@ -200,10 +200,10 @@ function ZonesTab() {
                 { label: "Total zones", value: zones.length, accent: NAVY, icon: <LayersIcon sx={{ fontSize: 20 }} /> },
                 { label: "Affichées", value: filteredZones.length, accent: STEEL, icon: <MapIcon sx={{ fontSize: 20 }} /> },
                 { label: "Zones avec agences", value: zones.filter((z) => (agencesPerZone.get(z.id) ?? 0) > 0).length, accent: "#059669", icon: <LayersIcon sx={{ fontSize: 20 }} /> },
-                { label: "Zones sans agence", value: zones.filter((z) => (agencesPerZone.get(z.id) ?? 0) === 0).length, accent: "#94A3B8", icon: <MapIcon sx={{ fontSize: 20 }} /> },
+                { label: "Zones sans agence", value: zones.filter((z) => (agencesPerZone.get(z.id) ?? 0) === 0).length, accent: "var(--text-muted)", icon: <MapIcon sx={{ fontSize: 20 }} /> },
               ].map((kpi, i) => (
                 <Grid item xs={6} sm={3} key={i}>
-                  <Box sx={{ borderRadius: 3, border: "1px solid #E2E8F0", bgcolor: "white", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(13,27,42,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" } }}>
+                  <Box sx={{ borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" } }}>
                     <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
                     <Box>
                       <Typography variant="h5" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpi.value}</Typography>
@@ -216,25 +216,25 @@ function ZonesTab() {
           </motion.div>
         )}
 
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white" }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)" }}>
           <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
             <TextField
               size="small" placeholder="Rechercher par code ou nom de zone..."
               value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC" } }}
+              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }}
               InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} /></InputAdornment>,
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
                 endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
               }}
             />
             <Button size="small" startIcon={<FilterListIcon />} onClick={() => setFiltersOpen((v) => !v)}
               variant={filtersOpen ? "contained" : "outlined"}
-              sx={filtersOpen ? { bgcolor: NAVY, color: "white", fontWeight: 600, borderRadius: 2, "&:hover": { bgcolor: STEEL } } : { fontWeight: 600, borderRadius: 2, borderColor: "#E2E8F0", color: "#64748B" }}>
+              sx={filtersOpen ? { bgcolor: NAVY, color: "white", fontWeight: 600, borderRadius: 2, "&:hover": { bgcolor: STEEL } } : { fontWeight: 600, borderRadius: 2, borderColor: "var(--border)", color: "var(--text-secondary)" }}>
               Dates{activeDateFilters > 0 && <Chip label={activeDateFilters} size="small" sx={{ ml: 1, height: 18, fontSize: 11, fontWeight: 700, bgcolor: "rgba(255,255,255,0.25)", color: "inherit" }} />}
             </Button>
             {(search || activeDateFilters > 0) && (
               <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={() => { setSearch(""); setFilterStartDate(""); setFilterEndDate(""); }}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "#64748B", fontSize: 13 }}>
+                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13 }}>
                 Effacer
               </Button>
             )}
@@ -261,7 +261,7 @@ function ZonesTab() {
         )}
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}>
-          <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2.5, border: "1px solid #E2E8F0", overflow: "hidden" }}>
+          <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -283,38 +283,38 @@ function ZonesTab() {
                 {isLoading ? (
                   <TableRow><TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}><Box display="flex" alignItems="center" justifyContent="center" gap={1.5}><CircularProgress size={18} sx={{ color: STEEL }} /><Typography variant="body2" color="text.secondary">Chargement des zones...</Typography></Box></TableCell></TableRow>
                 ) : filteredZones.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}><Box display="flex" flexDirection="column" alignItems="center" gap={1.5}><Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}><MapIcon sx={{ fontSize: 24, color: "#CBD5E1" }} /></Box><Typography variant="body2" color="text.disabled">{search || activeDateFilters > 0 ? "Aucune zone ne correspond." : "Aucune zone enregistrée."}</Typography></Box></TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}><Box display="flex" flexDirection="column" alignItems="center" gap={1.5}><Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}><MapIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} /></Box><Typography variant="body2" color="text.disabled">{search || activeDateFilters > 0 ? "Aucune zone ne correspond." : "Aucune zone enregistrée."}</Typography></Box></TableCell></TableRow>
                 ) : (
                   paginatedZones.map((z, idx) => {
                     const isSelected = selectedZoneSet.has(z.id);
                     return (
                       <motion.tr key={z.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: idx * 0.02 }} style={{ display: "table-row" }}>
-                        <TableCell padding="checkbox" sx={{ pl: 2, bgcolor: isSelected ? "#F0F6FF" : "white", borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent", borderBottom: "1px solid #F1F5F9", transition: "all 0.12s" }}>
+                        <TableCell padding="checkbox" sx={{ pl: 2, bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent", borderBottom: "1px solid #F1F5F9", transition: "all 0.12s" }}>
                           <Checkbox size="small" checked={isSelected} onChange={() => toggleZoneSelection(z.id)} sx={{ "&.Mui-checked": { color: STEEL }, padding: "4px" }} />
                         </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9", pl: 2 }}>
+                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pl: 2 }}>
                           <Avatar sx={{ width: 34, height: 34, bgcolor: NAVY }}><MapIcon sx={{ fontSize: 17, color: "rgba(255,255,255,0.7)" }} /></Avatar>
                         </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                           <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
                             <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: STEEL, letterSpacing: 0.3 }}>{z.code}</Typography>
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
-                          <Typography variant="body2" fontWeight={600} sx={{ color: NAVY }}>{z.name}</Typography>
+                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                          <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>{z.name}</Typography>
                         </TableCell>
-                        <TableCell align="center" sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
-                          {(() => { const cnt = agencesPerZone.get(z.id) ?? 0; return cnt > 0 ? <Chip label={cnt} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${STEEL}15`, color: STEEL }} /> : <Typography variant="caption" sx={{ color: "#CBD5E1" }}>—</Typography>; })()}
+                        <TableCell align="center" sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                          {(() => { const cnt = agencesPerZone.get(z.id) ?? 0; return cnt > 0 ? <Chip label={cnt} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${STEEL}15`, color: STEEL }} /> : <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>—</Typography>; })()}
                         </TableCell>
-                        <TableCell align="right" sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9", pr: 2 }}>
+                        <TableCell align="right" sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pr: 2 }}>
                           <Box display="flex" justifyContent="flex-end" gap={0.5} sx={{ opacity: 0.4, transition: "opacity 0.15s", "tr:hover &": { opacity: 1 } }}>
                             <Tooltip title="Modifier">
-                              <IconButton size="small" onClick={() => openEdit(z)} sx={{ color: "#94A3B8", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
+                              <IconButton size="small" onClick={() => openEdit(z)} sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
                                 <EditOutlinedIcon sx={{ fontSize: 16 }} />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Supprimer">
-                              <IconButton size="small" onClick={() => setDeleteTarget(z)} sx={{ color: "#94A3B8", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}>
+                              <IconButton size="small" onClick={() => setDeleteTarget(z)} sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}>
                                 <DeleteOutlineIcon sx={{ fontSize: 16 }} />
                               </IconButton>
                             </Tooltip>
@@ -400,7 +400,7 @@ function ZonesTab() {
         <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "white", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name</Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name</Typography>
           </Box>
           <Button component="label" variant="outlined" startIcon={<UploadFileIcon />} sx={{ borderRadius: 2 }}>Choisir un fichier CSV<input type="file" accept=".csv,text/csv" hidden onChange={handleZonesCsvFile} /></Button>
           {importFileName && <Box mt={2}><Chip label={importFileName} size="small" icon={<UploadFileIcon />} color="warning" variant="outlined" /></Box>}

@@ -68,9 +68,9 @@ function useDebounce<T>(value: T, delay = 350): T {
   return d;
 }
 
-const CLIENTS_NAVY = "#0D1B2A";
-const CLIENTS_STEEL = "#1B4F72";
-const CLIENTS_GOLD = "#C49A2E";
+const CLIENTS_NAVY = "#0F3B5C";
+const CLIENTS_STEEL = "#1E6091";
+const CLIENTS_GOLD = "#3C8047";
 
 export default function ClientsPage() {
   const queryClient = useQueryClient();
@@ -380,8 +380,8 @@ export default function ClientsPage() {
 
   return (
     <>
-      <Box sx={{ background: "linear-gradient(135deg, #0D1B2A 0%, #1B4F72 100%)", borderBottom: "3px solid #C49A2E", px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <PersonPinCircleIcon sx={{ color: "#C49A2E", fontSize: 30, flexShrink: 0 }} />
+      <Box sx={{ background: "linear-gradient(135deg, #0F3B5C 0%, #1E6091 100%)", borderBottom: "3px solid #3C8047", px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+        <PersonPinCircleIcon sx={{ color: "#3C8047", fontSize: 30, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" fontWeight={700} color="white">Clients</Typography>
           <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
@@ -411,7 +411,7 @@ export default function ClientsPage() {
                 {canManageClients && (
                   <Button
                     variant="contained" startIcon={<AddIcon />} onClick={openCreateDialog}
-                    sx={{ bgcolor: "#C49A2E", color: "#0D1B2A", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
+                    sx={{ bgcolor: "#3C8047", color: "#0F3B5C", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
                   >
                     Ajouter un client
                   </Button>
@@ -425,19 +425,19 @@ export default function ClientsPage() {
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
             <Grid container spacing={2} mb={3}>
               {[
-                { label: "Total clients", value: globalStats?.total ?? 0, accent: "#0D1B2A", icon: <GroupsIcon sx={{ fontSize: 22 }} /> },
-                { label: "Avec CAF attribue", value: globalStats?.withCaf ?? 0, accent: "#1B4F72", icon: <BadgeIcon sx={{ fontSize: 22 }} /> },
-                { label: "Sans CAF", value: globalStats?.withoutCaf ?? 0, accent: "#94A3B8", icon: <PersonOffIcon sx={{ fontSize: 22 }} /> },
-                { label: "Avec contact", value: globalStats?.withContact ?? 0, accent: "#C49A2E", icon: <PhoneEnabledIcon sx={{ fontSize: 22 }} /> },
+                { label: "Total clients", value: globalStats?.total ?? 0, accent: "#0F3B5C", icon: <GroupsIcon sx={{ fontSize: 22 }} /> },
+                { label: "Avec CAF attribue", value: globalStats?.withCaf ?? 0, accent: "#1E6091", icon: <BadgeIcon sx={{ fontSize: 22 }} /> },
+                { label: "Sans CAF", value: globalStats?.withoutCaf ?? 0, accent: "var(--text-muted)", icon: <PersonOffIcon sx={{ fontSize: 22 }} /> },
+                { label: "Avec contact", value: globalStats?.withContact ?? 0, accent: "#3C8047", icon: <PhoneEnabledIcon sx={{ fontSize: 22 }} /> },
               ].map((kpi, i) => (
                 <Grid item xs={6} sm={3} key={i}>
                   <Box sx={{
-                    borderRadius: 3, border: "1px solid #E2E8F0", bgcolor: "white",
+                    borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
                     px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
                     position: "relative", overflow: "hidden",
-                    boxShadow: "0 1px 3px rgba(13,27,42,0.05)",
+                    boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
                     "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" },
-                    transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" },
+                    transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
                   }}>
                     <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
                     <Box>
@@ -451,14 +451,14 @@ export default function ClientsPage() {
           </motion.div>
         )}
 
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
           <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
             <TextField
               size="small" placeholder="Rechercher par nom ou code client..."
               value={filterName} onChange={(e) => setFilterName(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s", "&:hover": { bgcolor: "white" }, "&.Mui-focused": { bgcolor: "white" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#1B4F72" }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#1B4F72", borderWidth: 1.5 } } }}
+              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#1E6091" }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#1E6091", borderWidth: 1.5 } } }}
               InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} /></InputAdornment>,
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
                 endAdornment: filterName ? <InputAdornment position="end"><IconButton size="small" onClick={() => setFilterName("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
               }}
             />
@@ -467,14 +467,14 @@ export default function ClientsPage() {
               onClick={() => setFiltersOpen((v) => !v)}
               variant={filtersOpen ? "contained" : "outlined"}
               sx={filtersOpen
-                ? { bgcolor: "#0D1B2A", color: "white", fontWeight: 600, borderRadius: 2, "&:hover": { bgcolor: "#1B4F72" } }
-                : { fontWeight: 600, borderRadius: 2, borderColor: "#E2E8F0", color: "#64748B", "&:hover": { borderColor: "#1B4F72", bgcolor: "#F1F5F9" } }}
+                ? { bgcolor: "#0F3B5C", color: "white", fontWeight: 600, borderRadius: 2, "&:hover": { bgcolor: "#1E6091" } }
+                : { fontWeight: 600, borderRadius: 2, borderColor: "var(--border)", color: "var(--text-secondary)", "&:hover": { borderColor: "#1E6091", bgcolor: "#F1F5F9" } }}
             >
               Filtres avancés{activeFilters > 0 && <Chip label={activeFilters} size="small" sx={{ ml: 1, height: 18, fontSize: 11, fontWeight: 700, bgcolor: "rgba(255,255,255,0.25)", color: "inherit" }} />}
             </Button>
             {activeFilters > 0 && (
               <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={clearFilters}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "#64748B", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
+                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
                 Effacer ({activeFilters})
               </Button>
             )}
@@ -484,25 +484,25 @@ export default function ClientsPage() {
               <Grid container spacing={1.5}>
                 <Grid item xs={12} sm={6} md={3}>
                   <TextField label="Code client" size="small" fullWidth value={filterCode} onChange={(e) => setFilterCode(e.target.value)}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC" } }} />
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <Autocomplete size="small" options={agenceFilterOptions} value={selectedAgenceFilterOption} onChange={(_, v) => setFilterAgence(v?.value ?? "")}
                     getOptionLabel={(o) => o.label} isOptionEqualToValue={(o, v) => o.value === v.value} clearOnEscape
-                    renderInput={(params) => <TextField {...params} label="Agence" size="small" fullWidth placeholder="Toutes les agences" sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC" } }} />} />
+                    renderInput={(params) => <TextField {...params} label="Agence" size="small" fullWidth placeholder="Toutes les agences" sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />} />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <Autocomplete size="small" options={cafFilterOptions} value={selectedCafFilterOption} onChange={(_, v) => setFilterCaf(v?.value ?? "")}
                     getOptionLabel={(o) => o.label} isOptionEqualToValue={(o, v) => o.value === v.value} clearOnEscape
-                    renderInput={(params) => <TextField {...params} label="CAF" size="small" fullWidth placeholder="Tous les CAFs" sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC" } }} />} />
+                    renderInput={(params) => <TextField {...params} label="CAF" size="small" fullWidth placeholder="Tous les CAFs" sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />} />
                 </Grid>
                 <Grid item xs={6} sm={3} md={1.5}>
                   <TextField label="Du" type="date" size="small" fullWidth InputLabelProps={{ shrink: true }} value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC" } }} />
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />
                 </Grid>
                 <Grid item xs={6} sm={3} md={1.5}>
                   <TextField label="Au" type="date" size="small" fullWidth InputLabelProps={{ shrink: true }} value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC" } }} />
+                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />
                 </Grid>
               </Grid>
             </Box>
@@ -578,11 +578,11 @@ export default function ClientsPage() {
       </Container>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: "#C49A2E" }} />
+        <Box sx={{ height: 4, bgcolor: "#3C8047" }} />
         <DialogTitle sx={{ pb: 1 }}>
           <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#0D1B2A" }}>
-              {editing ? <PersonPinCircleIcon sx={{ color: "#C49A2E", fontSize: 20 }} /> : <PersonAddIcon sx={{ color: "#C49A2E", fontSize: 20 }} />}
+            <Avatar sx={{ width: 36, height: 36, bgcolor: "#0F3B5C" }}>
+              {editing ? <PersonPinCircleIcon sx={{ color: "#3C8047", fontSize: 20 }} /> : <PersonAddIcon sx={{ color: "#3C8047", fontSize: 20 }} />}
             </Avatar>
             <Typography variant="h6" fontWeight={700}>
               {editing ? "Modifier le client" : "Nouveau client"}
@@ -655,7 +655,7 @@ export default function ClientsPage() {
           <Button
             onClick={handleSave} variant="contained"
             disabled={!codeClient.trim() || !name.trim() || createMutation.isPending || updateMutation.isPending}
-            sx={{ bgcolor: "#0D1B2A", "&:hover": { bgcolor: "#1B4F72" } }}
+            sx={{ bgcolor: "#0F3B5C", "&:hover": { bgcolor: "#1E6091" } }}
           >
             {editing ? "Enregistrer les modifications" : "Créer le client"}
           </Button>
@@ -664,11 +664,11 @@ export default function ClientsPage() {
 
       
       <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: "#C49A2E" }} />
+        <Box sx={{ height: 4, bgcolor: "#3C8047" }} />
         <DialogTitle sx={{ pb: 1 }}>
           <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#0D1B2A" }}>
-              <UploadFileIcon sx={{ color: "#C49A2E", fontSize: 20 }} />
+            <Avatar sx={{ width: 36, height: 36, bgcolor: "#0F3B5C" }}>
+              <UploadFileIcon sx={{ color: "#3C8047", fontSize: 20 }} />
             </Avatar>
             <Typography variant="h6" fontWeight={700}>Importer des clients via CSV</Typography>
           </Box>
@@ -682,7 +682,7 @@ export default function ClientsPage() {
                 Format attendu (ligne d&apos;en-têtes)
               </Typography>
             </Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "white", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>
+            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>
               code_client,name,agence_client,caf_code,contact_info
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
@@ -734,7 +734,7 @@ export default function ClientsPage() {
             variant="contained"
             disabled={!parsedRows.length || importMutation.isPending}
             startIcon={<UploadFileIcon />}
-            sx={{ bgcolor: "#0D1B2A", "&:hover": { bgcolor: "#1B4F72" } }}
+            sx={{ bgcolor: "#0F3B5C", "&:hover": { bgcolor: "#1E6091" } }}
           >
             Lancer l&apos;import ({parsedRows.length})
           </Button>

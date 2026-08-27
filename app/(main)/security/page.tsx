@@ -31,9 +31,9 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import TimerOffIcon from "@mui/icons-material/TimerOff";
 import { useEffect, useState } from "react";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const DEFAULT_POLICY: TenantPasswordPolicy = {
   minLength: 8, requireUppercase: true, requireLowercase: true,
@@ -47,11 +47,11 @@ function fmt(s?: string | null): string {
 
 function SectionCard({ title, icon, children, accent }: { title: string; icon: React.ReactNode; children: React.ReactNode; accent?: string }) {
   return (
-    <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid #E2E8F0", height: "100%" }}>
+    <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid var(--border)", height: "100%" }}>
       <CardContent sx={{ p: 3 }}>
         <Box display="flex" alignItems="center" gap={1.5} mb={2.5}>
-          <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: accent ? `${accent}14` : "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", color: accent ?? NAVY }}>{icon}</Box>
-          <Typography variant="h6" fontWeight={700} sx={{ color: NAVY, fontSize: 15 }}>{title}</Typography>
+          <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: accent ? `${accent}14` : "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", color: accent ?? "var(--text-primary)" }}>{icon}</Box>
+          <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)", fontSize: 15 }}>{title}</Typography>
         </Box>
         {children}
       </CardContent>
@@ -62,14 +62,14 @@ function SectionCard({ title, icon, children, accent }: { title: string; icon: R
 function PolicyRow({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between"
-      sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid", borderColor: checked ? `${STEEL}30` : "#E2E8F0", bgcolor: checked ? `${STEEL}08` : "#FAFAFA", transition: "all .15s", cursor: "pointer", "&:hover": { borderColor: STEEL } }}
+      sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid", borderColor: checked ? `${STEEL}30` : "var(--border)", bgcolor: checked ? `${STEEL}08` : "#FAFAFA", transition: "all .15s", cursor: "pointer", "&:hover": { borderColor: STEEL } }}
       onClick={() => onChange(!checked)}
     >
       <Box display="flex" alignItems="center" gap={1.5}>
         <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: checked ? "#059669" : "#CBD5E1", transition: "background .15s" }} />
-        <Typography variant="body2" fontWeight={500} sx={{ color: NAVY }}>{label}</Typography>
+        <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>{label}</Typography>
       </Box>
-      <Checkbox checked={checked} onChange={(e) => { e.stopPropagation(); onChange(e.target.checked); }} size="small" sx={{ p: 0, color: "#CBD5E1", "&.Mui-checked": { color: NAVY } }} />
+      <Checkbox checked={checked} onChange={(e) => { e.stopPropagation(); onChange(e.target.checked); }} size="small" sx={{ p: 0, color: "var(--border-strong)", "&.Mui-checked": { color: NAVY } }} />
     </Box>
   );
 }
@@ -77,8 +77,8 @@ function PolicyRow({ checked, onChange, label }: { checked: boolean; onChange: (
 function HealthRow({ label, value, highlight }: { label: string; value: React.ReactNode; highlight?: boolean }) {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" py={1} sx={{ borderBottom: "1px solid #F1F5F9" }}>
-      <Typography variant="body2" sx={{ color: "#64748B", fontSize: 13 }}>{label}</Typography>
-      <Box component="span" sx={{ fontWeight: 600, color: highlight ? "#DC2626" : NAVY, fontSize: 13 }}>{value}</Box>
+      <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 13 }}>{label}</Typography>
+      <Box component="span" sx={{ fontWeight: 600, color: highlight ? "#DC2626" : "var(--text-primary)", fontSize: 13 }}>{value}</Box>
     </Box>
   );
 }
@@ -140,27 +140,27 @@ export default function SecurityPage() {
                   {([["requireUppercase","Majuscule obligatoire"],["requireLowercase","Minuscule obligatoire"],["requireDigit","Chiffre obligatoire"],["requireSpecialChar","Caractere special"]] as [keyof TenantPasswordPolicy, string][]).map(([k, lbl]) => (
                     <PolicyRow key={k} label={lbl} checked={!!policy[k]} onChange={(v) => setPolicy((p) => ({ ...p, [k]: v }))} />
                   ))}
-                  <Box sx={{ px: 2, py: 1.5, borderRadius: 2, border: "1px solid #E2E8F0", bgcolor: "#FAFAFA" }}>
-                    <Typography variant="body2" fontWeight={500} sx={{ color: NAVY, mb: 1 }}>Longueur minimale: <b>{policy.minLength}</b></Typography>
+                  <Box sx={{ px: 2, py: 1.5, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "#FAFAFA" }}>
+                    <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)", mb: 1 }}>Longueur minimale: <b>{policy.minLength}</b></Typography>
                     <Box component="input" type="range" min={6} max={32} value={policy.minLength} onChange={(e: any) => setPolicy((p) => ({ ...p, minLength: Number(e.target.value) }))} style={{ width: "100%", accentColor: STEEL }} />
                   </Box>
                 </Stack>
                 <Box mt={2} pt={2} sx={{ borderTop: "1px solid #F1F5F9" }}>
-                  <Typography variant="body2" fontWeight={600} sx={{ color: NAVY, mb: 1.5 }}>Expiration et timeout</Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)", mb: 1.5 }}>Expiration et timeout</Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.maxAgeDays != null ? `${STEEL}30` : "#E2E8F0", bgcolor: policy.maxAgeDays != null ? `${STEEL}08` : "#FAFAFA" }}>
+                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.maxAgeDays != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.maxAgeDays != null ? `${STEEL}08` : "#FAFAFA" }}>
                         <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                          <Box display="flex" alignItems="center" gap={1}><ScheduleIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: NAVY }}>Expiration MDP</Typography></Box>
+                          <Box display="flex" alignItems="center" gap={1}><ScheduleIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Expiration MDP</Typography></Box>
                           <Switch size="small" checked={policy.maxAgeDays != null} onChange={(e) => setPolicy((p) => ({ ...p, maxAgeDays: e.target.checked ? 90 : null }))} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: STEEL } }} />
                         </Box>
                         {policy.maxAgeDays != null && <TextField size="small" type="number" fullWidth value={policy.maxAgeDays} onChange={(e) => setPolicy((p) => ({ ...p, maxAgeDays: Number(e.target.value) }))} InputProps={{ endAdornment: <InputAdornment position="end"><Typography variant="caption">jours</Typography></InputAdornment> }} inputProps={{ min: 1, max: 365 }} sx={{ mt: 0.5 }} />}
                       </Box>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.sessionTimeoutMinutes != null ? `${STEEL}30` : "#E2E8F0", bgcolor: policy.sessionTimeoutMinutes != null ? `${STEEL}08` : "#FAFAFA" }}>
+                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.sessionTimeoutMinutes != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.sessionTimeoutMinutes != null ? `${STEEL}08` : "#FAFAFA" }}>
                         <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                          <Box display="flex" alignItems="center" gap={1}><TimerOffIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: NAVY }}>Timeout session</Typography></Box>
+                          <Box display="flex" alignItems="center" gap={1}><TimerOffIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Timeout session</Typography></Box>
                           <Switch size="small" checked={policy.sessionTimeoutMinutes != null} onChange={(e) => setPolicy((p) => ({ ...p, sessionTimeoutMinutes: e.target.checked ? 30 : null }))} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: STEEL } }} />
                         </Box>
                         {policy.sessionTimeoutMinutes != null && <TextField size="small" type="number" fullWidth value={policy.sessionTimeoutMinutes} onChange={(e) => setPolicy((p) => ({ ...p, sessionTimeoutMinutes: Number(e.target.value) }))} InputProps={{ endAdornment: <InputAdornment position="end"><Typography variant="caption">min</Typography></InputAdornment> }} inputProps={{ min: 1, max: 1440 }} sx={{ mt: 0.5 }} />}
@@ -177,7 +177,7 @@ export default function SecurityPage() {
               {/* ── IP Whitelist Card ── */}
               <SectionCard title="Liste blanche IP" icon={<WifiLockIcon sx={{ fontSize: 18 }} />} accent="#7c3aed">
                 <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-                  <Typography variant="body2" fontWeight={500} sx={{ color: NAVY }}>Activer la restriction par IP</Typography>
+                  <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Activer la restriction par IP</Typography>
                   <Switch checked={ipEnabled} onChange={(e) => setIpEnabled(e.target.checked)} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: "#7c3aed" } }} />
                 </Box>
                 {ipEnabled && (
@@ -188,10 +188,10 @@ export default function SecurityPage() {
                       <IconButton size="small" onClick={() => { if (newIp.trim()) { setIpList((l) => [...l.filter((x) => x !== newIp.trim()), newIp.trim()]); setNewIp(""); } }} sx={{ bgcolor: NAVY, color: "white", borderRadius: 2, "&:hover": { bgcolor: STEEL }, flexShrink: 0 }}><AddIcon sx={{ fontSize: 18 }} /></IconButton>
                     </Box>
                     <Stack spacing={0.75} mb={2}>
-                      {ipList.length === 0 && <Typography variant="caption" sx={{ color: "#94A3B8", textAlign: "center", display: "block", py: 1 }}>Aucune IP ajoutee</Typography>}
+                      {ipList.length === 0 && <Typography variant="caption" sx={{ color: "var(--text-muted)", textAlign: "center", display: "block", py: 1 }}>Aucune IP ajoutee</Typography>}
                       {ipList.map((ip) => (
-                        <Box key={ip} display="flex" alignItems="center" justifyContent="space-between" sx={{ px: 1.5, py: 0.75, borderRadius: 1.5, bgcolor: "#F8FAFC", border: "1px solid #E2E8F0" }}>
-                          <Typography variant="body2" sx={{ fontFamily: "monospace", color: NAVY }}>{ip}</Typography>
+                        <Box key={ip} display="flex" alignItems="center" justifyContent="space-between" sx={{ px: 1.5, py: 0.75, borderRadius: 1.5, bgcolor: "var(--bg-page)", border: "1px solid var(--border)" }}>
+                          <Typography variant="body2" sx={{ fontFamily: "monospace", color: "var(--text-primary)" }}>{ip}</Typography>
                           <IconButton size="small" onClick={() => setIpList((l) => l.filter((x) => x !== ip))} sx={{ p: 0.25, color: "#DC2626" }}><DeleteOutlineIcon sx={{ fontSize: 16 }} /></IconButton>
                         </Box>
                       ))}
@@ -206,10 +206,10 @@ export default function SecurityPage() {
               </SectionCard>
               {/* ── Logo Upload Card ── */}
               <SectionCard title="Logo de la plateforme" icon={<ImageOutlinedIcon sx={{ fontSize: 18 }} />} accent={GOLD}>
-                {tenantLogoUrl && <Box component="img" src={tenantLogoUrl} alt="Logo tenant" sx={{ display: "block", maxHeight: 80, maxWidth: 220, mb: 2, borderRadius: 2, objectFit: "contain", border: "1px solid #E2E8F0" }} onError={(e: any) => { e.target.style.display = "none"; }} />}
-                <Box component="label" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, p: 3, borderRadius: 2, border: "2px dashed", borderColor: "#CBD5E1", bgcolor: "#F8FAFC", cursor: "pointer", transition: "all .15s", "&:hover": { borderColor: GOLD, bgcolor: `${GOLD}08` } }}>
-                  <UploadIcon sx={{ fontSize: 32, color: "#94A3B8" }} />
-                  <Typography variant="body2" sx={{ color: "#64748B", textAlign: "center" }}>Cliquez pour selectionner un logo<br /><Typography component="span" variant="caption" sx={{ color: "#94A3B8" }}>PNG, JPG, WEBP — max 5 Mo</Typography></Typography>
+                {tenantLogoUrl && <Box component="img" src={tenantLogoUrl} alt="Logo tenant" sx={{ display: "block", maxHeight: 80, maxWidth: 220, mb: 2, borderRadius: 2, objectFit: "contain", border: "1px solid var(--border)" }} onError={(e: any) => { e.target.style.display = "none"; }} />}
+                <Box component="label" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, p: 3, borderRadius: 2, border: "2px dashed", borderColor: "var(--border-strong)", bgcolor: "var(--bg-page)", cursor: "pointer", transition: "all .15s", "&:hover": { borderColor: GOLD, bgcolor: `${GOLD}08` } }}>
+                  <UploadIcon sx={{ fontSize: 32, color: "var(--text-muted)" }} />
+                  <Typography variant="body2" sx={{ color: "var(--text-secondary)", textAlign: "center" }}>Cliquez pour selectionner un logo<br /><Typography component="span" variant="caption" sx={{ color: "var(--text-muted)" }}>PNG, JPG, WEBP — max 5 Mo</Typography></Typography>
                   <input type="file" accept="image/*" hidden onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setLogoMsg(null); setLogoErr(null); try { await uploadLogoMutation.mutateAsync(file); setLogoMsg("Logo mis a jour."); } catch (ex: any) { setLogoErr(ex.message); } }} />
                 </Box>
                 {logoMsg && <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }} onClose={() => setLogoMsg(null)}>{logoMsg}</Alert>}
@@ -224,7 +224,7 @@ export default function SecurityPage() {
               <Grid container spacing={2}>
                 {[{ icon: <ErrorOutlineIcon sx={{ fontSize: 20 }} />, label: "Erreurs 24h", value: errorCount, color: errorCount > 0 ? "#DC2626" : "#059669", bg: errorCount > 0 ? "#FEF2F2" : "#F0FDF4" }, { icon: <ConfirmationNumberOutlinedIcon sx={{ fontSize: 20 }} />, label: "Tickets ouverts", value: openTickets, color: openTickets > 5 ? "#D97706" : NAVY, bg: openTickets > 5 ? "#FFFBEB" : "#F8FAFC" }, { icon: <ReportProblemOutlinedIcon sx={{ fontSize: 20 }} />, label: "Critiques", value: critTickets, color: critTickets > 0 ? "#DC2626" : "#059669", bg: critTickets > 0 ? "#FEF2F2" : "#F0FDF4" }].map((kpi) => (
                   <Grid item xs={4} key={kpi.label}>
-                    <Box sx={{ borderRadius: 3, border: "1px solid #E2E8F0", bgcolor: "white", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(13,27,42,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.color, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" } }}>
+                    <Box sx={{ borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.color, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" } }}>
                       <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.color, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.color}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
                       <Box>
                         <Typography variant="h5" fontWeight={800} sx={{ color: kpi.color, lineHeight: 1, letterSpacing: -0.5 }}>{healthQuery.isLoading ? "..." : kpi.value}</Typography>
@@ -237,18 +237,18 @@ export default function SecurityPage() {
               {/* ── Sessions actives ── */}
               <SectionCard title="Sessions actives" icon={<DevicesIcon sx={{ fontSize: 18 }} />} accent={STEEL}>
                 {sessionsQuery.isLoading && <Box display="flex" justifyContent="center" py={3}><CircularProgress size={24} /></Box>}
-                {!sessionsQuery.isLoading && (sessionsQuery.data ?? []).length === 0 && <Typography variant="body2" sx={{ color: "#94A3B8", textAlign: "center", py: 2 }}>Aucune session detectee.</Typography>}
+                {!sessionsQuery.isLoading && (sessionsQuery.data ?? []).length === 0 && <Typography variant="body2" sx={{ color: "var(--text-muted)", textAlign: "center", py: 2 }}>Aucune session detectee.</Typography>}
                 <Stack spacing={1}>
                   {(sessionsQuery.data ?? []).map((s) => (
-                    <Box key={s.userId} display="flex" alignItems="center" gap={1.5} sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid #E2E8F0", bgcolor: "#FAFAFA" }}>
+                    <Box key={s.userId} display="flex" alignItems="center" gap={1.5} sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "#FAFAFA" }}>
                       <Avatar sx={{ width: 32, height: 32, bgcolor: STEEL, fontSize: 13 }}>{s.userName.charAt(0).toUpperCase()}</Avatar>
                       <Box flex={1} minWidth={0}>
-                        <Typography variant="body2" fontWeight={600} sx={{ color: NAVY }} noWrap>{s.userName}</Typography>
+                        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }} noWrap>{s.userName}</Typography>
                         <Box display="flex" gap={1} flexWrap="wrap" mt={0.25}>
                           {s.userRole && <Chip label={s.userRole} size="small" sx={{ height: 16, fontSize: 9, fontWeight: 600, bgcolor: `${STEEL}15`, color: STEEL }} />}
-                          {s.ip && <Typography variant="caption" sx={{ color: "#94A3B8" }}>{s.ip}</Typography>}
+                          {s.ip && <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{s.ip}</Typography>}
                         </Box>
-                        <Box display="flex" alignItems="center" gap={0.5} mt={0.25}><AccessTimeIcon sx={{ fontSize: 11, color: "#94A3B8" }} /><Typography variant="caption" sx={{ color: "#94A3B8" }}>{fmt(s.lastActivity)}</Typography></Box>
+                        <Box display="flex" alignItems="center" gap={0.5} mt={0.25}><AccessTimeIcon sx={{ fontSize: 11, color: "var(--text-muted)" }} /><Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{fmt(s.lastActivity)}</Typography></Box>
                       </Box>
                       <Tooltip title="Revoquer la session">
                         <IconButton size="small" onClick={() => setRevokeTarget({ userId: s.userId, userName: s.userName })} sx={{ color: "#DC2626", "&:hover": { bgcolor: "#FEF2F2" } }}><PersonOffIcon sx={{ fontSize: 18 }} /></IconButton>
@@ -277,9 +277,9 @@ export default function SecurityPage() {
                       <Box key={err.id} sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid #FEE2E2", bgcolor: "#FEF2F2" }}>
                         <Box display="flex" alignItems="center" justifyContent="space-between">
                           <Typography variant="body2" fontWeight={600} sx={{ color: "#DC2626", fontSize: 12 }}>{err.action}</Typography>
-                          <Typography variant="caption" sx={{ color: "#94A3B8" }}>{fmt(err.created_at)}</Typography>
+                          <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{fmt(err.created_at)}</Typography>
                         </Box>
-                        {err.description && <Typography variant="caption" sx={{ color: "#64748B", display: "block" }}>{err.description}</Typography>}
+                        {err.description && <Typography variant="caption" sx={{ color: "var(--text-secondary)", display: "block" }}>{err.description}</Typography>}
                       </Box>
                     ))}
                   </Stack>
@@ -291,10 +291,10 @@ export default function SecurityPage() {
       </Container>
       {/* ── Revoke dialog ── */}
       <Dialog open={!!revokeTarget} onClose={() => setRevokeTarget(null)} PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
-        <DialogTitle sx={{ fontWeight: 700, color: NAVY }}>Revoquer la session</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700, color: "var(--text-primary)" }}>Revoquer la session</DialogTitle>
         <DialogContent><Typography>Confirmer la revocation de la session de <b>{revokeTarget?.userName}</b> ? L utilisateur sera deconnecte lors de son prochain appel API.</Typography></DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setRevokeTarget(null)} sx={{ color: "#64748B" }}>Annuler</Button>
+          <Button onClick={() => setRevokeTarget(null)} sx={{ color: "var(--text-secondary)" }}>Annuler</Button>
           <Button variant="contained" sx={{ bgcolor: "#DC2626", "&:hover": { bgcolor: "#B91C1C" }, borderRadius: 2 }} disabled={revokeMutation.isPending} onClick={() => { if (revokeTarget) revokeMutation.mutate(revokeTarget.userId); }}>
             {revokeMutation.isPending ? <CircularProgress size={16} sx={{ color: "white" }} /> : "Revoquer"}
           </Button>

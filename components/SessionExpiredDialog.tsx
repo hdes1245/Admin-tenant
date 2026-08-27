@@ -18,8 +18,8 @@ import LockClockIcon from "@mui/icons-material/LockClock";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { apiClient } from "@/lib/apiClient";
 
-const NAVY = "#0D1B2A";
-const GOLD = "#C49A2E";
+const NAVY = "#0F3B5C";
+const GOLD = "#3C8047";
 
 export function SessionExpiredDialog() {
   const [open, setOpen] = useState(false);
@@ -68,10 +68,10 @@ export function SessionExpiredDialog() {
         >
           <LockClockIcon sx={{ fontSize: 34, color: GOLD }} />
         </Box>
-        <Typography sx={{ fontWeight: 800, fontSize: 19, color: NAVY, mb: 1 }}>
+        <Typography sx={{ fontWeight: 800, fontSize: 19, color: "var(--text-primary)", mb: 1 }}>
           Session expirée
         </Typography>
-        <Typography sx={{ color: "#64748B", fontSize: 14, lineHeight: 1.6, mb: 3.5 }}>
+        <Typography sx={{ color: "var(--text-secondary)", fontSize: 14, lineHeight: 1.6, mb: 3.5 }}>
           Votre session a expiré pour des raisons de sécurité. Reconnectez-vous
           pour continuer à accéder à votre espace.
         </Typography>
@@ -84,7 +84,7 @@ export function SessionExpiredDialog() {
           sx={{
             height: 46, bgcolor: NAVY, fontWeight: 700, fontSize: 15,
             textTransform: "none", borderRadius: 2,
-            "&:hover": { bgcolor: "#1B4F72" },
+            "&:hover": { bgcolor: "#1E6091" },
           }}
         >
           {loggingOut ? "Déconnexion…" : "Se reconnecter"}

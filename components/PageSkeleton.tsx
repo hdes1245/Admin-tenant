@@ -2,8 +2,8 @@
 
 import { Box, Skeleton } from "@mui/material";
 
-const NAVY = "#0D1B2A";
-const STEEL = "#1B4F72";
+const NAVY = "#0F3B5C";
+const STEEL = "#1E6091";
 
 export function PageSkeleton({ rows = 8 }: { rows?: number }) {
   return (
@@ -19,7 +19,7 @@ export function PageSkeleton({ rows = 8 }: { rows?: number }) {
           position: "relative",
         }}
       >
-        <Box sx={{ height: 4, bgcolor: "#C49A2E", position: "absolute", top: 0, left: 0, right: 0 }} />
+        <Box sx={{ height: 4, bgcolor: "#3C8047", position: "absolute", top: 0, left: 0, right: 0 }} />
         <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
           <Box display="flex" alignItems="center" gap={2}>
             <Skeleton variant="circular" width={48} height={48} sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
@@ -48,9 +48,9 @@ export function PageSkeleton({ rows = 8 }: { rows?: number }) {
       <Box
         sx={{
           borderRadius: 2.5,
-          border: "1px solid #E2E8F0",
+          border: "1px solid var(--border)",
           overflow: "hidden",
-          bgcolor: "white",
+          bgcolor: "var(--bg-surface)",
         }}
       >
         {/* Table header */}

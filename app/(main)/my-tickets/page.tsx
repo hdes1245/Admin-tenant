@@ -16,9 +16,9 @@ import {
   fetchTicketComments, addTicketComment, reopenTicket,
 } from "@/lib/tickets";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const CATEGORIES = [
   "Connexion & Accès", "Synchronisation", "Performance & Lenteur", "Géolocalisation & GPS",
@@ -97,8 +97,8 @@ export default function MyTicketsPage() {
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Box mb={3} display="flex" alignItems="flex-start" justifyContent="space-between" flexWrap="wrap" gap={2}>
         <Box>
-          <Typography variant="h5" fontWeight={800} sx={{ color: NAVY, letterSpacing: -0.5 }}>Mes signalements</Typography>
-          <Typography sx={{ color: "#64748B", fontSize: 13, mt: 0.5 }}>
+          <Typography variant="h5" fontWeight={800} sx={{ color: "var(--text-primary)", letterSpacing: -0.5 }}>Mes signalements</Typography>
+          <Typography sx={{ color: "var(--text-secondary)", fontSize: 13, mt: 0.5 }}>
             Signalez un problème rencontré sur l&apos;application — suivez vos échanges avec le support.
           </Typography>
         </Box>
@@ -108,7 +108,7 @@ export default function MyTicketsPage() {
         </Button>
       </Box>
 
-      <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, overflow: "hidden" }}>
+      <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, overflow: "hidden" }}>
         {isLoading ? (
           <Box p={3} display="flex" flexDirection="column" gap={1.5}>
             {[1, 2, 3].map((i) => <Skeleton key={i} height={64} sx={{ borderRadius: 2 }} />)}
@@ -117,8 +117,8 @@ export default function MyTicketsPage() {
           <Box p={4}><Alert severity="error">Erreur de chargement.</Alert></Box>
         ) : tickets.length === 0 ? (
           <Box p={6} textAlign="center">
-            <BugReportIcon sx={{ fontSize: 48, color: "#CBD5E1", mb: 2 }} />
-            <Typography color="#94A3B8" fontSize={14}>Aucun signalement pour l&apos;instant</Typography>
+            <BugReportIcon sx={{ fontSize: 48, color: "var(--border-strong)", mb: 2 }} />
+            <Typography color="var(--text-muted)" fontSize={14}>Aucun signalement pour l&apos;instant</Typography>
           </Box>
         ) : (
           <Box>
@@ -128,17 +128,17 @@ export default function MyTicketsPage() {
               return (
                 <Box key={t.id}>
                   {idx > 0 && <Divider sx={{ mx: 3 }} />}
-                  <Box onClick={() => setSelected(t)} sx={{ px: 3, py: 2, display: "flex", alignItems: "flex-start", gap: 2, cursor: "pointer", "&:hover": { bgcolor: "#F8FAFC" } }}>
+                  <Box onClick={() => setSelected(t)} sx={{ px: 3, py: 2, display: "flex", alignItems: "flex-start", gap: 2, cursor: "pointer", "&:hover": { bgcolor: "var(--bg-hover)" } }}>
                     <Chip label={style.label} size="small" sx={{ bgcolor: style.bg, color: style.color, fontWeight: 700, fontSize: 10, mt: 0.25, flexShrink: 0 }} />
                     <Box flex={1}>
-                      <Typography fontSize={13} fontWeight={600} color={NAVY}>{t.title}</Typography>
-                      <Typography fontSize={12} color="#64748B" mt={0.25} noWrap>{t.description}</Typography>
+                      <Typography fontSize={13} fontWeight={600} color="var(--text-primary)">{t.title}</Typography>
+                      <Typography fontSize={12} color="var(--text-secondary)" mt={0.25} noWrap>{t.description}</Typography>
                       <Box display="flex" gap={1.5} mt={0.75} flexWrap="wrap">
-                        {t.category && <Typography fontSize={11} color="#94A3B8">{t.category}</Typography>}
+                        {t.category && <Typography fontSize={11} color="var(--text-muted)">{t.category}</Typography>}
                         {sev && <Typography fontSize={11} sx={{ color: sev.color, fontWeight: 600 }}>{sev.label}</Typography>}
                       </Box>
                     </Box>
-                    <Typography fontSize={11} color="#CBD5E1" flexShrink={0}>
+                    <Typography fontSize={11} color="var(--border-strong)" flexShrink={0}>
                       {new Date(t.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
                     </Typography>
                   </Box>
@@ -151,7 +151,7 @@ export default function MyTicketsPage() {
 
       {/* Création */}
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ fontWeight: 700, color: NAVY }}>Nouveau signalement</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700, color: "var(--text-primary)" }}>Nouveau signalement</DialogTitle>
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2.5, pt: 1 }}>
           {createErr && <Alert severity="error">{createErr}</Alert>}
           <TextField label="Titre *" size="small" fullWidth value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -167,7 +167,7 @@ export default function MyTicketsPage() {
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
-          <Button onClick={() => setCreateOpen(false)} sx={{ color: "#64748B" }}>Annuler</Button>
+          <Button onClick={() => setCreateOpen(false)} sx={{ color: "var(--text-secondary)" }}>Annuler</Button>
           <Button variant="contained" disabled={!title.trim() || !description.trim() || createMut.isPending}
             onClick={() => createMut.mutate()} sx={{ bgcolor: NAVY, fontWeight: 700, "&:hover": { bgcolor: STEEL } }}>
             {createMut.isPending ? <CircularProgress size={16} sx={{ color: "white" }} /> : "Envoyer"}
@@ -179,7 +179,7 @@ export default function MyTicketsPage() {
       <Dialog open={!!selected} onClose={() => setSelected(null)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         {selected && (
           <>
-            <DialogTitle sx={{ fontWeight: 700, color: NAVY }}>{selected.title}</DialogTitle>
+            <DialogTitle sx={{ fontWeight: 700, color: "var(--text-primary)" }}>{selected.title}</DialogTitle>
             <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Box display="flex" gap={1} alignItems="center">
                 <Chip label={STATUS_STYLE[selected.status]?.label ?? selected.status} size="small"
@@ -191,16 +191,16 @@ export default function MyTicketsPage() {
                   </Button>
                 )}
               </Box>
-              <Typography fontSize={13} color="#334155">{selected.description}</Typography>
+              <Typography fontSize={13} color="var(--text-primary)">{selected.description}</Typography>
               {selected.itResponse && (
                 <Alert severity="info" sx={{ fontSize: 12.5 }}>{selected.itResponse}</Alert>
               )}
               <Divider />
-              <Typography fontSize={12} fontWeight={700} color="#64748B" textTransform="uppercase" letterSpacing={0.6}>Échanges</Typography>
+              <Typography fontSize={12} fontWeight={700} color="var(--text-secondary)" textTransform="uppercase" letterSpacing={0.6}>Échanges</Typography>
               {commentsLoading ? (
                 <CircularProgress size={20} />
               ) : comments.length === 0 ? (
-                <Typography fontSize={12} color="#94A3B8">Aucun échange pour l&apos;instant.</Typography>
+                <Typography fontSize={12} color="var(--text-muted)">Aucun échange pour l&apos;instant.</Typography>
               ) : (
                 <Box display="flex" flexDirection="column" gap={1.5} maxHeight={220} sx={{ overflowY: "auto" }}>
                   {comments.map((c: TicketCommentDto) => (
@@ -209,9 +209,9 @@ export default function MyTicketsPage() {
                         {(c.authorName ?? "?")[0]?.toUpperCase()}
                       </Avatar>
                       <Box>
-                        <Typography fontSize={12} fontWeight={600} color={NAVY}>{c.authorName ?? "—"}</Typography>
-                        <Typography fontSize={12.5} color="#334155">{c.content}</Typography>
-                        <Typography fontSize={10} color="#CBD5E1">
+                        <Typography fontSize={12} fontWeight={600} color="var(--text-primary)">{c.authorName ?? "—"}</Typography>
+                        <Typography fontSize={12.5} color="var(--text-primary)">{c.content}</Typography>
+                        <Typography fontSize={10} color="var(--border-strong)">
                           {new Date(c.createdAt).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
                         </Typography>
                       </Box>
@@ -228,7 +228,7 @@ export default function MyTicketsPage() {
               </Box>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 2.5 }}>
-              <Button onClick={() => setSelected(null)} sx={{ color: "#64748B" }}>Fermer</Button>
+              <Button onClick={() => setSelected(null)} sx={{ color: "var(--text-secondary)" }}>Fermer</Button>
             </DialogActions>
           </>
         )}

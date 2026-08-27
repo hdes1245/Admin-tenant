@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { UserDto } from "@/lib/users";
 import {
@@ -31,9 +31,9 @@ import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { PaginationBar } from "./PaginationBar";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 interface UsersTableProps {
   users: UserDto[];
@@ -107,21 +107,21 @@ export function UsersTable({
             maxWidth: 460,
             "& .MuiOutlinedInput-root": {
               borderRadius: 2,
-              bgcolor: "white",
-              "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#CBD5E1" },
+              bgcolor: "var(--bg-surface)",
+              "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border-strong)" },
               "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 },
             },
           }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} />
+                <SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} />
               </InputAdornment>
             ),
           }}
         />
         {search && (
-          <Typography variant="caption" sx={{ color: "#64748B", fontWeight: 500 }}>
+          <Typography variant="caption" sx={{ color: "var(--text-secondary)", fontWeight: 500 }}>
             {filtered.length} resultat{filtered.length !== 1 ? "s" : ""}
           </Typography>
         )}
@@ -137,7 +137,7 @@ export function UsersTable({
           elevation={0}
           sx={{
             borderRadius: 2.5,
-            border: "1px solid #E2E8F0",
+            border: "1px solid var(--border)",
             overflow: "hidden",
           }}
         >
@@ -206,7 +206,7 @@ export function UsersTable({
                   <TableCell colSpan={9} align="center" sx={{ py: 8, border: "none" }}>
                     <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
                       <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <PeopleAltIcon sx={{ fontSize: 24, color: "#CBD5E1" }} />
+                        <PeopleAltIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
                       </Box>
                       <Typography variant="body2" color="text.disabled">
                         {search ? "Aucun utilisateur ne correspond." : "Aucun utilisateur enregistre."}
@@ -230,7 +230,7 @@ export function UsersTable({
                         padding="checkbox"
                         sx={{
                           pl: 2,
-                          bgcolor: isSelected ? "#F0F6FF" : "white",
+                          bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)",
                           borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent",
                           borderBottom: "1px solid #F1F5F9",
                           transition: "all 0.12s",
@@ -245,7 +245,7 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Utilisateur */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9", py: 1.5 }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", py: 1.5 }}>
                         <Box display="flex" alignItems="center" gap={1.5}>
                           <Avatar
                             sx={{
@@ -262,12 +262,12 @@ export function UsersTable({
                             <Typography
                               variant="body2"
                               fontWeight={600}
-                              sx={{ color: NAVY, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                              sx={{ color: "var(--text-primary)", lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                             >
                               {user.name}
                             </Typography>
                             {user.email && (
-                              <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: 11 }}>
+                              <Typography variant="caption" sx={{ color: "var(--text-muted)", fontSize: 11 }}>
                                 {user.email}
                               </Typography>
                             )}
@@ -276,29 +276,29 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Login */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                         <Typography
                           variant="body2"
-                          sx={{ fontFamily: "monospace", fontSize: 12.5, color: "#475569", fontWeight: 500 }}
+                          sx={{ fontFamily: "monospace", fontSize: 12.5, color: "var(--text-secondary)", fontWeight: 500 }}
                         >
                           {user.username}
                         </Typography>
                       </TableCell>
 
                       {/* Role */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                         <Box
                           sx={{
                             display: "inline-flex",
                             px: 1.25, py: 0.4,
                             borderRadius: 1.25,
                             bgcolor: "#F1F5F9",
-                            border: "1px solid #E2E8F0",
+                            border: "1px solid var(--border)",
                           }}
                         >
                           <Typography
                             variant="caption"
-                            sx={{ fontWeight: 600, fontSize: 11, color: "#334155", letterSpacing: 0.2, whiteSpace: "nowrap" }}
+                            sx={{ fontWeight: 600, fontSize: 11, color: "var(--text-primary)", letterSpacing: 0.2, whiteSpace: "nowrap" }}
                           >
                             {roleLabel(user)}
                           </Typography>
@@ -306,21 +306,21 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Agence */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
-                        <Typography variant="body2" sx={{ color: user.agenceName ? "#334155" : "#CBD5E1", fontSize: 13 }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                        <Typography variant="body2" sx={{ color: user.agenceName ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
                           {user.agenceName ?? "—"}
                         </Typography>
                       </TableCell>
 
                       {/* Zone */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
-                        <Typography variant="body2" sx={{ color: user.zoneName ? "#334155" : "#CBD5E1", fontSize: 13 }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                        <Typography variant="body2" sx={{ color: user.zoneName ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
                           {user.zoneName ?? "—"}
                         </Typography>
                       </TableCell>
 
                       {/* Code CAF */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                         {user.cafCode ? (
                           <Box
                             sx={{
@@ -336,18 +336,18 @@ export function UsersTable({
                             </Typography>
                           </Box>
                         ) : (
-                          <Typography variant="body2" sx={{ color: "#CBD5E1" }}>—</Typography>
+                          <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
                         )}
                       </TableCell>
 
                       {/* Statut */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                         <Box display="flex" alignItems="center" gap={0.75}>
                           <Box sx={{
                             width: 6, height: 6, borderRadius: "50%",
-                            bgcolor: user.isActive ? "#22c55e" : "#E2E8F0",
+                            bgcolor: user.isActive ? "#22c55e" : "var(--border)",
                           }} />
-                          <Typography variant="caption" fontWeight={600} sx={{ color: user.isActive ? "#15803d" : "#94A3B8", fontSize: 11.5 }}>
+                          <Typography variant="caption" fontWeight={600} sx={{ color: user.isActive ? "#15803d" : "var(--text-muted)", fontSize: 11.5 }}>
                             {user.isActive ? "Actif" : "Inactif"}
                           </Typography>
                         </Box>
@@ -357,7 +357,7 @@ export function UsersTable({
                       <TableCell
                         align="right"
                         sx={{
-                          bgcolor: isSelected ? "#F0F6FF" : "white",
+                          bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)",
                           borderBottom: "1px solid #F1F5F9",
                           pr: 2,
                         }}
@@ -390,7 +390,7 @@ export function UsersTable({
                               size="small"
                               onClick={() => onResetPassword?.(user)}
                               sx={{
-                                color: "#94A3B8",
+                                color: "var(--text-muted)",
                                 width: 28, height: 28, borderRadius: 1.25,
                                 "&:hover": { color: "#b45309", bgcolor: "#FFFBEB" },
                               }}
@@ -414,7 +414,7 @@ export function UsersTable({
                                   size="small"
                                   onClick={() => onEdit?.(user)}
                                   sx={{
-                                    color: "#94A3B8",
+                                    color: "var(--text-muted)",
                                     width: 28, height: 28, borderRadius: 1.25,
                                     "&:hover": { color: STEEL, bgcolor: "#EFF6FF" },
                                   }}
@@ -429,7 +429,7 @@ export function UsersTable({
                               size="small"
                               onClick={() => onDelete?.(user)}
                               sx={{
-                                color: "#94A3B8",
+                                color: "var(--text-muted)",
                                 width: 28, height: 28, borderRadius: 1.25,
                                 "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" },
                               }}

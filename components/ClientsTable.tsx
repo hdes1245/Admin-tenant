@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ClientDto } from "@/lib/clients";
 import {
@@ -23,9 +23,9 @@ import PersonPinCircleIcon from "@mui/icons-material/PersonPinCircle";
 import PhoneIcon from "@mui/icons-material/Phone";
 import { motion } from "framer-motion";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 interface ClientsTableProps {
   clients: ClientDto[];
@@ -66,7 +66,7 @@ export function ClientsTable({
       <TableContainer
         component={Paper}
         elevation={0}
-        sx={{ borderRadius: 2.5, border: "1px solid #E2E8F0", overflow: "hidden" }}
+        sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}
       >
         <Table size="small">
           <TableHead>
@@ -124,7 +124,7 @@ export function ClientsTable({
                 <TableCell colSpan={8} align="center" sx={{ py: 8, border: "none" }}>
                   <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
                     <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <PersonPinCircleIcon sx={{ fontSize: 24, color: "#CBD5E1" }} />
+                      <PersonPinCircleIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
                     </Box>
                     <Typography variant="body2" color="text.disabled">Aucun client trouve.</Typography>
                   </Box>
@@ -146,7 +146,7 @@ export function ClientsTable({
                         padding="checkbox"
                         sx={{
                           pl: 2,
-                          bgcolor: isSelected ? "#F0F6FF" : "white",
+                          bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)",
                           borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent",
                           borderBottom: "1px solid #F1F5F9",
                           transition: "all 0.12s",
@@ -161,19 +161,19 @@ export function ClientsTable({
                       </TableCell>
                     )}
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9", pl: 2 }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pl: 2 }}>
                       <Avatar sx={{ width: 34, height: 34, bgcolor: NAVY, fontSize: 13, fontWeight: 700, letterSpacing: 0.3 }}>
                         {initials(client.name)}
                       </Avatar>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9", py: 1.5 }}>
-                      <Typography variant="body2" fontWeight={600} sx={{ color: NAVY }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", py: 1.5 }}>
+                      <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>
                         {client.name}
                       </Typography>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                       <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
                         <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: STEEL, letterSpacing: 0.3, fontFamily: "monospace" }}>
                           {client.codeClient}
@@ -181,16 +181,16 @@ export function ClientsTable({
                       </Box>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
-                      <Typography variant="body2" sx={{ color: client.agenceClient ? "#334155" : "#CBD5E1", fontSize: 13 }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                      <Typography variant="body2" sx={{ color: client.agenceClient ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
                         {client.agenceClient ?? "—"}
                       </Typography>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                       {client.cafName || client.cafCode ? (
                         <Box>
-                          <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2, color: NAVY }}>
+                          <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2, color: "var(--text-primary)" }}>
                             {client.cafName ?? client.cafCode}
                           </Typography>
                           {client.cafName && client.cafCode && (
@@ -198,23 +198,23 @@ export function ClientsTable({
                           )}
                         </Box>
                       ) : (
-                        <Typography variant="body2" sx={{ color: "#CBD5E1" }}>—</Typography>
+                        <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
                       )}
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9" }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
                       {client.contactInfo ? (
                         <Box display="flex" alignItems="center" gap={0.5}>
-                          <PhoneIcon sx={{ fontSize: 14, color: "#94A3B8" }} />
-                          <Typography variant="body2" sx={{ fontSize: 12, color: "#475569" }}>{client.contactInfo}</Typography>
+                          <PhoneIcon sx={{ fontSize: 14, color: "var(--text-muted)" }} />
+                          <Typography variant="body2" sx={{ fontSize: 12, color: "var(--text-secondary)" }}>{client.contactInfo}</Typography>
                         </Box>
                       ) : (
-                        <Typography variant="body2" sx={{ color: "#CBD5E1" }}>—</Typography>
+                        <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
                       )}
                     </TableCell>
 
                     {canManage && (
-                      <TableCell align="right" sx={{ bgcolor: isSelected ? "#F0F6FF" : "white", borderBottom: "1px solid #F1F5F9", pr: 2 }}>
+                      <TableCell align="right" sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pr: 2 }}>
                         <Box
                           display="flex"
                           justifyContent="flex-end"
@@ -225,7 +225,7 @@ export function ClientsTable({
                             <IconButton
                               size="small"
                               onClick={() => onEdit?.(client)}
-                              sx={{ color: "#94A3B8", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}
+                              sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}
                             >
                               <EditOutlinedIcon sx={{ fontSize: 16 }} />
                             </IconButton>
@@ -234,7 +234,7 @@ export function ClientsTable({
                             <IconButton
                               size="small"
                               onClick={() => onDelete?.(client)}
-                              sx={{ color: "#94A3B8", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}
+                              sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}
                             >
                               <DeleteOutlineIcon sx={{ fontSize: 16 }} />
                             </IconButton>

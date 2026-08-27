@@ -43,9 +43,9 @@ import {
 import { TicketDto } from "@/lib/tickets";
 import { useMemo, useRef, useState } from "react";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 // ── Computed stats ─────────────────────────────────────────────────────────────
 
@@ -188,7 +188,7 @@ function StatKpi({ label, value, sub, icon, color }: { label: string; value: str
   return (
     <Box
       sx={{
-        bgcolor: "white", borderRadius: 2.5, border: "1px solid #E2E8F0",
+        bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)",
         px: 2.5, py: 2, display: "flex", alignItems: "center", gap: 1.5,
         position: "relative", overflow: "hidden",
         "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: color },
@@ -198,7 +198,7 @@ function StatKpi({ label, value, sub, icon, color }: { label: string; value: str
       <Box>
         <Typography fontWeight={800} fontSize={22} sx={{ color, lineHeight: 1 }}>{value}</Typography>
         <Typography variant="caption" color="text.secondary" fontWeight={500}>{label}</Typography>
-        {sub && <Typography variant="caption" sx={{ color: "#94A3B8", display: "block", fontSize: 10.5 }}>{sub}</Typography>}
+        {sub && <Typography variant="caption" sx={{ color: "var(--text-muted)", display: "block", fontSize: 10.5 }}>{sub}</Typography>}
       </Box>
     </Box>
   );
@@ -209,13 +209,13 @@ function HBar({ label, value, max, color, total }: { label: string; value: numbe
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
     <Box display="flex" alignItems="center" gap={1.5} mb={1}>
-      <Typography variant="caption" sx={{ minWidth: 110, color: "#475569", fontWeight: 500, fontSize: 12 }}>{label}</Typography>
+      <Typography variant="caption" sx={{ minWidth: 110, color: "var(--text-secondary)", fontWeight: 500, fontSize: 12 }}>{label}</Typography>
       <Box flex={1} sx={{ height: 10, bgcolor: "#F1F5F9", borderRadius: 5, overflow: "hidden" }}>
         <Box sx={{ width: `${pct}%`, height: "100%", bgcolor: color, borderRadius: 5, transition: "width 0.6s ease" }} />
       </Box>
       <Typography variant="caption" sx={{ minWidth: 28, textAlign: "right", fontWeight: 700, color, fontSize: 12 }}>{value}</Typography>
       {total > 0 && (
-        <Typography variant="caption" sx={{ minWidth: 36, color: "#94A3B8", fontSize: 11 }}>
+        <Typography variant="caption" sx={{ minWidth: 36, color: "var(--text-muted)", fontSize: 11 }}>
           {Math.round((value / total) * 100)}%
         </Typography>
       )}
@@ -877,7 +877,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
               startIcon={generating ? <CircularProgress size={14} sx={{ color: "white" }} /> : <DownloadIcon />}
               onClick={handleExport}
               disabled={generating || filteredTickets.length === 0}
-              sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, fontSize: 13, "&:hover": { bgcolor: "#b8891f" } }}
+              sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, fontSize: 13, "&:hover": { bgcolor: "#b8891f" } }}
             >
               {generating ? "Génération…" : "Exporter PDF"}
             </Button>
@@ -892,13 +892,13 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
       <Box
         sx={{
           flexShrink: 0, px: 3, py: 1.5,
-          bgcolor: "white", borderBottom: "1px solid #E2E8F0",
+          bgcolor: "var(--bg-surface)", borderBottom: "1px solid var(--border)",
           display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap",
         }}
       >
         <Box display="flex" alignItems="center" gap={1}>
-          <CalendarMonthIcon sx={{ fontSize: 18, color: "#64748B" }} />
-          <Typography variant="caption" fontWeight={700} sx={{ color: "#475569", textTransform: "uppercase", letterSpacing: 0.8 }}>
+          <CalendarMonthIcon sx={{ fontSize: 18, color: "var(--text-secondary)" }} />
+          <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
             Période
           </Typography>
         </Box>
@@ -915,14 +915,14 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
             width: 160,
             "& .MuiOutlinedInput-root": {
               borderRadius: 2,
-              "& fieldset": { borderColor: "#E2E8F0" },
-              "&:hover fieldset": { borderColor: "#CBD5E1" },
+              "& fieldset": { borderColor: "var(--border)" },
+              "&:hover fieldset": { borderColor: "var(--border-strong)" },
               "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
             },
           }}
         />
 
-        <Typography variant="body2" sx={{ color: "#94A3B8" }}>→</Typography>
+        <Typography variant="body2" sx={{ color: "var(--text-muted)" }}>→</Typography>
 
         <TextField
           type="date"
@@ -936,8 +936,8 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
             width: 160,
             "& .MuiOutlinedInput-root": {
               borderRadius: 2,
-              "& fieldset": { borderColor: "#E2E8F0" },
-              "&:hover fieldset": { borderColor: "#CBD5E1" },
+              "& fieldset": { borderColor: "var(--border)" },
+              "&:hover fieldset": { borderColor: "var(--border-strong)" },
               "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
             },
           }}
@@ -965,7 +965,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
               <IconButton
                 size="small"
                 onClick={() => { setDateFrom(""); setDateTo(""); }}
-                sx={{ color: "#94A3B8", "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}
+                sx={{ color: "var(--text-muted)", "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}
               >
                 <FilterAltOffIcon sx={{ fontSize: 17 }} />
               </IconButton>
@@ -974,7 +974,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
         )}
 
         {!hasFilter && (
-          <Typography variant="caption" sx={{ color: "#94A3B8" }}>
+          <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
             Tous les tickets · {tickets.length} au total
           </Typography>
         )}
@@ -987,7 +987,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
       )}
 
       {/* Body */}
-      <Box sx={{ flex: 1, overflowY: "auto", p: 3, bgcolor: "#F8FAFC" }}>
+      <Box sx={{ flex: 1, overflowY: "auto", p: 3, bgcolor: "var(--bg-page)" }}>
 
         {/* KPI row */}
         <Grid container spacing={2} mb={3}>
@@ -1007,8 +1007,8 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
         {/* Charts row 1 */}
         <Grid container spacing={2.5} mb={2.5}>
           <Grid item xs={12} md={6}>
-            <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #E2E8F0", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color={NAVY} mb={2}>
+            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
+              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={2}>
                 Répartition par statut
               </Typography>
               {statusChartData.length > 0 ? (
@@ -1031,8 +1031,8 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #E2E8F0", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color={NAVY} mb={2}>
+            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
+              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={2}>
                 Répartition par sévérité
               </Typography>
               {sevChartData.length > 0 ? (
@@ -1058,16 +1058,16 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
         {/* Charts row 2 */}
         <Grid container spacing={2.5} mb={2.5}>
           <Grid item xs={12} md={7}>
-            <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #E2E8F0", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color={NAVY} mb={2}>
+            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
+              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={2}>
                 Volume de tickets — 6 derniers mois
               </Typography>
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={monthChartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#64748B" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "#94A3B8" }} allowDecimals={false} />
-                  <RTooltip contentStyle={{ borderRadius: 8, border: "1px solid #E2E8F0", fontSize: 12 }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--text-secondary)" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
+                  <RTooltip contentStyle={{ borderRadius: 8, border: "1px solid var(--border)", fontSize: 12 }} />
                   <Bar dataKey="value" name="Tickets" radius={[4, 4, 0, 0]} fill={NAVY} />
                 </BarChart>
               </ResponsiveContainer>
@@ -1075,8 +1075,8 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
           </Grid>
 
           <Grid item xs={12} md={5}>
-            <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #E2E8F0", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color={NAVY} mb={1.5}>
+            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
+              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={1.5}>
                 Ancienneté des tickets actifs
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
@@ -1098,10 +1098,10 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
 
         {/* Waiting tickets table */}
         {s.waitingTickets.length > 0 && (
-          <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #E2E8F0", p: 2.5, mb: 2.5 }}>
+          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5, mb: 2.5 }}>
             <Box display="flex" alignItems="center" gap={1} mb={2}>
               <PauseCircleIcon sx={{ color: "#7c3aed", fontSize: 20 }} />
-              <Typography fontWeight={700} fontSize={13} color={NAVY}>
+              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
                 Tickets en attente de réponse utilisateur ({s.waitingTickets.length})
               </Typography>
             </Box>
@@ -1119,12 +1119,12 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
                 sx={{
                   display: "grid", gridTemplateColumns: "1fr 140px 100px 80px",
                   gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                  bgcolor: i % 2 === 0 ? "#F8FAFC" : "white",
+                  bgcolor: i % 2 === 0 ? "var(--bg-page)" : "var(--bg-surface)",
                   "&:hover": { bgcolor: "#EFF6FF" },
                 }}
               >
-                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: NAVY }}>{t.title}</Typography>
-                <Typography variant="body2" sx={{ color: "#475569" }} noWrap>{t.requesterName ?? "—"}</Typography>
+                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
+                <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
                 <Chip
                   label={`${Math.ceil(t.waitingDays)}j`}
                   size="small"
@@ -1146,10 +1146,10 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
 
         {/* Untouched tickets */}
         {s.untouchedTickets.length > 0 && (
-          <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #FEE2E2", p: 2.5 }}>
+          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid #FEE2E2", p: 2.5 }}>
             <Box display="flex" alignItems="center" gap={1} mb={2}>
               <WarningAmberIcon sx={{ color: "#dc2626", fontSize: 20 }} />
-              <Typography fontWeight={700} fontSize={13} color={NAVY}>
+              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
                 Tickets jamais traités — aucune action IT ({s.untouchedTickets.length})
               </Typography>
             </Box>
@@ -1166,11 +1166,11 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
                 sx={{
                   display: "grid", gridTemplateColumns: "1fr 140px 80px 80px",
                   gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                  bgcolor: i % 2 === 0 ? "#FFF7F7" : "white",
+                  bgcolor: i % 2 === 0 ? "#FFF7F7" : "var(--bg-surface)",
                 }}
               >
-                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: NAVY }}>{t.title}</Typography>
-                <Typography variant="body2" sx={{ color: "#475569" }} noWrap>{t.requesterName ?? "—"}</Typography>
+                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
+                <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
                 <Chip
                   label={`${Math.ceil(t.ageDays)}j`}
                   size="small"
@@ -1192,10 +1192,10 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
 
         {/* ── Tickets en cours ──────────────────────────────── */}
         {s.inProgressList.length > 0 && (
-          <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #DBEAFE", p: 2.5, mt: 2.5 }}>
+          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid #DBEAFE", p: 2.5, mt: 2.5 }}>
             <Box display="flex" alignItems="center" gap={1} mb={2}>
               <HourglassEmptyIcon sx={{ color: STEEL, fontSize: 20 }} />
-              <Typography fontWeight={700} fontSize={13} color={NAVY}>
+              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
                 Tickets en cours de traitement ({s.inProgressList.length})
               </Typography>
             </Box>
@@ -1212,12 +1212,12 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
                 sx={{
                   display: "grid", gridTemplateColumns: "1fr 130px 80px 90px 80px",
                   gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                  bgcolor: i % 2 === 0 ? "#EFF6FF" : "white",
+                  bgcolor: i % 2 === 0 ? "#EFF6FF" : "var(--bg-surface)",
                   "&:hover": { bgcolor: "#DBEAFE" },
                 }}
               >
-                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: NAVY }}>{t.title}</Typography>
-                <Typography variant="body2" sx={{ color: "#475569" }} noWrap>{t.requesterName ?? "—"}</Typography>
+                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
+                <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
                 <Chip
                   label={t.severity}
                   size="small"
@@ -1227,7 +1227,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
                     color: t.severity === "urgent" ? "#dc2626" : t.severity === "eleve" ? "#d97706" : STEEL,
                   }}
                 />
-                <Typography variant="body2" sx={{ color: "#64748B", fontSize: 12 }} noWrap>{t.category ?? "—"}</Typography>
+                <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 12 }} noWrap>{t.category ?? "—"}</Typography>
                 <Chip
                   label={t.ageDays < 1 ? `${Math.round(t.ageDays * 24)}h` : `${Math.ceil(t.ageDays)}j`}
                   size="small"
@@ -1244,11 +1244,11 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
 
         {/* ── Tickets traités ───────────────────────────────── */}
         {s.resolvedList.length > 0 && (
-          <Box sx={{ bgcolor: "white", borderRadius: 2.5, border: "1px solid #BBF7D0", p: 2.5, mt: 2.5 }}>
+          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid #BBF7D0", p: 2.5, mt: 2.5 }}>
             <Box display="flex" alignItems="center" justifyContent="space-between" mb={2} flexWrap="wrap" gap={1}>
               <Box display="flex" alignItems="center" gap={1}>
                 <CheckCircleIcon sx={{ color: "#16a34a", fontSize: 20 }} />
-                <Typography fontWeight={700} fontSize={13} color={NAVY}>
+                <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
                   Tickets traités — Résolus & Fermés ({s.resolvedList.length})
                 </Typography>
               </Box>
@@ -1271,8 +1271,8 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
             </Box>
 
             {/* Resolution time mini-bars */}
-            <Box sx={{ mb: 2, p: 1.5, bgcolor: "#F8FAFC", borderRadius: 2, border: "1px solid #E2E8F0" }}>
-              <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
+            <Box sx={{ mb: 2, p: 1.5, bgcolor: "var(--bg-page)", borderRadius: 2, border: "1px solid var(--border)" }}>
+              <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
                 Délai de résolution
               </Typography>
               <Box display="flex" gap={2} flexWrap="wrap">
@@ -1310,12 +1310,12 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
                   sx={{
                     display: "grid", gridTemplateColumns: "1fr 130px 80px 80px 80px 90px",
                     gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                    bgcolor: i % 2 === 0 ? "#F0FDF4" : "white",
+                    bgcolor: i % 2 === 0 ? "#F0FDF4" : "var(--bg-surface)",
                     "&:hover": { bgcolor: "#DCFCE7" },
                   }}
                 >
-                  <Typography variant="body2" fontWeight={600} noWrap sx={{ color: NAVY }}>{t.title}</Typography>
-                  <Typography variant="body2" sx={{ color: "#475569" }} noWrap>{t.requesterName ?? "—"}</Typography>
+                  <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
+                  <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
                   <Chip
                     label={t.status === "resolved" ? "Résolu" : "Fermé"}
                     size="small"
@@ -1339,7 +1339,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
                     size="small"
                     sx={{ height: 20, fontSize: 11, fontWeight: 700, width: "fit-content", bgcolor: delayBg, color: delayColor }}
                   />
-                  <Typography variant="body2" sx={{ color: "#64748B", fontSize: 11 }}>
+                  <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 11 }}>
                     {new Date(t.updatedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
                   </Typography>
                 </Box>

@@ -16,9 +16,9 @@ import { AgentsTerrainView } from "@/components/AgentsTerrainView";
 import { fetchMe } from "@/lib/auth";
 import { generatePortfolioPdf, generateLocationsPdf, generateAgentsPdf, generateGlobalAnalyticsPdf } from "@/lib/analyticsPdf";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 // Analytics localisations : lourd (recharts) → chargé à la demande.
 const LocationAnalyticsPage = dynamic(() => import("../location-analytics/page"), {
@@ -91,7 +91,7 @@ export default function AnalyticsPage() {
               endIcon={!exporting && <ArrowDropDownIcon />}
               sx={{
                 color: "white", borderColor: "rgba(255,255,255,0.4)", textTransform: "none", fontWeight: 600,
-                "&:hover": { borderColor: GOLD, background: "rgba(196,154,46,0.12)" },
+                "&:hover": { borderColor: GOLD, background: "rgba(60,128,71,0.12)" },
               }}
             >
               {exporting ? "Génération…" : "Exporter en PDF"}
@@ -119,7 +119,7 @@ export default function AnalyticsPage() {
         </Menu>
       </Box>
 
-      <Box sx={{ borderBottom: "1px solid #e2e8f0", background: "white", px: 3 }}>
+      <Box sx={{ borderBottom: "1px solid var(--border)", background: "var(--bg-surface)", px: 3 }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)}
           sx={{ "& .MuiTab-root": { fontWeight: 600, fontSize: 13, textTransform: "none", minHeight: 48 }, "& .Mui-selected": { color: GOLD }, "& .MuiTabs-indicator": { background: GOLD } }}>
           {TAB_LABELS.map((l) => <Tab key={l} label={l} />)}

@@ -29,9 +29,9 @@ import HistoryIcon from "@mui/icons-material/History";
 import { apiClient } from "@/lib/apiClient";
 import { fetchAgences } from "@/lib/agences";
 
-const NAVY = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD = "#C49A2E";
+const NAVY = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD = "#3C8047";
 
 function arr(v: any): any[] {
   if (Array.isArray(v)) return v;
@@ -173,7 +173,7 @@ function PerformanceTab() {
       {/* Charts */}
       <Box sx={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 3, mb: 3 }}>
         <Paper sx={{ p: 3, borderRadius: 3 }}>
-          <Typography fontWeight={700} mb={2} color={NAVY}>Captures GPS / jour ({period}j)</Typography>
+          <Typography fontWeight={700} mb={2} color="var(--text-primary)">Captures GPS / jour ({period}j)</Typography>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={locPerDay}>
               <defs>
@@ -192,7 +192,7 @@ function PerformanceTab() {
         </Paper>
 
         <Paper sx={{ p: 3, borderRadius: 3 }}>
-          <Typography fontWeight={700} mb={2} color={NAVY}>Répartition activité</Typography>
+          <Typography fontWeight={700} mb={2} color="var(--text-primary)">Répartition activité</Typography>
           <Box sx={{ display: "grid", gap: 2 }}>
             {[
               { label: "En ligne (< 1h)", count: onlineCount, color: "#16a34a" },
@@ -402,12 +402,12 @@ function FleetTab() {
         <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
           <Stack direction="row" alignItems="center" spacing={1} mb={2}>
             <HistoryIcon sx={{ color: STEEL }} />
-            <Typography fontWeight={700} color={NAVY}>Synchronisations récentes</Typography>
+            <Typography fontWeight={700} color="var(--text-primary)">Synchronisations récentes</Typography>
           </Stack>
           <Box sx={{ overflowX: "auto" }}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ background: "#f8fafc" }}>
+                <TableRow sx={{ background: "var(--bg-surface-alt)" }}>
                   {["Date", "Réussies", "Échouées", "Action", "Ignorées"].map((h) => (
                     <TableCell key={h} sx={{ fontWeight: 600, fontSize: 11 }}>{h}</TableCell>
                   ))}
@@ -575,7 +575,7 @@ export function AgentsTerrainView({ embedded = false }: { embedded?: boolean }) 
       )}
 
       {/* Tabs */}
-      <Box sx={{ borderBottom: "1px solid #e2e8f0", background: "white", px: 3 }}>
+      <Box sx={{ borderBottom: "1px solid var(--border)", background: "var(--bg-surface)", px: 3 }}>
         <Tabs value={mainTab} onChange={(_, v) => setMainTab(v)}
           sx={{ "& .MuiTab-root": { fontWeight: 600, fontSize: 13, textTransform: "none", minHeight: 48 }, "& .Mui-selected": { color: GOLD }, "& .MuiTabs-indicator": { background: GOLD } }}>
           <Tab icon={<GroupsIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Performance équipe" />

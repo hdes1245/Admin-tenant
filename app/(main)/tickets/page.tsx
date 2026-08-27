@@ -42,9 +42,9 @@ import LockIcon from "@mui/icons-material/Lock";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const STANDARD_CATEGORIES = [
   { label: "Connexion & Acces",        icon: "🔐" },
@@ -191,7 +191,7 @@ export default function TicketsPage() {
                 </Tooltip>
                 <Button
                   variant="contained" startIcon={<AddIcon />} onClick={openCreate}
-                  sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, "&:hover": { bgcolor: "#b8891f" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
+                  sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
                 >
                   Creer un ticket
                 </Button>
@@ -205,13 +205,13 @@ export default function TicketsPage() {
               {KPI_DATA.map((kpiItem, i) => (
                 <Grid item xs={6} sm={4} md={12 / 5} key={i}>
                   <Box sx={{
-                    borderRadius: 3, border: "1px solid #E2E8F0",
-                    bgcolor: "white", px: 2.5, py: 2.5,
+                    borderRadius: 3, border: "1px solid var(--border)",
+                    bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5,
                     display: "flex", alignItems: "center", gap: 2,
                     position: "relative", overflow: "hidden",
-                    boxShadow: "0 1px 3px rgba(13,27,42,0.05)",
+                    boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
                     "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpiItem.accent, borderRadius: "3px 0 0 3px" },
-                    transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" },
+                    transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
                   }}>
                     <Avatar sx={{ width: 44, height: 44, bgcolor: kpiItem.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpiItem.accent}44`, flexShrink: 0 }}>
                       {kpiItem.icon}
@@ -231,13 +231,13 @@ export default function TicketsPage() {
         {actionError && <Alert severity="error" sx={{ mb: 3 }}>{actionError}</Alert>}
 
         {/* Onglets */}
-        <Box sx={{ borderBottom: "1px solid #E2E8F0", mb: 3 }}>
+        <Box sx={{ borderBottom: "1px solid var(--border)", mb: 3 }}>
           <Tabs
             value={tab}
             onChange={(_, v) => setTab(v)}
             sx={{
-              "& .MuiTab-root": { fontWeight: 600, fontSize: 14, textTransform: "none", minHeight: 44, color: "#64748B" },
-              "& .Mui-selected": { color: NAVY },
+              "& .MuiTab-root": { fontWeight: 600, fontSize: 14, textTransform: "none", minHeight: 44, color: "var(--text-secondary)" },
+              "& .Mui-selected": { color: "var(--text-primary)" },
               "& .MuiTabs-indicator": { bgcolor: GOLD, height: 3, borderRadius: "3px 3px 0 0" },
             }}
           >
@@ -246,7 +246,7 @@ export default function TicketsPage() {
               label={
                 <Box display="flex" alignItems="center" gap={1}>
                   Tickets utilisateurs
-                  <Chip label={sortedTickets.length} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: tab === "users" ? NAVY : "#E2E8F0", color: tab === "users" ? "white" : "#64748B" }} />
+                  <Chip label={sortedTickets.length} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: tab === "users" ? NAVY : "#E2E8F0", color: tab === "users" ? "white" : "var(--text-secondary)" }} />
                 </Box>
               }
             />
@@ -256,7 +256,7 @@ export default function TicketsPage() {
                 <Box display="flex" alignItems="center" gap={1}>
                   Mes tickets & escaladés
                   {myItTickets.length > 0 && (
-                    <Chip label={myItTickets.length} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: tab === "mine" ? GOLD : "#FEF3C7", color: tab === "mine" ? NAVY : "#92400E" }} />
+                    <Chip label={myItTickets.length} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: tab === "mine" ? GOLD : "#FEF3C7", color: tab === "mine" ? "var(--text-primary)" : "#92400E" }} />
                   )}
                 </Box>
               }
@@ -275,7 +275,7 @@ export default function TicketsPage() {
           ) : (
             <>
               {myItTickets.length === 0 && !myItLoading ? (
-                <Box sx={{ textAlign: "center", py: 8, color: "#94A3B8" }}>
+                <Box sx={{ textAlign: "center", py: 8, color: "var(--text-muted)" }}>
                   <BugReportIcon sx={{ fontSize: 48, mb: 2, opacity: 0.4 }} />
                   <Typography fontWeight={600}>Aucun ticket personnel ni escaladé</Typography>
                   <Typography variant="body2" sx={{ mt: 0.5 }}>
@@ -333,7 +333,7 @@ export default function TicketsPage() {
 
             {/* Catégorie */}
             <Box>
-              <Typography variant="caption" fontWeight={700} sx={{ color: fieldErrors.category ? "#DC2626" : "#64748B", textTransform: "uppercase", letterSpacing: 0.8, mb: 1, display: "block" }}>
+              <Typography variant="caption" fontWeight={700} sx={{ color: fieldErrors.category ? "#DC2626" : "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 1, display: "block" }}>
                 Categorie *
               </Typography>
               <Grid container spacing={1}>
@@ -344,11 +344,11 @@ export default function TicketsPage() {
                       <Box
                         onClick={() => { setCategory(cat.label); setFieldErrors((e) => ({ ...e, category: false })); }}
                         sx={{
-                          border: `1.5px solid ${selected ? NAVY : fieldErrors.category ? "#DC2626" : "#E2E8F0"}`,
+                          border: `1.5px solid ${selected ? NAVY : fieldErrors.category ? "#DC2626" : "var(--border)"}`,
                           borderRadius: 2, p: 1, cursor: "pointer", textAlign: "center",
-                          bgcolor: selected ? NAVY : "white",
+                          bgcolor: selected ? NAVY : "var(--bg-surface)",
                           transition: "all 0.15s",
-                          "&:hover": { borderColor: NAVY, bgcolor: selected ? NAVY : "#F8FAFC" },
+                          "&:hover": { borderColor: NAVY, bgcolor: selected ? NAVY : "var(--bg-hover)" },
                         }}
                       >
                         <Typography sx={{ fontSize: 18, lineHeight: 1, mb: 0.25 }}>{cat.icon}</Typography>
@@ -384,7 +384,7 @@ export default function TicketsPage() {
 
             {/* Sévérité */}
             <Box>
-              <Typography variant="caption" fontWeight={700} sx={{ color: fieldErrors.severity ? "#DC2626" : "#64748B", textTransform: "uppercase", letterSpacing: 0.8, mb: 1, display: "block" }}>
+              <Typography variant="caption" fontWeight={700} sx={{ color: fieldErrors.severity ? "#DC2626" : "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 1, display: "block" }}>
                 Severite *
               </Typography>
               <Box display="flex" gap={1} flexWrap="wrap">

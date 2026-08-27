@@ -42,9 +42,9 @@ import {
   updateTicketStatus,
 } from "@/lib/tickets";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 const AMBER = "#92400E";
 
 const SEVERITY_CFG: Record<string, { label: string; color: string }> = {
@@ -81,15 +81,15 @@ function RefCommentBubble({ comment }: { comment: TicketCommentDto }) {
   const isIt = isItRole(comment.authorRole);
   return (
     <Box display="flex" flexDirection={isIt ? "row-reverse" : "row"} alignItems="flex-end" gap={1} mb={1.5}>
-      <Avatar sx={{ width: 26, height: 26, fontSize: 10, fontWeight: 700, flexShrink: 0, bgcolor: isIt ? NAVY : "#E2E8F0", color: isIt ? GOLD : "#475569" }}>
+      <Avatar sx={{ width: 26, height: 26, fontSize: 10, fontWeight: 700, flexShrink: 0, bgcolor: isIt ? NAVY : "#E2E8F0", color: isIt ? GOLD : "var(--text-secondary)" }}>
         {isIt ? <AdminPanelSettingsIcon sx={{ fontSize: 14 }} /> : initials(comment.authorName)}
       </Avatar>
       <Box maxWidth="75%">
         <Box display="flex" alignItems="center" gap={1} mb={0.3} justifyContent={isIt ? "flex-end" : "flex-start"}>
-          <Typography variant="caption" fontWeight={600} sx={{ color: "#475569", fontSize: 11 }}>
+          <Typography variant="caption" fontWeight={600} sx={{ color: "var(--text-secondary)", fontSize: 11 }}>
             {comment.authorName ?? (isIt ? "Admin IT" : "Utilisateur")}
           </Typography>
-          <Typography variant="caption" sx={{ color: "#CBD5E1", fontSize: 10 }}>
+          <Typography variant="caption" sx={{ color: "var(--border-strong)", fontSize: 10 }}>
             {formatDate(comment.createdAt)}
           </Typography>
         </Box>
@@ -113,7 +113,7 @@ function EscCommentBubble({ comment }: { comment: TicketCommentDto }) {
   const isIt = isItRole(comment.authorRole);
   return (
     <Box display="flex" flexDirection={isIt ? "row-reverse" : "row"} alignItems="flex-end" gap={1} mb={2}>
-      <Avatar sx={{ width: 32, height: 32, fontSize: 12, fontWeight: 700, flexShrink: 0, bgcolor: isIt ? AMBER : "#E2E8F0", color: isIt ? "white" : "#475569" }}>
+      <Avatar sx={{ width: 32, height: 32, fontSize: 12, fontWeight: 700, flexShrink: 0, bgcolor: isIt ? AMBER : "#E2E8F0", color: isIt ? "white" : "var(--text-secondary)" }}>
         {isIt ? <AdminPanelSettingsIcon sx={{ fontSize: 16 }} /> : initials(comment.authorName)}
       </Avatar>
       <Box maxWidth="72%">
@@ -122,7 +122,7 @@ function EscCommentBubble({ comment }: { comment: TicketCommentDto }) {
             {comment.authorName ?? (isIt ? "Admin GeoTrust" : "Admin tenant")}
           </Typography>
           {isIt && <Chip label="GeoTrust" size="small" sx={{ height: 15, fontSize: 10, bgcolor: AMBER + "18", color: AMBER, fontWeight: 700, px: 0.25 }} />}
-          <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: 11 }}>{formatDate(comment.createdAt)}</Typography>
+          <Typography variant="caption" sx={{ color: "var(--text-muted)", fontSize: 11 }}>{formatDate(comment.createdAt)}</Typography>
         </Box>
         <Box sx={{
           px: 2, py: 1.25,
@@ -147,16 +147,16 @@ function AttachmentRow({ att, ticketId }: { att: TicketAttachmentDto; ticketId: 
   // (qui n'était de toute façon jamais lu côté backend).
   const downloadUrl = attachmentDownloadUrl(ticketId, att.id);
   return (
-    <Box display="flex" alignItems="center" gap={1.5} sx={{ px: 1.5, py: 1, borderRadius: 2, border: "1px solid #E2E8F0", bgcolor: "white", mb: 1, "&:hover": { bgcolor: "#F8FAFC" } }}>
+    <Box display="flex" alignItems="center" gap={1.5} sx={{ px: 1.5, py: 1, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", mb: 1, "&:hover": { bgcolor: "var(--bg-hover)" } }}>
       <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <InsertDriveFileIcon sx={{ fontSize: 16, color: "#64748B" }} />
+        <InsertDriveFileIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
       </Box>
       <Box flex={1} minWidth={0}>
-        <Typography variant="body2" fontWeight={600} sx={{ color: NAVY, fontSize: 12 }} noWrap>{att.originalName}</Typography>
-        <Typography variant="caption" sx={{ color: "#94A3B8" }}>{formatBytes(att.size)} · {att.uploaderName ?? "inconnu"}</Typography>
+        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)", fontSize: 12 }} noWrap>{att.originalName}</Typography>
+        <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{formatBytes(att.size)} · {att.uploaderName ?? "inconnu"}</Typography>
       </Box>
       <Tooltip title="Télécharger">
-        <IconButton size="small" component="a" href={downloadUrl} target="_blank" rel="noopener noreferrer" sx={{ color: "#94A3B8", "&:hover": { color: STEEL } }}>
+        <IconButton size="small" component="a" href={downloadUrl} target="_blank" rel="noopener noreferrer" sx={{ color: "var(--text-muted)", "&:hover": { color: STEEL } }}>
           <DownloadIcon sx={{ fontSize: 16 }} />
         </IconButton>
       </Tooltip>
@@ -346,7 +346,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
       </Box>
 
       {/* ── Original ticket reference card ── */}
-      <Box sx={{ borderBottom: "1px solid #E2E8F0", flexShrink: 0, bgcolor: "#FFF9EC" }}>
+      <Box sx={{ borderBottom: "1px solid var(--border)", flexShrink: 0, bgcolor: "#FFF9EC" }}>
         <Box
           display="flex" alignItems="center" gap={1.5} px={3} py={1.25}
           sx={{ cursor: "pointer", "&:hover": { bgcolor: "#FFF3D0" }, transition: "background .15s" }}
@@ -387,7 +387,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
             {refCommentsQuery.isLoading ? (
               <Box>{[1,2].map(i => <Skeleton key={i} height={48} sx={{ mb: 1, borderRadius: 2 }} />)}</Box>
             ) : (refCommentsQuery.data?.length ?? 0) === 0 ? (
-              <Typography variant="caption" sx={{ color: "#CBD5E1" }}>Aucun message dans la discussion originale.</Typography>
+              <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>Aucun message dans la discussion originale.</Typography>
             ) : (
               refCommentsQuery.data?.map((c) => <RefCommentBubble key={c.id} comment={c} />)
             )}
@@ -399,7 +399,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
       {phase === "form" && (
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column", px: 3, py: 3, bgcolor: "#FAFBFC", overflowY: "auto" }}>
           <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ color: NAVY, mb: 0.5 }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ color: "var(--text-primary)", mb: 0.5 }}>
               Message d'escalade vers GeoTrust
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
@@ -409,8 +409,8 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
 
           <Box
             sx={{
-              flex: 1, border: "1.5px solid #E2E8F0", borderRadius: 2.5,
-              bgcolor: "white", "&:focus-within": { borderColor: AMBER, bgcolor: "white" }, transition: "all .15s",
+              flex: 1, border: "1.5px solid var(--border)", borderRadius: 2.5,
+              bgcolor: "var(--bg-surface)", "&:focus-within": { borderColor: AMBER, bgcolor: "var(--bg-surface)" }, transition: "all .15s",
             }}
           >
             <textarea
@@ -431,7 +431,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
           {escalateError && <Alert severity="error" sx={{ mt: 1.5, py: 0.5 }}>{escalateError}</Alert>}
 
           <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
-            <Typography variant="caption" sx={{ color: "#94A3B8" }}>
+            <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
               Le demandeur sera notifié et le ticket passera en statut "En cours"
             </Typography>
             <Box display="flex" gap={1}>
@@ -477,7 +477,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
               ))}</Box>
             ) : (threadCommentsQuery.data?.length ?? 0) === 0 ? (
               <Box textAlign="center" py={6}>
-                <NorthIcon sx={{ fontSize: 36, color: "#CBD5E1", mb: 1 }} />
+                <NorthIcon sx={{ fontSize: 36, color: "var(--border-strong)", mb: 1 }} />
                 <Typography variant="body2" color="text.disabled">
                   La discussion GeoTrust démarrera ici. Répondez ci-dessous.
                 </Typography>
@@ -490,8 +490,8 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
 
           {/* Attachments */}
           {(attachmentsQuery.data?.length ?? 0) > 0 && (
-            <Box sx={{ px: 3, py: 1.5, borderTop: "1px solid #E2E8F0", bgcolor: "#F8FAFC", flexShrink: 0, maxHeight: 140, overflowY: "auto" }}>
-              <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
+            <Box sx={{ px: 3, py: 1.5, borderTop: "1px solid var(--border)", bgcolor: "var(--bg-page)", flexShrink: 0, maxHeight: 140, overflowY: "auto" }}>
+              <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
                 Pièces jointes ({attachmentsQuery.data!.length})
               </Typography>
               {attachmentsQuery.data!.map((att) => (
@@ -501,7 +501,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
           )}
 
           {/* Reply area */}
-          <Box sx={{ px: 3, pt: 1.5, pb: 2, borderTop: "1px solid #E2E8F0", bgcolor: "white", flexShrink: 0 }}>
+          <Box sx={{ px: 3, pt: 1.5, pb: 2, borderTop: "1px solid var(--border)", bgcolor: "var(--bg-surface)", flexShrink: 0 }}>
             {replyError && <Alert severity="error" sx={{ mb: 1.5, py: 0.5 }}>{replyError}</Alert>}
 
             {pendingFile && (
@@ -516,7 +516,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
               </Box>
             )}
 
-            <Box sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, bgcolor: "#FAFBFC", "&:focus-within": { borderColor: AMBER, bgcolor: "white" }, transition: "all .15s" }}>
+            <Box sx={{ border: "1px solid var(--border)", borderRadius: 2.5, bgcolor: "#FAFBFC", "&:focus-within": { borderColor: AMBER, bgcolor: "var(--bg-surface)" }, transition: "all .15s" }}>
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
@@ -533,20 +533,20 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
               <Box display="flex" alignItems="center" justifyContent="space-between" px={1.5} pb={1}>
                 <Box display="flex" gap={0.5}>
                   <Tooltip title="Joindre un fichier (max 10 Mo)">
-                    <IconButton size="small" onClick={() => fileInputRef.current?.click()} sx={{ color: "#94A3B8", "&:hover": { color: AMBER, bgcolor: "#FFF9EC" } }}>
+                    <IconButton size="small" onClick={() => fileInputRef.current?.click()} sx={{ color: "var(--text-muted)", "&:hover": { color: AMBER, bgcolor: "#FFF9EC" } }}>
                       <AttachFileIcon sx={{ fontSize: 18 }} />
                     </IconButton>
                   </Tooltip>
                   <input type="file" ref={fileInputRef} onChange={(e) => { const f = e.target.files?.[0]; if (f) setPendingFile(f); e.target.value = ""; }} style={{ display: "none" }} accept="image/*,application/pdf,.doc,.docx,.txt" />
                 </Box>
                 <Box display="flex" alignItems="center" gap={1}>
-                  <Typography variant="caption" sx={{ color: "#CBD5E1" }}>Ctrl+Entrée</Typography>
+                  <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>Ctrl+Entrée</Typography>
                   <Button
                     variant="contained" size="small"
                     endIcon={(commentMutation.isPending || uploadMutation.isPending) ? <CircularProgress size={13} sx={{ color: "rgba(255,255,255,0.8)" }} /> : <SendIcon sx={{ fontSize: 15 }} />}
                     disabled={!canSend}
                     onClick={handleSend}
-                    sx={{ bgcolor: AMBER, fontWeight: 700, fontSize: 12, px: 2, borderRadius: 2, "&:hover": { bgcolor: "#78350F" }, "&.Mui-disabled": { bgcolor: "#E2E8F0", color: "#94A3B8" } }}
+                    sx={{ bgcolor: AMBER, fontWeight: 700, fontSize: 12, px: 2, borderRadius: 2, "&:hover": { bgcolor: "#78350F" }, "&.Mui-disabled": { bgcolor: "var(--border)", color: "var(--text-muted)" } }}
                   >
                     Envoyer
                   </Button>

@@ -39,9 +39,9 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import { useMemo, useState } from "react";
 import { PaginationBar } from "@/components/PaginationBar";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 function formatDate(value: string): string {
   if (!value) return "—";
@@ -122,12 +122,12 @@ export default function LogsPage() {
           ].map((kpi, i) => (
             <Grid item xs={12} sm={4} key={i}>
               <Box sx={{
-                borderRadius: 3, border: "1px solid #E2E8F0", bgcolor: "white",
+                borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
                 px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
                 position: "relative", overflow: "hidden",
-                boxShadow: "0 1px 3px rgba(13,27,42,0.05)",
+                boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
                 "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" },
-                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" },
+                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
               }}>
                 <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
                 <Box>
@@ -139,14 +139,14 @@ export default function LogsPage() {
           ))}
         </Grid>
 
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
           <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
             <TextField
               size="small" placeholder="Filtrer par action (ex: CREATE_USER)..."
               value={action} onChange={(e) => { setAction(e.target.value); setPage(1); }}
-              sx={{ flex: 1, minWidth: 260, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s", "&:hover": { bgcolor: "white" }, "&.Mui-focused": { bgcolor: "white" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
+              sx={{ flex: 1, minWidth: 260, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
               InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} /></InputAdornment>,
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
                 endAdornment: action ? <InputAdornment position="end"><IconButton size="small" onClick={() => { setAction(""); setPage(1); }}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
               }}
             />
@@ -155,7 +155,7 @@ export default function LogsPage() {
               // sélecteur apparaît comme une boîte vide sans libellé.
               <TextField select size="small" value="" onChange={(e) => { setAction(e.target.value); setPage(1); }}
                 SelectProps={{ displayEmpty: true }}
-                sx={{ minWidth: 180, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC" } }}>
+                sx={{ minWidth: 180, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }}>
                 <MenuItem value="">Raccourcis actions</MenuItem>
                 {topActions.map((x) => (<MenuItem key={x.action} value={x.action}>{x.action}</MenuItem>))}
               </TextField>
@@ -165,12 +165,12 @@ export default function LogsPage() {
               variant={showDateFilters ? "contained" : "outlined"}
               sx={showDateFilters
                 ? { bgcolor: NAVY, color: "white", fontWeight: 600, borderRadius: 2, "&:hover": { bgcolor: STEEL } }
-                : { fontWeight: 600, borderRadius: 2, borderColor: "#E2E8F0", color: "#64748B", "&:hover": { borderColor: STEEL, bgcolor: "#F1F5F9" } }}>
+                : { fontWeight: 600, borderRadius: 2, borderColor: "var(--border)", color: "var(--text-secondary)", "&:hover": { borderColor: STEEL, bgcolor: "#F1F5F9" } }}>
               Dates{(startDate || endDate) && <Chip label={(startDate ? 1 : 0) + (endDate ? 1 : 0)} size="small" sx={{ ml: 1, height: 18, fontSize: 11, fontWeight: 700, bgcolor: "rgba(255,255,255,0.25)", color: "inherit" }} />}
             </Button>
             {(action || startDate || endDate) && (
               <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={() => { setAction(""); setStartDate(""); setEndDate(""); setPage(1); }}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "#64748B", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
+                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
                 Effacer
               </Button>
             )}
@@ -183,14 +183,14 @@ export default function LogsPage() {
           </Collapse>
           <Box display="flex" gap={1} mt={1.5} pt={1} sx={{ borderTop: "1px solid #F1F5F9" }} alignItems="center" flexWrap="wrap">
             <Typography variant="caption" color="text.secondary">{logsQuery.data?.total ?? 0} log{(logsQuery.data?.total ?? 0) !== 1 ? "s" : ""}</Typography>
-            <Typography variant="caption" sx={{ color: "#CBD5E1" }}>·</Typography>
+            <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>·</Typography>
             <Typography variant="caption" color="text.secondary">Page {logsQuery.data?.page ?? 1}/{logsQuery.data?.totalPages ?? 1}</Typography>
-            <Typography variant="caption" sx={{ color: "#CBD5E1" }}>·</Typography>
+            <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>·</Typography>
             <Typography variant="caption" color="text.secondary">{statsQuery.data?.byDay?.length ?? 0} jours actifs (30j)</Typography>
           </Box>
         </Paper>
 
-        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2.5, border: "1px solid #E2E8F0", overflow: "hidden" }}>
+        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}>
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -215,9 +215,9 @@ export default function LogsPage() {
             </TableHead>
             <TableBody>
               {(logsQuery.data?.logs ?? []).map((log) => (
-                <TableRow key={log.id} sx={{ "& td": { borderBottom: "1px solid #F1F5F9" }, "&:hover": { bgcolor: "#F8FAFC" } }}>
+                <TableRow key={log.id} sx={{ "& td": { borderBottom: "1px solid #F1F5F9" }, "&:hover": { bgcolor: "var(--bg-hover)" } }}>
                   <TableCell>
-                    <Typography variant="caption" sx={{ fontFamily: "monospace", color: "#64748B" }}>{log.id}</Typography>
+                    <Typography variant="caption" sx={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>{log.id}</Typography>
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
@@ -227,10 +227,10 @@ export default function LogsPage() {
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" sx={{ color: "#475569", fontSize: 12 }}>{log.description || "—"}</Typography>
+                    <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 12 }}>{log.description || "—"}</Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" fontWeight={500} sx={{ color: NAVY }}>{log.userName || log.userUsername || "Systeme"}</Typography>
+                    <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>{log.userName || log.userUsername || "Systeme"}</Typography>
                   </TableCell>
                   <TableCell>
                     <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>{formatDate(log.createdAt)}</Typography>

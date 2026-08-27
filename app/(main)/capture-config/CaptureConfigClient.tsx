@@ -25,9 +25,9 @@ import {
   CaptureFormConfig, LocationType, CaptureExtraField, EXTRA_FIELD_TYPES, DEFAULT_CONFIG,
 } from "@/lib/captureConfig";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 export default function CaptureConfigClient() {
   return (
@@ -45,7 +45,7 @@ export function CaptureConfigPanel() {
     <Box>
       <Box sx={{ mb: 3, display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
         <Box>
-          <Typography fontWeight={800} fontSize={22} color={NAVY}>Configuration du formulaire de capture</Typography>
+          <Typography fontWeight={800} fontSize={22} color="var(--text-primary)">Configuration du formulaire de capture</Typography>
           <Typography fontSize={13} color="text.secondary" mt={0.4}>
             Personnalisez le formulaire utilisé par les agents sur l&apos;application mobile pour enregistrer les localisations clients.
           </Typography>
@@ -56,7 +56,7 @@ export function CaptureConfigPanel() {
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{
         mb: 3, borderBottom: "1px solid rgba(0,0,0,0.08)",
         "& .MuiTab-root": { fontSize: 13, fontWeight: 600, textTransform: "none" },
-        "& .Mui-selected": { color: NAVY },
+        "& .Mui-selected": { color: "var(--text-primary)" },
         "& .MuiTabs-indicator": { bgcolor: GOLD, height: 3 },
       }}>
         <Tab label="Types de lieux"        icon={<ListIcon        sx={{ fontSize: 18 }} />} iconPosition="start" />
@@ -80,7 +80,7 @@ function LocationTypesTab() {
   const [newName, setNewName]   = useState("");
   const [newCode, setNewCode]   = useState("");
   const [newIcon, setNewIcon]   = useState("📍");
-  const [newColor, setNewColor] = useState("#1B4F72");
+  const [newColor, setNewColor] = useState("#1E6091");
   const [saved, setSaved]       = useState(false);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ function LocationTypesTab() {
     const code = newCode.trim() || newName.trim().toLowerCase().replace(/\s+/g, "_");
     const t = await createLocationType({ name: newName.trim(), code, sort_order: types.length + 1 });
     setTypes((p) => [...p, t]);
-    setAddOpen(false); setNewName(""); setNewCode(""); setNewIcon("📍"); setNewColor("#1B4F72");
+    setAddOpen(false); setNewName(""); setNewCode(""); setNewIcon("📍"); setNewColor("#1E6091");
   };
   const del  = async (id: number) => {
     await deleteLocationType(id);
@@ -139,12 +139,12 @@ function LocationTypesTab() {
           ))}
         </Box>
         {types.map((t, idx) => (
-          <Box key={t.id} sx={{ display: "grid", gridTemplateColumns: "48px 1fr 160px 90px", alignItems: "center", px: 2, py: 1.5, bgcolor: idx % 2 === 0 ? "#fff" : "#F8FAFC", borderBottom: "1px solid rgba(0,0,0,0.05)", "&:hover": { bgcolor: "#F0F7FF" } }}>
+          <Box key={t.id} sx={{ display: "grid", gridTemplateColumns: "48px 1fr 160px 90px", alignItems: "center", px: 2, py: 1.5, bgcolor: idx % 2 === 0 ? "var(--bg-surface)" : "var(--bg-surface-alt)", borderBottom: "1px solid rgba(0,0,0,0.05)", "&:hover": { bgcolor: "#F0F7FF" } }}>
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <IconButton size="small" onClick={() => move(idx, -1)} disabled={idx === 0} sx={{ p: 0.2 }}>
                 <Typography fontSize={9} color={idx === 0 ? "text.disabled" : STEEL}>▲</Typography>
               </IconButton>
-              <Typography fontSize={11} fontWeight={700} color={NAVY}>{t.sort_order}</Typography>
+              <Typography fontSize={11} fontWeight={700} color="var(--text-primary)">{t.sort_order}</Typography>
               <IconButton size="small" onClick={() => move(idx, 1)} disabled={idx === types.length - 1} sx={{ p: 0.2 }}>
                 <Typography fontSize={9} color={idx === types.length - 1 ? "text.disabled" : STEEL}>▼</Typography>
               </IconButton>
@@ -156,7 +156,7 @@ function LocationTypesTab() {
                 onKeyDown={(e) => { if (e.key === "Enter") saveRename(t.id, editName); }}
                 sx={{ "& .MuiInputBase-input": { fontSize: 13, py: 0.5 } }} />
             ) : (
-              <Typography fontSize={13} fontWeight={600} color={NAVY}>{t.name}</Typography>
+              <Typography fontSize={13} fontWeight={600} color="var(--text-primary)">{t.name}</Typography>
             )}
             <Typography fontSize={12} color="text.secondary" fontFamily="monospace">{t.code}</Typography>
             <Box sx={{ display: "flex", gap: 0.5 }}>
@@ -181,7 +181,7 @@ function LocationTypesTab() {
       </Box>
 
       <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700, fontSize: 16, color: NAVY }}>Nouveau type de lieu</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>Nouveau type de lieu</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <Stack gap={2.5} sx={{ pt: 1 }}>
             <TextField label="Nom affiché *" value={newName} onChange={(e) => setNewName(e.target.value)} size="small" fullWidth autoFocus />
@@ -195,7 +195,7 @@ function LocationTypesTab() {
               </FormControl>
               <Box>
                 <Typography fontSize={12} color="text.secondary" mb={0.5}>Couleur</Typography>
-                <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: newColor, border: "2px solid #E2E8F0", overflow: "hidden", position: "relative" }}>
+                <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: newColor, border: "2px solid var(--border)", overflow: "hidden", position: "relative" }}>
                   <input type="color" value={newColor} onChange={(e) => setNewColor(e.target.value)}
                     style={{ position: "absolute", inset: 0, opacity: 0, width: "100%", height: "100%", cursor: "pointer" }} />
                 </Box>
@@ -256,7 +256,7 @@ function FormFieldsTab() {
       {/* Left — champs */}
       <Box>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-          <Typography fontWeight={700} fontSize={15} color={NAVY}>Champs du formulaire</Typography>
+          <Typography fontWeight={700} fontSize={15} color="var(--text-primary)">Champs du formulaire</Typography>
           <Button startIcon={<SaveIcon />} variant="contained" size="small"
             sx={{ bgcolor: saved ? "#059669" : NAVY, "&:hover": { bgcolor: STEEL }, fontSize: 13 }} onClick={save} disabled={saving}>
             {saving ? "Enregistrement…" : saved ? "Enregistré !" : "Enregistrer"}
@@ -295,10 +295,10 @@ function FormFieldsTab() {
         />
 
         {/* Configurable — Photos */}
-        <Box sx={{ border: "1px solid rgba(0,0,0,0.1)", borderRadius: 2, p: 2, mb: 2, bgcolor: cfg.photoField.enabled ? "#fff" : "#F8FAFC" }}>
+        <Box sx={{ border: "1px solid rgba(0,0,0,0.1)", borderRadius: 2, p: 2, mb: 2, bgcolor: cfg.photoField.enabled ? "var(--bg-surface)" : "var(--bg-page)" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <PhotoCameraIcon sx={{ fontSize: 20, color: cfg.photoField.enabled ? STEEL : "text.disabled" }} />
-            <Typography fontSize={13} fontWeight={700} color={cfg.photoField.enabled ? NAVY : "text.disabled"} flex={1}>Photos</Typography>
+            <Typography fontSize={13} fontWeight={700} color={cfg.photoField.enabled ? "var(--text-primary)" : "text.disabled"} flex={1}>Photos</Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <Typography fontSize={11} color="text.secondary">Requis</Typography>
@@ -336,13 +336,13 @@ function FormFieldsTab() {
 
       {/* Right — palette */}
       <Box sx={{ position: "sticky", top: 80 }}>
-        <Typography fontWeight={700} fontSize={13} color={NAVY} mb={1.5}>Ajouter un champ</Typography>
+        <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={1.5}>Ajouter un champ</Typography>
         <Box sx={{ borderRadius: 2, border: "1px solid rgba(0,0,0,0.08)", overflow: "hidden" }}>
           {EXTRA_FIELD_TYPES.map((ft, idx) => (
             <Box key={ft.type} onClick={() => addExtra(ft.type)} sx={{
               display: "flex", alignItems: "center", gap: 1.5, px: 2, py: 1.5,
               borderBottom: idx < EXTRA_FIELD_TYPES.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
-              cursor: "pointer", bgcolor: "#fff",
+              cursor: "pointer", bgcolor: "var(--bg-surface)",
               "&:hover": { bgcolor: "#EFF6FF" },
               transition: "background 0.15s",
             }}>
@@ -350,7 +350,7 @@ function FormFieldsTab() {
                 <AddIcon sx={{ fontSize: 16, color: STEEL }} />
               </Box>
               <Box>
-                <Typography fontSize={13} fontWeight={600} color={NAVY}>{ft.label}</Typography>
+                <Typography fontSize={13} fontWeight={600} color="var(--text-primary)">{ft.label}</Typography>
                 <Typography fontSize={11} color="text.secondary">{ft.type}</Typography>
               </Box>
             </Box>
@@ -372,13 +372,13 @@ function FormFieldsTab() {
 // ── FixedFieldCard ────────────────────────────────────────────────────────────
 function FixedFieldCard({ icon, label, description }: { icon: React.ReactNode; label: string; description: string }) {
   return (
-    <Box sx={{ border: "1px solid rgba(0,0,0,0.08)", borderRadius: 2, p: 2, mb: 2, bgcolor: "#F8FAFC", display: "flex", alignItems: "center", gap: 1.5 }}>
+    <Box sx={{ border: "1px solid rgba(0,0,0,0.08)", borderRadius: 2, p: 2, mb: 2, bgcolor: "var(--bg-page)", display: "flex", alignItems: "center", gap: 1.5 }}>
       <Box sx={{ color: "text.disabled" }}>{icon}</Box>
       <Box flex={1}>
         <Typography fontSize={13} fontWeight={600} color="text.disabled">{label}</Typography>
         <Typography fontSize={11} color="text.disabled">{description}</Typography>
       </Box>
-      <Chip label="Fixe" size="small" sx={{ fontSize: 10, height: 20, bgcolor: "#E2E8F0", color: "#64748B" }} />
+      <Chip label="Fixe" size="small" sx={{ fontSize: 10, height: 20, bgcolor: "#E2E8F0", color: "var(--text-secondary)" }} />
     </Box>
   );
 }
@@ -394,7 +394,7 @@ function ConfigurableFieldCard({
   const [editingLabel, setEditingLabel] = useState(false);
   const [draftLabel, setDraftLabel]     = useState(label);
   return (
-    <Box sx={{ border: `1px solid ${enabled ? STEEL + "30" : "rgba(0,0,0,0.08)"}`, borderRadius: 2, p: 2, mb: 2, bgcolor: enabled ? "#fff" : "#F8FAFC" }}>
+    <Box sx={{ border: `1px solid ${enabled ? STEEL + "30" : "rgba(0,0,0,0.08)"}`, borderRadius: 2, p: 2, mb: 2, bgcolor: enabled ? "var(--bg-surface)" : "var(--bg-page)" }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <span style={{ fontSize: 18, opacity: enabled ? 1 : 0.4 }}>{icon}</span>
         {editingLabel ? (
@@ -404,10 +404,10 @@ function ConfigurableFieldCard({
             onKeyDown={(e) => { if (e.key === "Enter") { onLabelChange(draftLabel); setEditingLabel(false); } }}
             sx={{ flex: 1, "& .MuiInputBase-input": { fontSize: 13, fontWeight: 700, py: 0.5 } }} />
         ) : (
-          <Typography fontSize={13} fontWeight={700} color={enabled ? NAVY : "text.disabled"} flex={1}
+          <Typography fontSize={13} fontWeight={700} color={enabled ? "var(--text-primary)" : "text.disabled"} flex={1}
             onClick={() => { setDraftLabel(label); setEditingLabel(true); }}
             sx={{ cursor: "text", "&:hover": { color: STEEL }, transition: "color 0.15s" }}>
-            {label} <span style={{ fontSize: 10, color: "#94A3B8", fontWeight: 400 }}>(cliquer pour renommer)</span>
+            {label} <span style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 400 }}>(cliquer pour renommer)</span>
           </Typography>
         )}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -434,10 +434,10 @@ function ExtraFieldCard({ field, typeLabel, onToggleEnabled, onToggleRequired, o
   onEdit: () => void; onDelete: () => void;
 }) {
   return (
-    <Box sx={{ border: `1px solid ${field.enabled ? GOLD + "60" : "rgba(0,0,0,0.08)"}`, borderRadius: 2, p: 2, mb: 2, bgcolor: field.enabled ? "#FFFBF0" : "#F8FAFC" }}>
+    <Box sx={{ border: `1px solid ${field.enabled ? GOLD + "60" : "rgba(0,0,0,0.08)"}`, borderRadius: 2, p: 2, mb: 2, bgcolor: field.enabled ? "#FFFBF0" : "var(--bg-page)" }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <Chip label={typeLabel} size="small" sx={{ fontSize: 10, height: 20, bgcolor: `${GOLD}20`, color: "#92400E", fontWeight: 600 }} />
-        <Typography fontSize={13} fontWeight={700} color={field.enabled ? NAVY : "text.disabled"} flex={1}>{field.label}</Typography>
+        <Typography fontSize={13} fontWeight={700} color={field.enabled ? "var(--text-primary)" : "text.disabled"} flex={1}>{field.label}</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <Typography fontSize={11} color="text.secondary">Requis</Typography>
@@ -479,7 +479,7 @@ function ExtraFieldEditDialog({ field, onSave, onClose }: { field: CaptureExtraF
 
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700, fontSize: 16, color: NAVY }}>Modifier le champ</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 700, fontSize: 16, color: "var(--text-primary)" }}>Modifier le champ</DialogTitle>
       <DialogContent>
         <Stack gap={2.5} sx={{ pt: 1 }}>
           <TextField label="Libellé *" value={draft.label} onChange={(e) => upd({ label: e.target.value })} size="small" fullWidth autoFocus />
@@ -487,7 +487,7 @@ function ExtraFieldEditDialog({ field, onSave, onClose }: { field: CaptureExtraF
           <TextField label="Texte d'aide" value={draft.helpText} onChange={(e) => upd({ helpText: e.target.value })} size="small" fullWidth />
           {hasOptions && (
             <Box>
-              <Typography fontSize={13} fontWeight={600} color={NAVY} mb={1}>Options</Typography>
+              <Typography fontSize={13} fontWeight={600} color="var(--text-primary)" mb={1}>Options</Typography>
               {draft.options.map((o, i) => (
                 <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.75 }}>
                   <Typography fontSize={13} flex={1} sx={{ border: "1px solid rgba(0,0,0,0.12)", borderRadius: 1, px: 1.5, py: 0.75 }}>{o}</Typography>

@@ -27,9 +27,9 @@ import {
   CATEGORY_LABELS,
 } from "@/lib/forms";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const SYSTEM_ID = "system_localiser_client";
 
@@ -60,11 +60,11 @@ function FormCard({ form, onEdit, onDuplicate, onDelete, onToggleStatus }: {
       <CardContent sx={{ flex: 1, pb: 1 }}>
         <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
           <Chip label={CATEGORY_LABELS[form.category]} size="small"
-            sx={{ fontSize: 10, bgcolor: "rgba(27,79,114,0.08)", color: STEEL, height: 20 }} />
+            sx={{ fontSize: 10, bgcolor: "rgba(30,96,145,0.08)", color: STEEL, height: 20 }} />
           <Box display="flex" alignItems="center" gap={0.5}>
             {isSystem && (
               <Chip label="Système" size="small"
-                sx={{ fontSize: 10, height: 20, bgcolor: "rgba(196,154,46,0.15)", color: "#92400E", fontWeight: 600 }} />
+                sx={{ fontSize: 10, height: 20, bgcolor: "rgba(60,128,71,0.15)", color: "#92400E", fontWeight: 600 }} />
             )}
             <Chip label={st.label} size="small" color={st.color} sx={{ fontSize: 10, height: 20 }} />
             <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} sx={{ p: 0.3 }}>
@@ -73,7 +73,7 @@ function FormCard({ form, onEdit, onDuplicate, onDelete, onToggleStatus }: {
           </Box>
         </Box>
 
-        <Typography fontWeight={700} color={NAVY} fontSize={15} mb={0.5} lineHeight={1.3}>
+        <Typography fontWeight={700} color="var(--text-primary)" fontSize={15} mb={0.5} lineHeight={1.3}>
           {form.name}
         </Typography>
         {form.description && (
@@ -84,7 +84,7 @@ function FormCard({ form, onEdit, onDuplicate, onDelete, onToggleStatus }: {
 
         <Box display="flex" alignItems="center" gap={1.5} mt={1.5} flexWrap="wrap">
           <Typography fontSize={11} color="text.secondary">
-            <strong style={{ color: NAVY }}>{form.fields.length}</strong> champ{form.fields.length !== 1 ? "s" : ""}
+            <strong style={{ color: "var(--text-primary)" }}>{form.fields.length}</strong> champ{form.fields.length !== 1 ? "s" : ""}
           </Typography>
           {form.submissions > 0 && (
             <Typography fontSize={11} color="text.secondary">
@@ -198,7 +198,7 @@ export default function FormsPage() {
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setNewDialog(true)}
-          sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, "&:hover": { bgcolor: "#A07820" }, boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
+          sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#A07820" }, boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
           Nouveau formulaire
         </Button>
       </Box>
@@ -212,7 +212,7 @@ export default function FormsPage() {
             { label: "Soumissions totales", value: totalSub,       color: "#7c3aed" },
           ].map((s) => (
             <Grid item xs={6} md={3} key={s.label}>
-              <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#fff", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", borderLeft: `4px solid ${s.color}` }}>
+              <Box sx={{ p: 2, borderRadius: 2, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", borderLeft: `4px solid ${s.color}` }}>
                 <Typography fontSize={24} fontWeight={800} color={s.color}>{s.value}</Typography>
                 <Typography fontSize={12} color="text.secondary">{s.label}</Typography>
               </Box>
@@ -240,7 +240,7 @@ export default function FormsPage() {
 
         {filtered.length === 0 ? (
           <Box textAlign="center" py={8}>
-            <AssignmentIcon sx={{ fontSize: 56, color: "#E2E8F0", mb: 2 }} />
+            <AssignmentIcon sx={{ fontSize: 56, color: "var(--border)", mb: 2 }} />
             <Typography color="text.secondary" fontWeight={500}>
               {search ? "Aucun formulaire ne correspond à votre recherche" : "Aucun formulaire créé"}
             </Typography>
@@ -271,7 +271,7 @@ export default function FormsPage() {
 
       <Dialog open={newDialog} onClose={() => setNewDialog(false)} maxWidth="sm" fullWidth
         PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ fontWeight: 700, color: NAVY, pb: 1 }}>Nouveau formulaire</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 700, color: "var(--text-primary)", pb: 1 }}>Nouveau formulaire</DialogTitle>
         <DialogContent>
           <Stack gap={2.5} mt={1}>
             <TextField label="Nom du formulaire" fullWidth size="small" value={newName}
@@ -305,7 +305,7 @@ export default function FormsPage() {
         <DialogTitle sx={{ fontWeight: 700, color: "#DC2626" }}>Supprimer le formulaire ?</DialogTitle>
         <DialogContent>
           <Typography fontSize={14} color="text.secondary">
-            Le formulaire <strong style={{ color: NAVY }}>{deleteTarget?.name}</strong> sera supprimé définitivement.
+            Le formulaire <strong style={{ color: "var(--text-primary)" }}>{deleteTarget?.name}</strong> sera supprimé définitivement.
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>

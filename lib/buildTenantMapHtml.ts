@@ -13,7 +13,7 @@ export interface MapLocation {
 const TYPE_COLOR: Record<string, string> = {
   domicile:  "#7c3aed",
   garantie:  "#15803d",
-  activite:  "#1B4F72",
+  activite:  "#1E6091",
   caution:   "#b45309",
 };
 
@@ -31,8 +31,17 @@ function labelForType(type?: string | null): string {
   }
 }
 
-export function buildTenantMapHtml(items: MapLocation[]): string {
+export function buildTenantMapHtml(items: MapLocation[], darkMode = false): string {
   const valid = items.filter((i) => i.latitude != null && i.longitude != null);
+
+  // La carte est rendue dans un iframe isolé (srcDoc) — elle n'hérite pas des
+  // variables CSS de l'app, donc le mode nuit doit être répercuté ici
+  // explicitement (fond de carte + popup) plutôt que via var(--...).
+  const textPrimary = darkMode ? "#E8EEF5" : "#0F3B5C";
+  const textSecondary = darkMode ? "#9AAEC4" : "#64748B";
+  const textMuted = darkMode ? "#6E829A" : "#94A3B8";
+  const popupBg = darkMode ? "#0F1D2E" : "#FFFFFF";
+  const popupBorder = darkMode ? "#22334A" : "#E2E8F0";
 
   const markersJs = valid.map((item) => {
     const color = colorForType(item.type);
@@ -46,13 +55,13 @@ export function buildTenantMapHtml(items: MapLocation[]): string {
 
     const popup = [
       '<div style="font-family:Inter,sans-serif;min-width:200px;max-width:260px">',
-      '<div style="font-weight:700;font-size:13px;color:#0D1B2A;margin-bottom:4px">' + clientLabel.replace(/'/g, "\\'") + "</div>",
-      item.clientCode && item.clientName ? '<div style="font-size:10px;color:#94A3B8;font-family:monospace;margin-bottom:6px">' + (item.clientCode || "").replace(/'/g, "\\'") + "</div>" : "",
+      '<div style="font-weight:700;font-size:13px;color:' + textPrimary + ';margin-bottom:4px">' + clientLabel.replace(/'/g, "\\'") + "</div>",
+      item.clientCode && item.clientName ? '<div style="font-size:10px;color:' + textMuted + ';font-family:monospace;margin-bottom:6px">' + (item.clientCode || "").replace(/'/g, "\\'") + "</div>" : "",
       '<div style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;color:white;background:' + color + ';margin-bottom:6px">' + label + "</div>",
-      operator ? '<div style="font-size:11px;color:#64748B;margin-bottom:3px">Opérateur : ' + operator.replace(/'/g, "\\'") + "</div>" : "",
-      addr ? '<div style="font-size:11px;color:#64748B;margin-bottom:3px">📍 ' + addr.replace(/'/g, "\\'") + "</div>" : "",
-      ts ? '<div style="font-size:10px;color:#94A3B8;margin-top:4px">' + ts + "</div>" : "",
-      '<div style="font-size:10px;color:#CBD5E1;margin-top:3px;font-family:monospace">' + (item.latitude || 0).toFixed(5) + ", " + (item.longitude || 0).toFixed(5) + "</div>",
+      operator ? '<div style="font-size:11px;color:' + textSecondary + ';margin-bottom:3px">Opérateur : ' + operator.replace(/'/g, "\\'") + "</div>" : "",
+      addr ? '<div style="font-size:11px;color:' + textSecondary + ';margin-bottom:3px">📍 ' + addr.replace(/'/g, "\\'") + "</div>" : "",
+      ts ? '<div style="font-size:10px;color:' + textMuted + ';margin-top:4px">' + ts + "</div>" : "",
+      '<div style="font-size:10px;color:' + textMuted + ';margin-top:3px;font-family:monospace">' + (item.latitude || 0).toFixed(5) + ", " + (item.longitude || 0).toFixed(5) + "</div>",
       "</div>",
     ].join("");
 
@@ -83,7 +92,7 @@ export function buildTenantMapHtml(items: MapLocation[]): string {
     "    var n = cluster.getChildCount();",
     "    var size = n < 10 ? 32 : n < 100 ? 40 : 48;",
     "    return L.divIcon({",
-    "      html: '<div style=\"background:#C49A2E;color:#0D1B2A;border-radius:50%;width:'+size+'px;height:'+size+'px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:'+(size<40?12:14)+'px;border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3)\">'+n+'<" + "/div>',",
+    "      html: '<div style=\"background:#3C8047;color:#0F3B5C;border-radius:50%;width:'+size+'px;height:'+size+'px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:'+(size<40?12:14)+'px;border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3)\">'+n+'<" + "/div>',",
     "      className: '', iconSize: [size,size]",
     "    });",
     "  }",
@@ -101,17 +110,22 @@ export function buildTenantMapHtml(items: MapLocation[]): string {
     '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><' + "/script>",
     '<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"><' + "/script>",
     "<style>",
-    "  body,html{margin:0;padding:0;height:100%}",
+    "  body,html{margin:0;padding:0;height:100%;background:" + (darkMode ? "#0A1420" : "#FFFFFF") + "}",
     "  #map{width:100%;height:100vh}",
-    "  .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.18)}",
+    "  .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.18);background:" + popupBg + ";border:1px solid " + popupBorder + "}",
     "  .leaflet-popup-content{margin:10px 13px}",
+    "  .leaflet-popup-tip{background:" + popupBg + "}",
     "<" + "/style>",
     "<" + "/head>",
     "<body>",
     '<div id="map"><' + "/div>",
     "<script>",
     "var map = L.map('map',{zoomControl:true}).setView([5,20],4);",
-    "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19}).addTo(map);",
+    darkMode
+      // CartoDB dark_all exige désormais une clé API (tuiles bloquées sans
+      // elle) — Esri "Dark Gray Canvas" reste gratuit et sans clé.
+      ? "L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri, HERE, Garmin, &copy; OpenStreetMap contributors',maxZoom:16}).addTo(map);"
+      : "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:19}).addTo(map);",
     clusterJs,
     markersJs + ";",
     "map.addLayer(mc);",

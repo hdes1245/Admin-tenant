@@ -4,6 +4,7 @@ import { fetchLocations, fetchLocationHistory, fetchDeletionLogs, fetchLocationP
 import { downloadCsv } from "@/lib/csvExport";
 import type { LocationItem, LocationHistoryItem, DeletionLogItem, LocationPhotoItem } from "@/lib/locations";
 import { fetchMe } from "@/lib/auth";
+import { useThemeMode } from "@/components/ThemeModeContext";
 import { useQuery } from "@tanstack/react-query";
 import {
   Alert,
@@ -49,9 +50,9 @@ import { Drawer } from "@mui/material";
 import { useState, useCallback, useMemo } from "react";
 import { buildTenantMapHtml } from "@/lib/buildTenantMapHtml";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const LOCATION_TYPES = [
   { value: "", label: "Tous les types" },
@@ -86,7 +87,7 @@ function getTypeCfg(type: string | null | undefined): TypeCfg {
     case "caution":
       return { label: "Caution", bg: "#FFFBEB", color: "#b45309", border: "#FDE68A", icon: <WarningAmberIcon sx={{ fontSize: 12 }} /> };
     default:
-      return { label: type ?? "Autres", bg: "#F1F5F9", color: "#475569", border: "#E2E8F0", icon: <ExploreIcon sx={{ fontSize: 12 }} /> };
+      return { label: type ?? "Autres", bg: "#F1F5F9", color: "var(--text-secondary)", border: "var(--border)", icon: <ExploreIcon sx={{ fontSize: 12 }} /> };
   }
 }
 
@@ -191,7 +192,8 @@ export default function LocationsPage() {
     return list;
   }, [mapQuery.data, typeFilter, search]);
 
-  const mapHtml = useMemo(() => buildTenantMapHtml(mapItems), [mapItems]);
+  const { mode } = useThemeMode();
+  const mapHtml = useMemo(() => buildTenantMapHtml(mapItems, mode === "dark"), [mapItems, mode]);
 
   const suggestions = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -332,9 +334,9 @@ export default function LocationsPage() {
               ].map((kpi, i) => (
                 <Grid item xs={6} sm={3} key={i}>
                   <Box sx={{
-                    borderRadius: 2.5, border: "1px solid #E2E8F0", bgcolor: "white",
+                    borderRadius: 2.5, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
                     px: 2, py: 1.5, display: "flex", alignItems: "center", gap: 1.5,
-                    position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(13,27,42,0.05)",
+                    position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
                     "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 3, bgcolor: kpi.accent },
                   }}>
                     <Avatar sx={{ width: 36, height: 36, bgcolor: kpi.accent, color: "white", borderRadius: 2, flexShrink: 0 }}>{kpi.icon}</Avatar>
@@ -351,10 +353,10 @@ export default function LocationsPage() {
           {/* Map area */}
           <Box sx={{ display: "flex", flex: 1, minHeight: 0, px: 3, pb: 3, gap: 2 }}>
             {/* Left panel — filters */}
-            <Paper elevation={0} sx={{ width: 270, flexShrink: 0, borderRadius: 2.5, border: "1px solid #E2E8F0", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <Paper elevation={0} sx={{ width: 270, flexShrink: 0, borderRadius: 2.5, border: "1px solid var(--border)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
               <Box sx={{ px: 2.5, py: 2, borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", gap: 1 }}>
                 <FilterListIcon sx={{ fontSize: 16, color: GOLD }} />
-                <Typography fontSize={13} fontWeight={700} color={NAVY}>Filtres</Typography>
+                <Typography fontSize={13} fontWeight={700} color="var(--text-primary)">Filtres</Typography>
               </Box>
               <Box sx={{ flex: 1, overflowY: "auto", p: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {/* Search with suggestions */}
@@ -367,16 +369,16 @@ export default function LocationsPage() {
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: "#94A3B8" }} /></InputAdornment>,
+                      startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: "var(--text-muted)" }} /></InputAdornment>,
                       endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onMouseDown={(e) => e.preventDefault()} onClick={() => { setSearch(""); setShowSuggestions(false); }}><ClearIcon sx={{ fontSize: 14 }} /></IconButton></InputAdornment> : null,
                     }}
-                    sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#F8FAFC", "&:hover fieldset": { borderColor: STEEL }, "&.Mui-focused fieldset": { borderColor: STEEL } } }}
+                    sx={{ "& .MuiOutlinedInput-root": { bgcolor: "var(--bg-page)", "&:hover fieldset": { borderColor: STEEL }, "&.Mui-focused fieldset": { borderColor: STEEL } } }}
                   />
                   {showSuggestions && suggestions.length > 0 && (
                     <Paper elevation={4} sx={{
                       position: "absolute", top: "100%", left: 0, right: 0, zIndex: 9999,
                       borderRadius: 2, mt: 0.5, overflow: "hidden",
-                      border: "1px solid #E2E8F0", boxShadow: "0 8px 24px rgba(13,27,42,0.12)",
+                      border: "1px solid var(--border)", boxShadow: "0 8px 24px rgba(15,59,92,0.12)",
                     }}>
                       {suggestions.map((s, idx) => (
                         <Box
@@ -386,7 +388,7 @@ export default function LocationsPage() {
                           sx={{
                             px: 1.5, py: 1, cursor: "pointer", display: "flex", alignItems: "center", gap: 1.25,
                             borderBottom: idx < suggestions.length - 1 ? "1px solid #F1F5F9" : "none",
-                            "&:hover": { bgcolor: "#F8FAFC" },
+                            "&:hover": { bgcolor: "var(--bg-page)" },
                           }}
                         >
                           <Box sx={{
@@ -399,11 +401,11 @@ export default function LocationsPage() {
                             {s.type === "address"  && <PlaceIcon  sx={{ fontSize: 14, color: "#7c3aed" }} />}
                           </Box>
                           <Box minWidth={0}>
-                            <Typography fontSize={12} fontWeight={600} color={NAVY} noWrap>
+                            <Typography fontSize={12} fontWeight={600} color="var(--text-primary)" noWrap>
                               {s.label}
                             </Typography>
                             {s.sub && (
-                              <Typography fontSize={10} color="#94A3B8" noWrap>{s.sub}</Typography>
+                              <Typography fontSize={10} color="var(--text-muted)" noWrap>{s.sub}</Typography>
                             )}
                           </Box>
                         </Box>
@@ -414,7 +416,7 @@ export default function LocationsPage() {
                 <Select
                   size="small" fullWidth displayEmpty value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  sx={{ bgcolor: "#F8FAFC", "& fieldset": { borderColor: "#E2E8F0" }, "&:hover fieldset": { borderColor: STEEL } }}
+                  sx={{ bgcolor: "var(--bg-page)", "& fieldset": { borderColor: "var(--border)" }, "&:hover fieldset": { borderColor: STEEL } }}
                 >
                   {LOCATION_TYPES.map((t) => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
                 </Select>
@@ -422,49 +424,49 @@ export default function LocationsPage() {
                   size="small" fullWidth label="Du" type="date" value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#F8FAFC" } }}
+                  sx={{ "& .MuiOutlinedInput-root": { bgcolor: "var(--bg-page)" } }}
                 />
                 <TextField
                   size="small" fullWidth label="Au" type="date" value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
                   InputLabelProps={{ shrink: true }}
-                  sx={{ "& .MuiOutlinedInput-root": { bgcolor: "#F8FAFC" } }}
+                  sx={{ "& .MuiOutlinedInput-root": { bgcolor: "var(--bg-page)" } }}
                 />
                 {hasFilters && (
                   <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 14 }} />} onClick={resetFilters}
-                    sx={{ fontWeight: 600, color: "#64748B", justifyContent: "flex-start", textTransform: "none", "&:hover": { bgcolor: "#F1F5F9" } }}>
+                    sx={{ fontWeight: 600, color: "var(--text-secondary)", justifyContent: "flex-start", textTransform: "none", "&:hover": { bgcolor: "#F1F5F9" } }}>
                     Effacer les filtres
                   </Button>
                 )}
 
-                <Box sx={{ mt: 1, pt: 1.5, borderTop: "1px solid #F1F5F9" }}>
-                  <Typography fontSize={10} fontWeight={700} color="#94A3B8" textTransform="uppercase" letterSpacing={0.8} mb={1}>
+                <Box sx={{ mt: 1, pt: 1.5, borderTop: "1px solid var(--border)" }}>
+                  <Typography fontSize={10} fontWeight={700} color="var(--text-muted)" textTransform="uppercase" letterSpacing={0.8} mb={1}>
                     Points affichés
                   </Typography>
                   <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <Typography fontSize={12} color="#334155">Total</Typography>
+                    <Typography fontSize={12} color="var(--text-secondary)">Total</Typography>
                     {mapQuery.isFetching
                       ? <CircularProgress size={14} sx={{ color: STEEL }} />
-                      : <Chip label={mapItems.length.toLocaleString("fr-FR")} size="small" sx={{ fontWeight: 700, bgcolor: "#F1F5F9", fontSize: 11 }} />
+                      : <Chip label={mapItems.length.toLocaleString("fr-FR")} size="small" sx={{ fontWeight: 700, bgcolor: "var(--bg-hover)", color: "var(--text-primary)", fontSize: 11 }} />
                     }
                   </Box>
                 </Box>
 
                 {/* Légende types */}
-                <Box sx={{ pt: 1.5, borderTop: "1px solid #F1F5F9" }}>
-                  <Typography fontSize={10} fontWeight={700} color="#94A3B8" textTransform="uppercase" letterSpacing={0.8} mb={1}>
+                <Box sx={{ pt: 1.5, borderTop: "1px solid var(--border)" }}>
+                  <Typography fontSize={10} fontWeight={700} color="var(--text-muted)" textTransform="uppercase" letterSpacing={0.8} mb={1}>
                     Légende
                   </Typography>
                   {[
                     { label: "Domicile", color: "#7c3aed" },
-                    { label: "Activité", color: "#1B4F72" },
+                    { label: "Activité", color: "#1E6091" },
                     { label: "Garantie", color: "#15803d" },
                     { label: "Caution",  color: "#b45309" },
-                    { label: "Autre",    color: "#475569" },
+                    { label: "Autre",    color: "var(--text-secondary)" },
                   ].map((t) => (
                     <Box key={t.label} display="flex" alignItems="center" gap={1} mb={0.75}>
                       <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: t.color, border: "2px solid white", boxShadow: "0 1px 3px rgba(0,0,0,.3)", flexShrink: 0 }} />
-                      <Typography fontSize={12} color="#334155">{t.label}</Typography>
+                      <Typography fontSize={12} color="var(--text-secondary)">{t.label}</Typography>
                     </Box>
                   ))}
                 </Box>
@@ -472,7 +474,7 @@ export default function LocationsPage() {
             </Paper>
 
             {/* Leaflet map */}
-            <Box sx={{ flex: 1, borderRadius: 2.5, overflow: "hidden", border: "1px solid #E2E8F0", position: "relative", bgcolor: "#E8ECF0" }}>
+            <Box sx={{ flex: 1, borderRadius: 2.5, overflow: "hidden", border: "1px solid var(--border)", position: "relative", bgcolor: "#E8ECF0" }}>
               {mapQuery.isFetching && (
                 <Box sx={{ position: "absolute", inset: 0, bgcolor: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}>
                   <CircularProgress sx={{ color: STEEL }} />
@@ -480,8 +482,8 @@ export default function LocationsPage() {
               )}
               {mapItems.length === 0 && !mapQuery.isFetching && (
                 <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 5, gap: 1.5 }}>
-                  <GpsFixedIcon sx={{ fontSize: 48, color: "#CBD5E1" }} />
-                  <Typography fontSize={14} color="#94A3B8">Aucune localisation GPS à afficher</Typography>
+                  <GpsFixedIcon sx={{ fontSize: 48, color: "var(--border-strong)" }} />
+                  <Typography fontSize={14} color="var(--text-muted)">Aucune localisation GPS à afficher</Typography>
                 </Box>
               )}
               <iframe
@@ -500,7 +502,7 @@ export default function LocationsPage() {
         anchor="right"
         open={!!historyLocation}
         onClose={() => setHistoryLocation(null)}
-        PaperProps={{ sx: { width: { xs: "100%", sm: 480 }, bgcolor: "#F8FAFC" } }}
+        PaperProps={{ sx: { width: { xs: "100%", sm: 480 }, bgcolor: "var(--bg-page)" } }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <Box sx={{ px: 3, py: 2.5, bgcolor: NAVY, color: "white", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
@@ -538,31 +540,31 @@ export default function LocationsPage() {
                     <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: STEEL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <SwapVertIcon sx={{ fontSize: 15, color: "white" }} />
                     </Box>
-                    {idx < historyItems.length - 1 && <Box sx={{ width: 2, flex: 1, minHeight: 20, bgcolor: "#E2E8F0", my: 0.5 }} />}
+                    {idx < historyItems.length - 1 && <Box sx={{ width: 2, flex: 1, minHeight: 20, bgcolor: "var(--border)", my: 0.5 }} />}
                   </Box>
-                  <Box sx={{ flex: 1, bgcolor: "white", border: "1px solid #E2E8F0", borderRadius: 2, p: 2, mb: 0.5 }}>
+                  <Box sx={{ flex: 1, bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2, mb: 0.5 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1} flexWrap="wrap" gap={0.5}>
                       <Chip
                         label={h.action ?? "Modification"}
                         size="small"
                         sx={{ bgcolor: "#EFF6FF", color: STEEL, fontWeight: 700, fontSize: 10, height: 20 }}
                       />
-                      <Typography variant="caption" sx={{ color: "#94A3B8" }}>{fmt(h.modifiedAt)}</Typography>
+                      <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{fmt(h.modifiedAt)}</Typography>
                     </Box>
                     {h.modifiedByName && (
-                      <Typography variant="body2" fontSize={12} sx={{ color: "#64748B", mb: 1 }}>
+                      <Typography variant="body2" fontSize={12} sx={{ color: "var(--text-secondary)", mb: 1 }}>
                         par <strong>{h.modifiedByName}</strong>
                       </Typography>
                     )}
                     {(h.oldLatitude != null || h.newLatitude != null) && (
-                      <Box sx={{ bgcolor: "#F8FAFC", borderRadius: 1.5, p: 1.5, mt: 0.5 }}>
-                        <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                      <Box sx={{ bgcolor: "var(--bg-page)", borderRadius: 1.5, p: 1.5, mt: 0.5 }}>
+                        <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
                           Coordonnees
                         </Typography>
                         {h.oldLatitude != null && (
                           <Box display="flex" alignItems="center" gap={1} mt={0.5}>
-                            <Typography variant="caption" sx={{ color: "#94A3B8", minWidth: 50 }}>Avant</Typography>
-                            <Typography variant="caption" sx={{ fontFamily: "monospace", color: "#475569" }}>
+                            <Typography variant="caption" sx={{ color: "var(--text-muted)", minWidth: 50 }}>Avant</Typography>
+                            <Typography variant="caption" sx={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
                               {h.oldLatitude?.toFixed(5)}, {h.oldLongitude?.toFixed(5)}
                             </Typography>
                           </Box>
@@ -577,7 +579,7 @@ export default function LocationsPage() {
                               <IconButton size="small" component="a"
                                 href={`https://www.google.com/maps?q=${h.newLatitude},${h.newLongitude}`}
                                 target="_blank" rel="noopener noreferrer"
-                                sx={{ p: 0.25, color: "#94A3B8", "&:hover": { color: "#1A73E8" } }}>
+                                sx={{ p: 0.25, color: "var(--text-muted)", "&:hover": { color: "#1A73E8" } }}>
                                 <OpenInNewIcon sx={{ fontSize: 13 }} />
                               </IconButton>
                             </Tooltip>
@@ -598,7 +600,7 @@ export default function LocationsPage() {
         anchor="right"
         open={!!detailLocation}
         onClose={() => setDetailLocation(null)}
-        PaperProps={{ sx: { width: { xs: "100%", sm: 540 }, bgcolor: "#F8FAFC" } }}
+        PaperProps={{ sx: { width: { xs: "100%", sm: 540 }, bgcolor: "var(--bg-page)" } }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <Box sx={{ px: 3, py: 2.5, bgcolor: NAVY, color: "white", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
@@ -618,22 +620,22 @@ export default function LocationsPage() {
 
           <Box sx={{ flex: 1, overflowY: "auto", p: 2.5 }}>
             {/* ── Metadata formulaire terrain ── */}
-            <Typography fontWeight={700} fontSize={13} sx={{ color: "#475569", textTransform: "uppercase", letterSpacing: 0.8, mb: 1.5 }}>
+            <Typography fontWeight={700} fontSize={13} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 1.5 }}>
               Données terrain
             </Typography>
             {(!detailLocation?.metadata || Object.keys(detailLocation.metadata).length === 0) ? (
-              <Box sx={{ bgcolor: "white", border: "1px solid #E2E8F0", borderRadius: 2, p: 2.5, mb: 3, textAlign: "center" }}>
+              <Box sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2.5, mb: 3, textAlign: "center" }}>
                 <Typography variant="body2" color="text.disabled" fontStyle="italic">Aucune donnée terrain enregistrée pour cette localisation.</Typography>
               </Box>
             ) : (
-              <Box sx={{ bgcolor: "white", border: "1px solid #E2E8F0", borderRadius: 2, p: 2, mb: 3 }}>
+              <Box sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2, mb: 3 }}>
                 {Object.entries(detailLocation.metadata).map(([key, value]) => (
                   <Box key={key} sx={{ display: "flex", gap: 1.5, py: 0.75, borderBottom: "1px solid #F1F5F9", "&:last-child": { borderBottom: "none" } }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: "#64748B", minWidth: 140, flexShrink: 0, wordBreak: "break-word" }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: "var(--text-secondary)", minWidth: 140, flexShrink: 0, wordBreak: "break-word" }}>
                       {key}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: "#1E293B", wordBreak: "break-word", flex: 1 }}>
-                      {value === null || value === undefined ? <span style={{ color: "#CBD5E1" }}>—</span>
+                    <Typography variant="body2" sx={{ color: "var(--text-primary)", wordBreak: "break-word", flex: 1 }}>
+                      {value === null || value === undefined ? <span style={{ color: "var(--border-strong)" }}>—</span>
                         : typeof value === "object" ? JSON.stringify(value)
                         : String(value)}
                     </Typography>
@@ -644,8 +646,8 @@ export default function LocationsPage() {
 
             {/* ── Photos de capture ── */}
             <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-              <PhotoLibraryIcon sx={{ fontSize: 16, color: "#64748B" }} />
-              <Typography fontWeight={700} fontSize={13} sx={{ color: "#475569", textTransform: "uppercase", letterSpacing: 0.8 }}>
+              <PhotoLibraryIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
+              <Typography fontWeight={700} fontSize={13} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
                 Photos de capture
               </Typography>
               {!detailPhotosLoading && (
@@ -659,8 +661,8 @@ export default function LocationsPage() {
             {detailPhotosError && <Alert severity="error" sx={{ mb: 2 }}>{detailPhotosError}</Alert>}
 
             {!detailPhotosLoading && !detailPhotosError && detailPhotos.length === 0 && (
-              <Box sx={{ bgcolor: "white", border: "1px solid #E2E8F0", borderRadius: 2, p: 2.5, textAlign: "center" }}>
-                <BrokenImageIcon sx={{ fontSize: 36, color: "#E2E8F0", mb: 0.5 }} />
+              <Box sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2.5, textAlign: "center" }}>
+                <BrokenImageIcon sx={{ fontSize: 36, color: "var(--border)", mb: 0.5 }} />
                 <Typography variant="body2" color="text.disabled" fontStyle="italic">Aucune photo associée à cette localisation.</Typography>
               </Box>
             )}
@@ -676,7 +678,7 @@ export default function LocationsPage() {
                   const sizekb = (photo.size / 1024).toFixed(1);
                   const isDeleting = deletingPhotoId === photo.id;
                   return (
-                    <Box key={photo.id} sx={{ position: "relative", borderRadius: 2, overflow: "hidden", border: "1px solid #E2E8F0", bgcolor: "white" }}>
+                    <Box key={photo.id} sx={{ position: "relative", borderRadius: 2, overflow: "hidden", border: "1px solid var(--border)", bgcolor: "var(--bg-surface)" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={photoUrl}
@@ -685,10 +687,10 @@ export default function LocationsPage() {
                         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                       />
                       <Box sx={{ px: 1.25, py: 1 }}>
-                        <Typography variant="caption" sx={{ color: "#475569", display: "block", fontWeight: 500 }} noWrap title={photo.original_name}>
+                        <Typography variant="caption" sx={{ color: "var(--text-secondary)", display: "block", fontWeight: 500 }} noWrap title={photo.original_name}>
                           {photo.original_name}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: "#94A3B8" }}>{sizekb} Ko · {fmt(photo.uploaded_at)}</Typography>
+                        <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{sizekb} Ko · {fmt(photo.uploaded_at)}</Typography>
                       </Box>
                       <Tooltip title="Supprimer cette photo">
                         <IconButton
@@ -741,7 +743,7 @@ export default function LocationsPage() {
             )}
             {!deletionLoading && !deletionError && deletionLogs.length === 0 && (
               <Box textAlign="center" pt={6}>
-                <DeleteForeverIcon sx={{ fontSize: 48, color: "#E2E8F0" }} />
+                <DeleteForeverIcon sx={{ fontSize: 48, color: "var(--border)" }} />
                 <Typography color="text.secondary" mt={1}>Aucune suppression enregistrée.</Typography>
               </Box>
             )}
@@ -773,7 +775,7 @@ export default function LocationsPage() {
                       <Chip
                         label={log.deletedByRole}
                         size="small"
-                        sx={{ bgcolor: "#F1F5F9", color: "#475569", fontWeight: 600, fontSize: 11 }}
+                        sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontWeight: 600, fontSize: 11 }}
                       />
                     )}
                     {/* Code client */}

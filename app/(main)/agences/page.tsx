@@ -30,9 +30,9 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import { motion } from "framer-motion";
 import { useMemo, useState, ChangeEvent, useEffect } from "react";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 export default function AgencesPage() {
   const queryClient = useQueryClient();
@@ -145,7 +145,7 @@ export default function AgencesPage() {
   const KPI_DATA = [
     { label: "Total agences", value: agences.length, accent: NAVY, icon: <BusinessIcon sx={{ fontSize: 20 }} /> },
     { label: "Zones distinctes", value: zonesLinked, accent: STEEL, icon: <AccountTreeIcon sx={{ fontSize: 20 }} /> },
-    { label: "Sans zone", value: agences.length - agencesWithZone, accent: "#94A3B8", icon: <LinkOffIcon sx={{ fontSize: 20 }} /> },
+    { label: "Sans zone", value: agences.length - agencesWithZone, accent: "var(--text-muted)", icon: <LinkOffIcon sx={{ fontSize: 20 }} /> },
     { label: "Total clients", value: totalClients, accent: STEEL, icon: <PeopleOutlineIcon sx={{ fontSize: 20 }} /> },
     { label: "Total CAFs", value: totalCafs, accent: "#7c3aed", icon: <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 20 }} /> },
   ];
@@ -173,7 +173,7 @@ export default function AgencesPage() {
                   Importer CSV
                 </Button>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}
-                  sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, "&:hover": { bgcolor: "#b8891f" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>
+                  sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>
                   Ajouter une agence
                 </Button>
               </Box>
@@ -186,7 +186,7 @@ export default function AgencesPage() {
             <Grid container spacing={2} mb={3}>
               {KPI_DATA.map((kpi, i) => (
                 <Grid item xs={6} sm={4} key={i}>
-                  <Box sx={{ borderRadius: 3, border: "1px solid #E2E8F0", bgcolor: "white", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(13,27,42,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" } }}>
+                  <Box sx={{ borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" } }}>
                     <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
                     <Box>
                       <Typography variant="h5" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpi.value}</Typography>
@@ -200,21 +200,21 @@ export default function AgencesPage() {
         )}
 
         {/* ── Filter bar ── */}
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
           <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
             <TextField
               size="small" placeholder="Rechercher par code, nom ou zone..."
               value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s", "&:hover": { bgcolor: "white" }, "&.Mui-focused": { bgcolor: "white" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
+              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
               InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} /></InputAdornment>,
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
                 endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
               }}
             />
             <Select
               size="small" displayEmpty value={filterZone === "" ? "" : String(filterZone)}
               onChange={(e) => { const v = e.target.value; setFilterZone(v === "" ? "" : Number(v)); }}
-              sx={{ minWidth: 180, borderRadius: 2, bgcolor: "#F8FAFC", "& .MuiOutlinedInput-notchedOutline": { borderColor: "#E2E8F0" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}
+              sx={{ minWidth: 180, borderRadius: 2, bgcolor: "var(--bg-page)", "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}
             >
               <MenuItem value="">Toutes les zones</MenuItem>
               <MenuItem value="none">Sans zone</MenuItem>
@@ -222,7 +222,7 @@ export default function AgencesPage() {
             </Select>
             {activeFilters > 0 && (
               <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={() => { setSearch(""); setFilterZone(""); }}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "#64748B", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
+                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
                 Effacer ({activeFilters})
               </Button>
             )}
@@ -297,7 +297,7 @@ export default function AgencesPage() {
         <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "white", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name,zone_code</Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name,zone_code</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
               <b>code</b> — obligatoire (ex: AG001)<br /><b>name</b> — obligatoire (ex: Agence Centre)<br /><b>zone_code</b> — optionnel, rattache automatiquement a la zone correspondante
             </Typography>

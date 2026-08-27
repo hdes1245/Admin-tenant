@@ -43,9 +43,9 @@ import {
   attachmentDownloadUrl,
 } from "@/lib/tickets";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const STATUS_OPTIONS: { value: TicketStatus; label: string; color: string; bg: string }[] = [
   { value: "open",         label: "Ouvert",                            color: "#d97706", bg: "#FFFBEB" },
@@ -137,16 +137,16 @@ function StatusEvent({ status }: { status: TicketStatus }) {
     <Box
       sx={{
         mx: "auto", my: 1.5, maxWidth: 440,
-        border: `1.5px solid ${isGood ? "#BBF7D0" : "#E2E8F0"}`,
-        borderRadius: 2.5, bgcolor: isGood ? "#F0FDF4" : "#F8FAFC",
+        border: `1.5px solid ${isGood ? "#BBF7D0" : "var(--border)"}`,
+        borderRadius: 2.5, bgcolor: isGood ? "#F0FDF4" : "var(--bg-page)",
         px: 2, py: 1.25,
         display: "flex", gap: 1.25, alignItems: "center",
       }}
     >
       {isGood
         ? <CheckCircleIcon sx={{ fontSize: 16, color: "#16a34a", flexShrink: 0 }} />
-        : <WarningAmberIcon sx={{ fontSize: 16, color: "#64748B", flexShrink: 0 }} />}
-      <Typography variant="caption" sx={{ color: isGood ? "#15803d" : "#475569", fontWeight: 500 }}>
+        : <WarningAmberIcon sx={{ fontSize: 16, color: "var(--text-secondary)", flexShrink: 0 }} />}
+      <Typography variant="caption" sx={{ color: isGood ? "#15803d" : "var(--text-secondary)", fontWeight: 500 }}>
         {msg}
       </Typography>
     </Box>
@@ -168,7 +168,7 @@ function CommentBubble({ comment }: { comment: TicketCommentDto }) {
         sx={{
           width: 32, height: 32, fontSize: 12, fontWeight: 700, flexShrink: 0,
           bgcolor: isIt ? NAVY : "#E2E8F0",
-          color: isIt ? GOLD : "#475569",
+          color: isIt ? GOLD : "var(--text-secondary)",
         }}
       >
         {isIt ? <AdminPanelSettingsIcon sx={{ fontSize: 16 }} /> : initials(comment.authorName)}
@@ -179,13 +179,13 @@ function CommentBubble({ comment }: { comment: TicketCommentDto }) {
           display="flex" alignItems="center" gap={1} mb={0.5}
           justifyContent={isIt ? "flex-end" : "flex-start"}
         >
-          <Typography variant="caption" fontWeight={600} sx={{ color: isIt ? NAVY : "#334155" }}>
+          <Typography variant="caption" fontWeight={600} sx={{ color: isIt ? "var(--text-primary)" : "#334155" }}>
             {comment.authorName ?? (isIt ? "Admin IT" : "Utilisateur")}
           </Typography>
           {isIt && (
-            <Chip label="IT" size="small" sx={{ height: 16, fontSize: 10, bgcolor: NAVY + "18", color: NAVY, fontWeight: 700, px: 0.25 }} />
+            <Chip label="IT" size="small" sx={{ height: 16, fontSize: 10, bgcolor: NAVY + "18", color: "var(--text-primary)", fontWeight: 700, px: 0.25 }} />
           )}
-          <Typography variant="caption" sx={{ color: "#94A3B8", fontSize: 11 }}>
+          <Typography variant="caption" sx={{ color: "var(--text-muted)", fontSize: 11 }}>
             {formatDate(comment.createdAt)}
           </Typography>
         </Box>
@@ -196,7 +196,7 @@ function CommentBubble({ comment }: { comment: TicketCommentDto }) {
             borderRadius: isIt ? "12px 12px 4px 12px" : "12px 12px 12px 4px",
             bgcolor: isIt ? NAVY : "#F1F5F9",
             color: isIt ? "rgba(255,255,255,0.92)" : "#1E293B",
-            boxShadow: isIt ? "0 2px 8px rgba(13,27,42,0.18)" : "0 1px 3px rgba(0,0,0,0.06)",
+            boxShadow: isIt ? "0 2px 8px rgba(15,59,92,0.18)" : "0 1px 3px rgba(0,0,0,0.06)",
           }}
         >
           <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
@@ -217,9 +217,9 @@ function AttachmentRow({ att, ticketId }: { att: TicketAttachmentDto; ticketId: 
     <Box
       display="flex" alignItems="center" gap={1.5}
       sx={{
-        px: 1.5, py: 1, borderRadius: 2, border: "1px solid #E2E8F0",
-        bgcolor: "white", mb: 1,
-        "&:hover": { bgcolor: "#F8FAFC" },
+        px: 1.5, py: 1, borderRadius: 2, border: "1px solid var(--border)",
+        bgcolor: "var(--bg-surface)", mb: 1,
+        "&:hover": { bgcolor: "var(--bg-hover)" },
       }}
     >
       <Box
@@ -229,13 +229,13 @@ function AttachmentRow({ att, ticketId }: { att: TicketAttachmentDto; ticketId: 
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
         }}
       >
-        <InsertDriveFileIcon sx={{ fontSize: 18, color: isImage ? STEEL : "#64748B" }} />
+        <InsertDriveFileIcon sx={{ fontSize: 18, color: isImage ? STEEL : "var(--text-secondary)" }} />
       </Box>
       <Box flex={1} minWidth={0}>
-        <Typography variant="body2" fontWeight={600} sx={{ color: NAVY }} noWrap>
+        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }} noWrap>
           {att.originalName}
         </Typography>
-        <Typography variant="caption" sx={{ color: "#94A3B8" }}>
+        <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
           {formatBytes(att.size)} · {att.uploaderName ?? "inconnu"} · {formatDate(att.createdAt)}
         </Typography>
       </Box>
@@ -246,7 +246,7 @@ function AttachmentRow({ att, ticketId }: { att: TicketAttachmentDto; ticketId: 
           href={downloadUrl}
           target="_blank"
           rel="noopener noreferrer"
-          sx={{ color: "#94A3B8", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}
+          sx={{ color: "var(--text-muted)", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}
         >
           <DownloadIcon sx={{ fontSize: 18 }} />
         </IconButton>
@@ -457,7 +457,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
                 label="Escaladé GeoTrust"
                 size="small"
                 icon={<NorthIcon sx={{ fontSize: 13, color: GOLD + " !important" }} />}
-                sx={{ bgcolor: "rgba(196,154,46,0.2)", color: GOLD, fontWeight: 700, fontSize: 11, border: `1px solid ${GOLD}50` }}
+                sx={{ bgcolor: "rgba(60,128,71,0.2)", color: GOLD, fontWeight: 700, fontSize: 11, border: `1px solid ${GOLD}50` }}
               />
             )}
 
@@ -470,8 +470,8 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
 
       {/* Description */}
       {ticket?.description && (
-        <Box sx={{ px: 3, py: 1.5, bgcolor: "#F8FAFC", borderBottom: "1px solid #E2E8F0", flexShrink: 0 }}>
-          <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8 }}>
+        <Box sx={{ px: 3, py: 1.5, bgcolor: "var(--bg-page)", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+          <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
             Description initiale
           </Typography>
           <Typography variant="body2" sx={{ mt: 0.5, color: "#334155", lineHeight: 1.6 }}>
@@ -494,7 +494,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
         ) : commentsQuery.data?.length === 0 ? (
           <Box textAlign="center" py={6}>
             <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", mx: "auto", mb: 1.5 }}>
-              <BugReportIcon sx={{ fontSize: 24, color: "#CBD5E1" }} />
+              <BugReportIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
             </Box>
             <Typography variant="body2" color="text.disabled">
               Aucun message pour ce ticket. Répondez ci-dessous.
@@ -514,8 +514,8 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
 
       {/* Attachments */}
       {(attachmentsQuery.data?.length ?? 0) > 0 && (
-        <Box sx={{ px: 3, py: 1.5, borderTop: "1px solid #E2E8F0", bgcolor: "#F8FAFC", flexShrink: 0, maxHeight: 160, overflowY: "auto" }}>
-          <Typography variant="caption" fontWeight={700} sx={{ color: "#64748B", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
+        <Box sx={{ px: 3, py: 1.5, borderTop: "1px solid var(--border)", bgcolor: "var(--bg-page)", flexShrink: 0, maxHeight: 160, overflowY: "auto" }}>
+          <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
             Pièces jointes ({attachmentsQuery.data!.length})
           </Typography>
           {attachmentsQuery.data!.map((att) => (
@@ -525,7 +525,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
       )}
 
       {/* Reply area */}
-      <Box sx={{ px: 3, pt: 1.5, pb: 2, borderTop: "1px solid #E2E8F0", bgcolor: "white", flexShrink: 0 }}>
+      <Box sx={{ px: 3, pt: 1.5, pb: 2, borderTop: "1px solid var(--border)", bgcolor: "var(--bg-surface)", flexShrink: 0 }}>
         {(replyError || uploadError) && (
           <Alert severity="error" sx={{ mb: 1.5, py: 0.5 }}>
             {replyError ?? uploadError}
@@ -546,10 +546,10 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
 
         <Box
           sx={{
-            border: "1px solid #E2E8F0",
+            border: "1px solid var(--border)",
             borderRadius: 2.5,
             bgcolor: "#FAFBFC",
-            "&:focus-within": { borderColor: STEEL, bgcolor: "white" },
+            "&:focus-within": { borderColor: STEEL, bgcolor: "var(--bg-surface)" },
             transition: "all 0.15s",
           }}
         >
@@ -581,7 +581,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
                 <IconButton
                   size="small"
                   onClick={() => fileInputRef.current?.click()}
-                  sx={{ color: "#94A3B8", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}
+                  sx={{ color: "var(--text-muted)", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}
                 >
                   <AttachFileIcon sx={{ fontSize: 18 }} />
                 </IconButton>
@@ -595,7 +595,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
               />
             </Box>
             <Box display="flex" alignItems="center" gap={1}>
-              <Typography variant="caption" sx={{ color: "#CBD5E1" }}>Ctrl+Entrée pour envoyer</Typography>
+              <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>Ctrl+Entrée pour envoyer</Typography>
               <Button
                 variant="contained"
                 size="small"
@@ -611,7 +611,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
                   fontWeight: 700, fontSize: 12,
                   px: 2, borderRadius: 2,
                   "&:hover": { bgcolor: STEEL },
-                  "&.Mui-disabled": { bgcolor: "#E2E8F0", color: "#94A3B8" },
+                  "&.Mui-disabled": { bgcolor: "var(--border)", color: "var(--text-muted)" },
                 }}
               >
                 Envoyer

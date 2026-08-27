@@ -79,7 +79,7 @@ export async function generatePortfolioPdf(tenantName: string) {
     { l: "Souffrant / Perte", v: String((summary.souffrant ?? 0) + (summary.perte ?? 0)), s: "dossiers en difficulté", c1: [127,29,29] as [number,number,number], c2: C.red },
     { l: "Capital impayé", v: `${fmtCurrency(summary.total_capital_impaye)}`, s: "FCFA — total portefeuille", c1: C.navy, c2: C.steel },
     { l: "Risque non visité", v: String(summary.risk_never_visited ?? 0), s: `dont ${summary.risk_not_visited_30d ?? 0} non vus 30j`, c1: [127,29,29] as [number,number,number], c2: C.red },
-    { l: "Couverture 30j", v: `${cov30d}%`, s: `${recent + stale} visités`, c1: C.gold, c2: [160,120,32] as [number,number,number] },
+    { l: "Couverture 30j", v: `${cov30d}%`, s: `${recent + stale} visités`, c1: cov30d >= 70 ? [4,78,56] as [number,number,number] : cov30d >= 40 ? [120,53,15] as [number,number,number] : [127,29,29] as [number,number,number], c2: cov30d >= 70 ? C.green : cov30d >= 40 ? C.orange : C.red },
   ].forEach((k, i) => kpiBlock(doc, M + i * (bw + 3), y, bw, bh, k.l, k.v, k.s, k.c1, k.c2));
   y += bh + 10;
 
@@ -243,7 +243,7 @@ export async function generateLocationsPdf(tenantName: string, period = 30) {
   const bw = (IW - 9) / 4, bh = 34;
   [
     { l: "Total captures", v: String(totalPeriod), s: periodLabel, c1: C.navy, c2: C.steel },
-    { l: "Moyenne / jour", v: String(avgPerDay), s: "captures par jour", c1: C.gold, c2: [160,120,32] as [number,number,number] },
+    { l: "Moyenne / jour", v: String(avgPerDay), s: "captures par jour", c1: C.gold, c2: C.goldDark },
     { l: "Jour pic", v: peakDay ? peakDay.day.slice(5) : "—", s: peakDay ? `${peakDay.count} captures` : "—", c1: [5,101,70] as [number,number,number], c2: C.green },
     { l: "Agents actifs", v: String(byUser.length), s: "sur la période", c1: C.violet, c2: [88,28,135] as [number,number,number] },
   ].forEach((k, i) => kpiBlock(doc, M + i * (bw + 3), y, bw, bh, k.l, k.v, k.s, k.c1, k.c2));
@@ -367,7 +367,7 @@ export async function generateAgentsPdf(tenantName: string, period = 30) {
   [
     { l: "Agents actifs", v: String(users.filter((u: any) => u.is_active).length), s: `${users.length} au total`, c1: C.navy, c2: C.steel },
     { l: "En ligne (1h)", v: String(onlineCount), s: "connectés récemment", c1: [4,78,56] as [number,number,number], c2: C.green },
-    { l: "Captures aujourd'hui", v: String(totalToday), s: "toutes équipes", c1: C.gold, c2: [160,120,32] as [number,number,number] },
+    { l: "Captures aujourd'hui", v: String(totalToday), s: "toutes équipes", c1: C.gold, c2: C.goldDark },
     { l: "Captures 30j", v: String(total30d), s: periodLabel, c1: C.violet, c2: [88,28,135] as [number,number,number] },
   ].forEach((k, i) => kpiBlock(doc, M + i * (bw + 3), y, bw, bh, k.l, k.v, k.s, k.c1, k.c2));
   y += bh + 10;
@@ -412,7 +412,7 @@ export async function generateAgentsPdf(tenantName: string, period = 30) {
   const fbw = (IW - 6) / 3, fbh = 30;
   [
     { l: "Terminaux enregistrés", v: String(fleet.length), s: "agents équipés", c1: C.navy, c2: C.steel },
-    { l: "Captures 7j (flotte)", v: String(fleet.reduce((a: number, u: any) => a + (u.locations_7d ?? 0), 0)), s: "toute la flotte", c1: C.gold, c2: [160,120,32] as [number,number,number] },
+    { l: "Captures 7j (flotte)", v: String(fleet.reduce((a: number, u: any) => a + (u.locations_7d ?? 0), 0)), s: "toute la flotte", c1: C.gold, c2: C.goldDark },
     { l: "Comptes bloqués", v: String(blocked), s: blocked > 0 ? "à vérifier" : "aucun", c1: blocked > 0 ? [127,29,29] as [number,number,number] : [4,78,56] as [number,number,number], c2: blocked > 0 ? C.red : C.green },
   ].forEach((k, i) => kpiBlock(doc, M + i * (fbw + 3), y, fbw, fbh, k.l, k.v, k.s, k.c1, k.c2));
   y += fbh + 10;
@@ -464,7 +464,7 @@ export async function generateGlobalAnalyticsPdf(tenantName: string, period = 30
   const bw = (IW - 9) / 4, bh = 32;
   [
     { l: "Total clients", v: String(total), s: "portefeuille", c1: C.navy, c2: C.steel },
-    { l: "Couverture 7j", v: `${pct(recent, total)}%`, s: `${recent} visités`, c1: C.gold, c2: [160,120,32] as [number,number,number] },
+    { l: "Couverture 7j", v: `${pct(recent, total)}%`, s: `${recent} visités`, c1: C.gold, c2: C.goldDark },
     { l: "Jamais visités", v: String(noVisit), s: `${pct(noVisit, total)}%`, c1: [127,29,29] as [number,number,number], c2: C.red },
     { l: "Dossiers à risque", v: String(summary.total_risk ?? 0), s: "SO/PE/DC", c1: C.steel, c2: [22,76,115] as [number,number,number] },
   ].forEach((k, i) => kpiBlock(doc, M + i * (bw + 3), y, bw, bh, k.l, k.v, k.s, k.c1, k.c2));
@@ -500,7 +500,7 @@ export async function generateGlobalAnalyticsPdf(tenantName: string, period = 30
   const lbw = (IW - 6) / 3, lbh = 32;
   [
     { l: "Total captures", v: String(totalPeriod), s: `${period}j`, c1: C.navy, c2: C.steel },
-    { l: "Moyenne / jour", v: String(avgPerDay), s: "captures/j", c1: C.gold, c2: [160,120,32] as [number,number,number] },
+    { l: "Moyenne / jour", v: String(avgPerDay), s: "captures/j", c1: C.gold, c2: C.goldDark },
     { l: "Agents actifs", v: String(byUser.length), s: "sur la période", c1: C.violet, c2: [88,28,135] as [number,number,number] },
   ].forEach((k, i) => kpiBlock(doc, M + i * (lbw + 3), y, lbw, lbh, k.l, k.v, k.s, k.c1, k.c2));
   y += lbh + 10;
@@ -534,7 +534,7 @@ export async function generateGlobalAnalyticsPdf(tenantName: string, period = 30
   [
     { l: "Agents actifs", v: String(users.filter((u: any) => u.is_active).length), s: `${users.length} au total`, c1: C.navy, c2: C.steel },
     { l: "En ligne (1h)", v: String(onlineCount), s: "connectés récemment", c1: [4,78,56] as [number,number,number], c2: C.green },
-    { l: "Captures aujourd'hui", v: String(users.reduce((a: number, u: any) => a + (u.locations_24h ?? 0), 0)), s: "toutes équipes", c1: C.gold, c2: [160,120,32] as [number,number,number] },
+    { l: "Captures aujourd'hui", v: String(users.reduce((a: number, u: any) => a + (u.locations_24h ?? 0), 0)), s: "toutes équipes", c1: C.gold, c2: C.goldDark },
     { l: "Captures 30j", v: String(users.reduce((a: number, u: any) => a + (u.locations_30d ?? 0), 0)), s: `${period}j`, c1: C.violet, c2: [88,28,135] as [number,number,number] },
   ].forEach((k, i) => kpiBlock(doc, M + i * (abw + 3), y, abw, abh, k.l, k.v, k.s, k.c1, k.c2));
   y += abh + 10;

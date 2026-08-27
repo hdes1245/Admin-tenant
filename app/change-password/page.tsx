@@ -13,9 +13,9 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { apiClient } from "@/lib/apiClient";
 
-const NAVY = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD = "#C49A2E";
+const NAVY = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD = "#3C8047";
 
 // Changement de mot de passe OBLIGATOIRE à la première connexion — cette
 // page n'est jamais accessible par choix : SidebarLayout y redirige dès que
@@ -56,27 +56,27 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", p: 3 }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "var(--bg-page)", display: "flex", alignItems: "center", justifyContent: "center", p: 3 }}>
       <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD }} />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <Box sx={{ width: 420, maxWidth: "90vw", bgcolor: "white", borderRadius: 3, border: "1px solid #E2E8F0", boxShadow: "0 4px 24px rgba(13,27,42,0.06)", p: 4 }}>
+        <Box sx={{ width: 420, maxWidth: "90vw", bgcolor: "var(--bg-surface)", borderRadius: 3, border: "1px solid var(--border)", boxShadow: "0 4px 24px rgba(15,59,92,0.06)", p: 4 }}>
           <Box display="flex" alignItems="center" gap={1.5} mb={3}>
             <Box sx={{ width: 42, height: 42, borderRadius: 2, bgcolor: NAVY, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <DashboardIcon sx={{ color: GOLD, fontSize: 22 }} />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 800, fontSize: 17, color: NAVY }}>GeoTrust</Typography>
+              <Typography sx={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)" }}>GeoTrust</Typography>
               <Typography sx={{ fontSize: 11, color: GOLD, fontWeight: 600 }}>Administration Tenant</Typography>
             </Box>
           </Box>
 
           <Box display="flex" alignItems="center" gap={1.5} mb={1}>
             <LockResetIcon sx={{ color: STEEL, fontSize: 22 }} />
-            <Typography variant="h6" fontWeight={800} sx={{ color: NAVY }}>
+            <Typography variant="h6" fontWeight={800} sx={{ color: "var(--text-primary)" }}>
               Changement de mot de passe requis
             </Typography>
           </Box>
-          <Typography variant="body2" sx={{ color: "#64748B", lineHeight: 1.6, mb: 3 }}>
+          <Typography variant="body2" sx={{ color: "var(--text-secondary)", lineHeight: 1.6, mb: 3 }}>
             C&apos;est votre première connexion : vous devez définir un nouveau mot de passe avant de continuer.
           </Typography>
 
@@ -88,7 +88,7 @@ export default function ChangePasswordPage() {
             <Box component="form" onSubmit={handleSubmit}>
               {error && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{error}</Alert>}
               <Box mb={2.5}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "#374151", mb: 0.75, fontSize: 13 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
                   Nouveau mot de passe
                 </Typography>
                 <TextField
@@ -107,7 +107,7 @@ export default function ChangePasswordPage() {
                 />
               </Box>
               <Box mb={3}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "#374151", mb: 0.75, fontSize: 13 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
                   Confirmer le mot de passe
                 </Typography>
                 <TextField

@@ -62,9 +62,9 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import { motion } from "framer-motion";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 
-const NAVY  = "#0D1B2A";
-const STEEL = "#1B4F72";
-const GOLD  = "#C49A2E";
+const NAVY  = "#0F3B5C";
+const STEEL = "#1E6091";
+const GOLD  = "#3C8047";
 
 const ROLE_OPTIONS = [
   { code: "admin_tenant",            label: "Admin tenant" },
@@ -406,7 +406,7 @@ export default function UsersPage() {
                   </Button>
                 </Tooltip>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={openCreateDialog}
-                  sx={{ bgcolor: GOLD, color: NAVY, fontWeight: 700, boxShadow: "0 4px 14px rgba(196,154,46,0.4)", "&:hover": { bgcolor: "#B8891F" } }}>
+                  sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, boxShadow: "0 4px 14px rgba(60,128,71,0.4)", "&:hover": { bgcolor: "#B8891F" } }}>
                   Nouvel utilisateur
                 </Button>
               </Box>
@@ -420,13 +420,13 @@ export default function UsersPage() {
               {kpis.map((kpi, i) => (
                 <Grid item xs={6} sm={3} key={i}>
                   <Box sx={{
-                    borderRadius: 3, bgcolor: "white", border: "1px solid #E2E8F0",
+                    borderRadius: 3, bgcolor: "var(--bg-surface)", border: "1px solid var(--border)",
                     px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
                     position: "relative", overflow: "hidden",
-                    boxShadow: "0 1px 3px rgba(13,27,42,0.05)",
+                    boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
                     "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" },
                     transition: "box-shadow 0.2s",
-                    "&:hover": { boxShadow: "0 4px 16px rgba(13,27,42,0.1)" },
+                    "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
                   }}>
                     <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.iconBg, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.iconBg}44`, flexShrink: 0 }}>
                       {kpi.icon}
@@ -460,33 +460,33 @@ export default function UsersPage() {
         )}
 
         {/* Filter bar */}
-        <Paper elevation={0} sx={{ border: "1px solid #E2E8F0", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "white", boxShadow: "0 1px 4px rgba(13,27,42,0.04)" }}>
+        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
           <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
             <TextField
               size="small" placeholder="Rechercher par nom, login, email ou agence..."
               value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 260, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "#F8FAFC", transition: "background .15s", "&:hover": { bgcolor: "white" }, "&.Mui-focused": { bgcolor: "white" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
+              sx={{ flex: 1, minWidth: 260, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
               InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#94A3B8", fontSize: 18 }} /></InputAdornment>,
+                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
                 endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
               }}
             />
             <Select size="small" displayEmpty value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              sx={{ minWidth: 180, borderRadius: 2, bgcolor: "#F8FAFC", "& .MuiOutlinedInput-notchedOutline": { borderColor: "#E2E8F0" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}>
+              sx={{ minWidth: 180, borderRadius: 2, bgcolor: "var(--bg-page)", "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}>
               <MenuItem value="">Tous les rôles</MenuItem>
               {ROLE_OPTIONS.map((r) => <MenuItem key={r.code} value={r.code}>{r.label}</MenuItem>)}
             </Select>
             <Select size="small" displayEmpty value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              sx={{ minWidth: 140, borderRadius: 2, bgcolor: "#F8FAFC", "& .MuiOutlinedInput-notchedOutline": { borderColor: "#E2E8F0" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}>
+              sx={{ minWidth: 140, borderRadius: 2, bgcolor: "var(--bg-page)", "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}>
               <MenuItem value="">Tous les statuts</MenuItem>
               <MenuItem value="active">Actif</MenuItem>
               <MenuItem value="inactive">Désactivé</MenuItem>
             </Select>
             {activeFilters > 0 && (
               <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={() => { setSearch(""); setFilterRole(""); setFilterStatus(""); }}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "#64748B", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
+                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
                 Effacer ({activeFilters})
               </Button>
             )}
@@ -523,7 +523,7 @@ export default function UsersPage() {
             <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}>
               {editing ? <PeopleAltIcon sx={{ color: GOLD, fontSize: 20 }} /> : <PersonAddIcon sx={{ color: GOLD, fontSize: 20 }} />}
             </Avatar>
-            <Typography variant="h6" fontWeight={700} sx={{ color: NAVY }}>
+            <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)" }}>
               {editing ? "Modifier l'utilisateur" : "Nouvel utilisateur"}
             </Typography>
           </Box>
@@ -594,9 +594,9 @@ export default function UsersPage() {
             )}
             {isCafRole && (
               <Grid item xs={12}>
-                <Box sx={{ border: "1px solid #E2E8F0", borderRadius: 2, p: 1.5, bgcolor: "#F8FAFC" }}>
+                <Box sx={{ border: "1px solid var(--border)", borderRadius: 2, p: 1.5, bgcolor: "var(--bg-page)" }}>
                   <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                    <Typography fontSize={12.5} fontWeight={700} color={NAVY}>
+                    <Typography fontSize={12.5} fontWeight={700} color="var(--text-primary)">
                       Agences supplémentaires (CAF multi-agences)
                     </Typography>
                     <Button
@@ -740,7 +740,7 @@ export default function UsersPage() {
           <Box display="flex" alignItems="center" gap={1.5}>
             <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}><LockResetIcon sx={{ color: GOLD, fontSize: 20 }} /></Avatar>
             <Box>
-              <Typography variant="h6" fontWeight={700} sx={{ color: NAVY }}>Reinitialiser le mot de passe</Typography>
+              <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)" }}>Reinitialiser le mot de passe</Typography>
               <Typography variant="caption" color="text.secondary">{resetTarget?.name} ({resetTarget?.username})</Typography>
             </Box>
           </Box>
@@ -784,7 +784,7 @@ export default function UsersPage() {
         <DialogContent sx={{ pt: 2 }}>
           <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
             <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "white", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>name,username,password,email,role,agence_code,zone_code,caf_code</Typography>
+            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>name,username,password,email,role,agence_code,zone_code,caf_code</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
               <b>name</b>, <b>username</b>, <b>password</b>, <b>role</b> — obligatoires<br />
               <b>email</b>, <b>agence_code</b>, <b>zone_code</b>, <b>caf_code</b> — optionnels<br />
