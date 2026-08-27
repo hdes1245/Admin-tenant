@@ -136,7 +136,11 @@ export async function updateUser(input: UpdateUserInput): Promise<void> {
 }
 
 export async function deleteUser(id: number): Promise<void> {
-  await apiClient.delete(`/users/${id}`);
+  try {
+    await apiClient.delete(`/users/${id}`);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Impossible de supprimer l'utilisateur."));
+  }
 }
 
 /** Agences supplémentaires d'un CAF multi-agences (hors agence principale) — pour pré-remplir l'édition. */
@@ -150,10 +154,18 @@ export async function fetchExtraCafAssignments(userId: number): Promise<CafAssig
 }
 
 export async function resetUserPassword(id: number, password: string): Promise<void> {
-  await apiClient.post(`/users/${id}/reset-password`, { password });
+  try {
+    await apiClient.post(`/users/${id}/reset-password`, { password });
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Impossible de réinitialiser le mot de passe."));
+  }
 }
 
 export async function resetAllUsersPasswords(password: string): Promise<void> {
-  await apiClient.post(`/users/reset-all-passwords`, { password });
+  try {
+    await apiClient.post(`/users/reset-all-passwords`, { password });
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Impossible de réinitialiser les mots de passe."));
+  }
 }
 

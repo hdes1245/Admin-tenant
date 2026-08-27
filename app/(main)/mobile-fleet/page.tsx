@@ -81,9 +81,9 @@ export default function MobileFleetPage() {
 
   const { mutate: sendNotif, isPending: sending } = useMutation({
     mutationFn: ({ userId, message }: { userId: number; message: string }) =>
-      apiFetch("/notifications", {
+      apiFetch(`/notifications/direct/${userId}`, {
         method: "POST",
-        body: JSON.stringify({ user_ids: [userId], title: "Message admin", body: message, type: "ADMIN_MESSAGE" }),
+        body: JSON.stringify({ title: "Message admin", body: message }),
       }),
     onSuccess: () => {
       setNotifDialog(null);
@@ -94,7 +94,7 @@ export default function MobileFleetPage() {
 
   const { mutate: toggleUser } = useMutation({
     mutationFn: ({ userId, active }: { userId: number; active: boolean }) =>
-      apiFetch(`/users/${userId}`, { method: "PATCH", body: JSON.stringify({ is_active: active }) }),
+      apiFetch(`/users/${userId}`, { method: "PUT", body: JSON.stringify({ isActive: active }) }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["mobile-fleet"] }),
   });
 

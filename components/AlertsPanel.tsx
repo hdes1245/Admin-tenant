@@ -67,7 +67,7 @@ export default function AlertsPanel({ open, onClose, thresholds, triggeredAlerts
 
   return (
     <Drawer anchor="right" open={open}
-      onClose={() => { handleSave(); onClose(); }}
+      onClose={onClose}
       PaperProps={{ sx: { width: { xs: "100vw", sm: 420 }, display: "flex", flexDirection: "column" } }}>
 
       {/* Header */}

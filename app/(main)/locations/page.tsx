@@ -3,6 +3,7 @@
 import { fetchLocations, fetchLocationHistory, fetchDeletionLogs, fetchLocationPhotos, deleteLocationPhoto } from "@/lib/locations";
 import { downloadCsv } from "@/lib/csvExport";
 import type { LocationItem, LocationHistoryItem, DeletionLogItem, LocationPhotoItem } from "@/lib/locations";
+import { fetchMe } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import {
   Alert,
@@ -125,6 +126,16 @@ export default function LocationsPage() {
   const [detailPhotosLoading, setDetailPhotosLoading] = useState(false);
   const [detailPhotosError, setDetailPhotosError] = useState<string | null>(null);
   const [deletingPhotoId, setDeletingPhotoId] = useState<number | null>(null);
+
+  // DELETE /location-photos/:id est restreint côté backend à
+  // chef_agence/responsable_zone/admin/admin_tenant — les autres rôles
+  // superviseurs (directrice_exploitation, responsable_credit, analyste_credit,
+  // controleur, audit) qui accèdent aussi à /locations reçoivent un 403 s'ils
+  // cliquent ; le bouton est donc masqué pour eux plutôt que de l'exposer.
+  const { data: me } = useQuery({ queryKey: ["me-locations"], queryFn: fetchMe });
+  const canDeletePhoto = ["chef_agence", "responsable_zone", "admin", "admin_tenant"].includes(
+    String(me?.role ?? "").toLowerCase(),
+  );
 
   const hasFilters = search || typeFilter || dateFrom || dateTo;
 
@@ -684,7 +695,7 @@ export default function LocationsPage() {
                           size="small"
                           disabled={isDeleting}
                           onClick={() => handleDeletePhoto(photo.id)}
-                          sx={{ position: "absolute", top: 6, right: 6, bgcolor: "rgba(0,0,0,0.5)", color: "white", width: 26, height: 26, "&:hover": { bgcolor: "#DC2626" }, "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.3)" } }}
+                          sx={{ position: "absolute", top: 6, right: 6, bgcolor: "rgba(0,0,0,0.5)", color: "white", width: 26, height: 26, "&:hover": { bgcolor: "#DC2626" }, "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.3)" }, display: canDeletePhoto ? undefined : "none" }}
                         >
                           {isDeleting ? <CircularProgress size={12} sx={{ color: "white" }} /> : <DeleteOutlineIcon sx={{ fontSize: 14 }} />}
                         </IconButton>

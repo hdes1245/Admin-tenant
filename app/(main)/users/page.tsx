@@ -105,6 +105,8 @@ export default function UsersPage() {
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [resetTarget, setResetTarget] = useState<UserDto | null>(null);
   const [resetPasswordValue, setResetPasswordValue] = useState("");
+  const [resetPasswordError, setResetPasswordError] = useState<string | null>(null);
+  const [resetAllError, setResetAllError] = useState<string | null>(null);
   const [resetAllDialogOpen, setResetAllDialogOpen] = useState(false);
   const [resetAllPasswordValue, setResetAllPasswordValue] = useState("");
 
@@ -351,7 +353,7 @@ export default function UsersPage() {
     setSelectedUserIds(visibleIds);
   };
   const openResetDialog = (user: UserDto) => {
-    setResetTarget(user); setResetPasswordValue(""); setResetDialogOpen(true);
+    setResetTarget(user); setResetPasswordValue(""); setResetPasswordError(null); setResetDialogOpen(true);
   };
   const toggleUserActive = async (user: UserDto) => {
     setActionError(null);
@@ -398,7 +400,7 @@ export default function UsersPage() {
                 </Button>
                 <Tooltip title="Reinitialiser tous les mots de passe">
                   <Button variant="outlined" startIcon={<LockResetIcon />}
-                    onClick={() => { setResetAllPasswordValue(""); setResetAllDialogOpen(true); }}
+                    onClick={() => { setResetAllPasswordValue(""); setResetAllError(null); setResetAllDialogOpen(true); }}
                     sx={{ borderColor: "rgba(255,255,255,0.5)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
                     Reinit. MDP
                   </Button>
@@ -747,6 +749,7 @@ export default function UsersPage() {
         <DialogContent sx={{ pt: 2 }}>
           <Typography variant="body2" color="text.secondary" mb={2}>Le nouveau mot de passe devra etre communique a l&apos;utilisateur.</Typography>
           <TextField label="Nouveau mot de passe" type="password" fullWidth size="small" value={resetPasswordValue} onChange={(e) => setResetPasswordValue(e.target.value)} />
+          {resetPasswordError && <Alert severity="error" sx={{ mt: 2 }}>{resetPasswordError}</Alert>}
         </DialogContent>
         <Divider />
         <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
@@ -754,7 +757,12 @@ export default function UsersPage() {
           <Button
             onClick={async () => {
               if (!resetTarget || !resetPasswordValue.trim()) return;
-              await resetPasswordMutation.mutateAsync({ id: resetTarget.id, password: resetPasswordValue.trim() });
+              setResetPasswordError(null);
+              try {
+                await resetPasswordMutation.mutateAsync({ id: resetTarget.id, password: resetPasswordValue.trim() });
+              } catch (err) {
+                setResetPasswordError(err instanceof Error ? err.message : "Reinitialisation impossible pour cet utilisateur.");
+              }
             }}
             variant="contained" disabled={resetPasswordMutation.isPending || !resetPasswordValue.trim()} startIcon={<LockResetIcon />}
             sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
@@ -818,6 +826,7 @@ export default function UsersPage() {
           <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}>Cette action affecte <strong>tous les utilisateurs</strong> du tenant.</Alert>
           <Typography variant="body2" color="text.secondary" mb={2}>Un mot de passe temporaire commun sera defini. Chaque utilisateur devra le modifier lors de sa prochaine connexion.</Typography>
           <TextField label="Mot de passe temporaire commun" type="password" fullWidth size="small" value={resetAllPasswordValue} onChange={(e) => setResetAllPasswordValue(e.target.value)} />
+          {resetAllError && <Alert severity="error" sx={{ mt: 2 }}>{resetAllError}</Alert>}
         </DialogContent>
         <Divider />
         <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
@@ -825,7 +834,12 @@ export default function UsersPage() {
           <Button
             onClick={async () => {
               if (!resetAllPasswordValue.trim()) return;
-              await resetAllMutation.mutateAsync(resetAllPasswordValue.trim());
+              setResetAllError(null);
+              try {
+                await resetAllMutation.mutateAsync(resetAllPasswordValue.trim());
+              } catch (err) {
+                setResetAllError(err instanceof Error ? err.message : "Reinitialisation impossible.");
+              }
             }}
             variant="contained" color="warning"
             disabled={resetAllMutation.isPending || !resetAllPasswordValue.trim()}

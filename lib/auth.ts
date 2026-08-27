@@ -20,12 +20,12 @@ export async function fetchMe(): Promise<AuthUserProfile | null> {
       name: String(data.name ?? data.fullName ?? ""),
       username: String(data.username ?? data.email ?? ""),
       role: String(data.role ?? data.roleCode ?? ""),
+      // Le backend (AuthService.toProfilePayload) renvoie ces champs à plat
+      // (tenantName / tenantLogoUrl), pas sous un objet imbriqué `tenant`.
       tenantName:
-        data.tenant?.name != null ? String(data.tenant.name) : null,
+        data.tenantName != null ? String(data.tenantName) : null,
       tenantLogoUrl:
-        data.tenantLogoUrl != null
-          ? String(data.tenantLogoUrl)
-          : (data.tenant?.logoUrl != null ? String(data.tenant.logoUrl) : null),
+        data.tenantLogoUrl != null ? String(data.tenantLogoUrl) : null,
       mustChangePassword: !!data.must_change_password,
     };
   } catch {

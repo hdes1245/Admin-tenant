@@ -514,8 +514,14 @@ function ExtraFieldEditDialog({ field, onSave, onClose }: { field: CaptureExtraF
 
 // ── MobilePreviewTab ──────────────────────────────────────────────────────────
 function MobilePreviewTab() {
-  const cfg = loadCaptureConfig();
+  // La config doit refléter la valeur réellement enregistrée côté serveur
+  // (GET /tenants/me/capture-config), pas le cache localStorage local à ce
+  // navigateur — sinon un premier accès à cet onglet, un autre appareil, ou
+  // une modification faite par un autre admin_tenant affiche un aperçu
+  // obsolète ou la config par défaut au lieu de la config réelle.
+  const [cfg, setCfg] = useState<CaptureFormConfig>(DEFAULT_CONFIG);
   const [types, setTypes] = useState<LocationType[]>([]);
+  useEffect(() => { fetchCaptureConfig().then(setCfg).catch(() => {}); }, []);
   useEffect(() => { fetchLocationTypes().then(setTypes).catch(() => {}); }, []);
 
   return (
