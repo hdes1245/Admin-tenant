@@ -144,7 +144,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
             borderRadius: "50%",
             background: open
               ? `linear-gradient(135deg, var(--banner-to) 0%, var(--banner-from) 100%)`
-              : `linear-gradient(135deg, ${GOLD} 0%, #A07820 100%)`,
+              : `linear-gradient(135deg, ${GOLD} 0%, #1F5C30 100%)`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

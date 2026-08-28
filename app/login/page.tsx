@@ -18,7 +18,6 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import BusinessIcon from "@mui/icons-material/Business";
-import PlaceIcon from "@mui/icons-material/Place";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { apiClient } from "@/lib/apiClient";
@@ -121,13 +120,14 @@ export default function LoginPage() {
           justifyContent: "center",
           position: "relative",
           overflow: "hidden",
-          bgcolor: NAVY,
+          bgcolor: "var(--sidebar-bg)",
           p: 6,
         }}
       >
-        {/* Subtle decorative element */}
-        <Box sx={{ position: "absolute", top: -100, right: -100, width: 350, height: 350, borderRadius: "50%", background: `radial-gradient(circle, rgba(60,128,71,0.08) 0%, transparent 65%)`, pointerEvents: "none" }} />
-        <Box sx={{ position: "absolute", bottom: -80, left: -80, width: 280, height: 280, borderRadius: "50%", background: `radial-gradient(circle, rgba(30,96,145,0.25) 0%, transparent 65%)`, pointerEvents: "none" }} />
+        {/* Formes « lampe à lave » — dérivent lentement en boucle (voir globals.css) */}
+        <Box className="login-blob login-blob-a" sx={{ top: -100, right: -100, width: 350, height: 350, background: `radial-gradient(circle, rgba(60,128,71,0.14) 0%, transparent 65%)` }} />
+        <Box className="login-blob login-blob-b" sx={{ bottom: -80, left: -80, width: 280, height: 280, background: `radial-gradient(circle, rgba(30,96,145,0.30) 0%, transparent 65%)` }} />
+        <Box className="login-blob login-blob-c" sx={{ top: "38%", left: "20%", width: 220, height: 220, background: `radial-gradient(circle, rgba(74,222,128,0.10) 0%, transparent 65%)` }} />
 
         {/* Gold top bar */}
         <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD }} />
@@ -145,7 +145,7 @@ export default function LoginPage() {
               </Box>
             )}
             <Box>
-              <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 22, letterSpacing: -0.5, lineHeight: 1 }}>SiteCheck</Typography>
+              <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 22, letterSpacing: -0.5, lineHeight: 1 }}>GeoTrust</Typography>
               <Typography sx={{ color: GOLD, fontSize: 12, fontWeight: 600 }}>Administration & Supervision</Typography>
             </Box>
           </Box>
@@ -172,19 +172,24 @@ export default function LoginPage() {
         <Box mt="auto" pt={4}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
             <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#22c55e" }} />
-            <Typography sx={{ color: "#475569", fontSize: 12 }}>Système opérationnel</Typography>
+            <Typography sx={{ color: "#94A3B8", fontSize: 12 }}>Système opérationnel</Typography>
           </Box>
-          <Typography sx={{ color: "#334155", fontSize: 12 }}>© 2025 SiteCheck · Tous droits réservés</Typography>
+          <Typography sx={{ color: "#64748B", fontSize: 12 }}>© 2025 GeoTrust · Tous droits réservés</Typography>
         </Box>
       </Box>
 
       {/* Right panel — form */}
-      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 3, sm: 6 }, position: "relative" }}>
+      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 3, sm: 6 }, position: "relative", overflow: "hidden" }}>
+
+        {/* Formes « lampe à lave » — même traitement que le panneau navy, en plus discret sur ce fond quasi-noir */}
+        <Box className="login-blob login-blob-b" sx={{ top: -120, right: -140, width: 380, height: 380, background: `radial-gradient(circle, rgba(30,96,145,0.16) 0%, transparent 65%)` }} />
+        <Box className="login-blob login-blob-a" sx={{ bottom: -100, right: "15%", width: 300, height: 300, background: `radial-gradient(circle, rgba(60,128,71,0.10) 0%, transparent 65%)` }} />
+        <Box className="login-blob login-blob-c" sx={{ bottom: "10%", left: -100, width: 260, height: 260, background: `radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 65%)` }} />
 
         {/* Gold accent top line on mobile */}
-        <Box sx={{ display: { xs: "block", md: "none" }, position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD }} />
+        <Box sx={{ display: { xs: "block", md: "none" }, position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD, zIndex: 1 }} />
 
-        <Box sx={{ width: "100%", maxWidth: 400 }}>
+        <Box sx={{ width: "100%", maxWidth: 400, position: "relative", zIndex: 1 }}>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
 
             {/* Mobile logo */}
@@ -198,7 +203,7 @@ export default function LoginPage() {
                   <Typography sx={{ color: NAVY, fontWeight: 900, fontSize: 18 }}>S</Typography>
                 </Box>
               )}
-              <Typography sx={{ fontWeight: 800, fontSize: 18, color: "var(--text-primary)" }}>SiteCheck</Typography>
+              <Typography sx={{ fontWeight: 800, fontSize: 18, color: "var(--text-primary)" }}>GeoTrust</Typography>
             </Box>
 
             {/* Heading */}
@@ -299,16 +304,6 @@ export default function LoginPage() {
                   ? <Box display="flex" alignItems="center" gap={1.5}><CircularProgress size={18} sx={{ color: "white" }} /> Connexion…</Box>
                   : "Se connecter"}
               </Button>
-            </Box>
-
-            {/* Info note */}
-            <Box mt={4} pt={3} sx={{ borderTop: "1px solid var(--border)" }}>
-              <Box sx={{ display: "flex", gap: 1.5, p: 2, bgcolor: "var(--bg-page)", border: "1px solid var(--border)", borderRadius: 2 }}>
-                <PlaceIcon sx={{ fontSize: 18, color: GOLD, flexShrink: 0, mt: 0.1 }} />
-                <Typography variant="caption" sx={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
-                  Espace <strong style={{ color: "var(--text-primary)" }}>administrateurs</strong> et <strong style={{ color: "var(--text-primary)" }}>superviseurs</strong> (chefs d&apos;agence, responsables de zone, direction, analystes, contrôle, audit) — chacun est dirigé vers son interface. Agents terrain (CAF, recouvrement) : utilisez l&apos;application mobile SiteCheck.
-                </Typography>
-              </Box>
             </Box>
 
           </motion.div>

@@ -111,27 +111,25 @@ function statusLabel(s: string) {
 }
 
 // ─── KPI card config ─────────────────────────────────────────────────────────
+// Accent solide (pas de dégradé plein) : bordure + icône colorées sur une
+// carte de fond neutre — plus sobre qu'un aplat saturé, surtout en mode nuit.
 const KPI_CARDS = [
   { key: "agences",   label: "Agences",   subtitle: "Agences actives",
     info: "Nombre total d'agences actives dans ce tenant.",
-    icon: <BusinessIcon sx={{ fontSize: 26 }} />,
-    gradient: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, light: "#EFF6FF" },
+    icon: <BusinessIcon sx={{ fontSize: 24 }} />,
+    accent: NAVY },
   { key: "cafs",      label: "CAFs",      subtitle: "Agents de terrain",
     info: "Nombre total de chargés d'affaires (agents de terrain) rattachés à ce tenant.",
-    icon: <PeopleAltIcon sx={{ fontSize: 26 }} />,
-    gradient: `linear-gradient(135deg,${STEEL} 0%,#164C73 100%)`, light: "#EFF6FF" },
+    icon: <PeopleAltIcon sx={{ fontSize: 24 }} />,
+    accent: STEEL },
   { key: "clients",   label: "Clients",   subtitle: "Portefeuille clients",
     info: "Nombre total de clients dans le portefeuille de ce tenant.",
-    icon: <PersonPinCircleIcon sx={{ fontSize: 26 }} />,
-    // Vert de marque (GOLD) → vert forêt plus sombre — remplace l'ancien
-    // dégradé vert→brun-doré (#A07820, résidu de la palette pré-rebranding).
-    gradient: `linear-gradient(135deg,${GOLD} 0%,#1F5C30 100%)`, light: "#FFFBEB" },
+    icon: <PersonPinCircleIcon sx={{ fontSize: 24 }} />,
+    accent: GOLD },
   { key: "locations", label: "Localisations", subtitle: "GPS capturées",
     info: "Nombre total de positions GPS capturées lors des visites terrain.",
-    icon: <LocationOnIcon sx={{ fontSize: 26 }} />,
-    // Vert émeraude — même famille que le vert de marque plutôt qu'un
-    // sarcelle indépendant, pour rester dans la palette Abedua.
-    gradient: `linear-gradient(135deg,#2F8F52 0%,#1B5C36 100%)`, light: "#ECFDF5" },
+    icon: <LocationOnIcon sx={{ fontSize: 24 }} />,
+    accent: "#2F8F52" },
 ];
 
 // ─── Main page ───────────────────────────────────────────────────────────────
@@ -393,7 +391,7 @@ export default function DashboardPage() {
         <Box sx={{
           position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
           width: 44, height: 44, borderRadius: "14px",
-          background: `linear-gradient(135deg, ${GOLD} 0%, #A9832A 100%)`,
+          background: `linear-gradient(135deg,  0%, #1F5C30 100%)`,
           boxShadow: "0 4px 14px rgba(60,128,71,0.35)",
         }}>
           <TrendingUpIcon sx={{ color: "white", fontSize: 24 }} />
@@ -423,10 +421,10 @@ export default function DashboardPage() {
               transition: "all .2s ease",
               "&:hover": { background: "rgba(255,255,255,0.1)" },
               "&.Mui-selected": {
-                background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)`,
+                background: `linear-gradient(180deg,  0%, #1F5C30 100%)`,
                 color: "white", fontWeight: 700,
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(60,128,71,0.4)",
-                "&:hover": { background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)` },
+                "&:hover": { background: `linear-gradient(180deg,  0%, #1F5C30 100%)` },
               },
             },
           }}>
@@ -455,7 +453,7 @@ export default function DashboardPage() {
               transition: "all .2s ease",
               "&:hover": { background: "rgba(255,255,255,0.1)" },
               "&.Mui-selected": {
-                background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)`,
+                background: `linear-gradient(180deg,  0%, #1F5C30 100%)`,
                 color: "white", fontWeight: 700,
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(60,128,71,0.4)",
               },
@@ -533,7 +531,7 @@ export default function DashboardPage() {
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px rgba(0,0,0,0.18)",
                 transition: "all .2s ease",
                 "&:hover": {
-                  background: `linear-gradient(180deg, ${GOLD} 0%, #A9832A 100%)`,
+                  background: `linear-gradient(180deg,  0%, #1F5C30 100%)`,
                   color: NAVY, transform: "translateY(-1px)",
                   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), 0 4px 16px rgba(60,128,71,0.5)",
                 },
@@ -590,22 +588,20 @@ export default function DashboardPage() {
           {KPI_CARDS.map((card, i) => (
             <Grid item xs={12} sm={6} lg={3} key={card.key}>
               <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                <Card sx={{ background: card.gradient, borderRadius: 2, position: "relative", overflow: "hidden",
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.18)" }}>
-                  <Box sx={{ position: "absolute", right: -20, top: -20, width: 100, height: 100,
-                    borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
-                  {card.info && <KpiInfoIcon text={card.info} color="rgba(255,255,255,0.9)" />}
+                <Card sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderLeft: `3px solid ${card.accent}`,
+                  borderRadius: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 4px rgba(15,59,92,0.05)" }}>
+                  {card.info && <KpiInfoIcon text={card.info} color="var(--text-muted)" />}
                   <CardContent sx={{ p: 2.5 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="flex-start">
                       <Box>
-                        <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.88)", textTransform: "uppercase",
-                          letterSpacing: 1, fontSize: "0.68rem", fontWeight: 500 }}>{card.subtitle}</Typography>
-                        <Typography variant="h4" fontWeight={800} color="white" lineHeight={1.1} mt={0.3}>
+                        <Typography variant="caption" sx={{ color: "var(--text-secondary)", textTransform: "uppercase",
+                          letterSpacing: 1, fontSize: "0.68rem", fontWeight: 600 }}>{card.subtitle}</Typography>
+                        <Typography variant="h4" fontWeight={800} sx={{ color: "var(--text-primary)" }} lineHeight={1.1} mt={0.3}>
                           {(stats as any)[card.key]?.toLocaleString() ?? "—"}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.82)", fontWeight: 400 }} mt={0.5}>{card.label}</Typography>
+                        <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontWeight: 400 }} mt={0.5}>{card.label}</Typography>
                       </Box>
-                      <Avatar sx={{ background: "rgba(255,255,255,0.13)", width: 46, height: 46, color: "white" }}>
+                      <Avatar sx={{ bgcolor: `${card.accent}18`, width: 44, height: 44, color: card.accent }}>
                         {card.icon}
                       </Avatar>
                     </Box>
@@ -623,49 +619,41 @@ export default function DashboardPage() {
               sub: "tickets résolus + fermés",
               info: "Pourcentage de tickets au statut Résolu ou Fermé sur l'ensemble des tickets de la période.",
               icon: <CheckCircleOutlineIcon sx={{ fontSize: 24 }} />,
-              bg: derived.tauxResolution >= 70 ? "linear-gradient(135deg,#065F46 0%,#059669 100%)"
-                : derived.tauxResolution >= 40 ? "linear-gradient(135deg,#92400E 0%,#D97706 100%)"
-                : "linear-gradient(135deg,#7F1D1D 0%,#DC2626 100%)" },
+              accent: derived.tauxResolution >= 70 ? "#059669" : derived.tauxResolution >= 40 ? "#D97706" : "#DC2626" },
             { label: "Moy. clients/agence", value: derived.moyenneClients.toLocaleString(),
               sub: "clients par agence en moyenne",
               info: "Nombre moyen de clients par agence (total clients divisé par nombre d'agences).",
               icon: <PersonPinCircleIcon sx={{ fontSize: 24 }} />,
-              bg: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)` },
+              accent: STEEL },
             { label: "Agences sans CAF",    value: String(derived.agencesSansCaf),
               sub: "agences sans agent terrain",
               info: "Nombre d'agences ne disposant d'aucun chargé d'affaires (CAF) rattaché.",
               icon: <WarningAmberIcon sx={{ fontSize: 24 }} />,
-              bg: derived.agencesSansCaf > 0
-                ? "linear-gradient(135deg,#78350F 0%,#D97706 100%)"
-                : "linear-gradient(135deg,#064E3B 0%,#059669 100%)" },
+              accent: derived.agencesSansCaf > 0 ? "#D97706" : "#059669" },
             { label: "Utilisateurs terrain", value: derived.totalUsers.toLocaleString(),
               sub: "rattachés à une agence",
               info: "Nombre distinct d'utilisateurs rattachés à au moins une agence (un même agent rattaché à plusieurs agences n'est compté qu'une fois).",
               icon: <ManageAccountsIcon sx={{ fontSize: 24 }} />,
-              // Vert forêt (famille de marque) au lieu du violet, hors
-              // palette Abedua.
-              bg: "linear-gradient(135deg,#1F5C30 0%,#123D22 100%)" },
+              accent: "#2F8F52" },
           ].map((k, i) => (
             <Grid item xs={6} md={3} key={k.label}>
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.06 }}>
-                <Card sx={{ background: k.bg, borderRadius: 2, position: "relative", overflow: "hidden",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.2)" }}>
-                  <Box sx={{ position: "absolute", right: -16, top: -16, width: 80, height: 80,
-                    borderRadius: "50%", background: "rgba(255,255,255,0.07)" }} />
-                  {k.info && <KpiInfoIcon text={k.info} color="rgba(255,255,255,0.9)" />}
+                <Card sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderLeft: `3px solid ${k.accent}`,
+                  borderRadius: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 4px rgba(15,59,92,0.05)" }}>
+                  {k.info && <KpiInfoIcon text={k.info} color="var(--text-muted)" />}
                   <CardContent sx={{ p: 2.5 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="flex-start">
                       <Box>
-                        <Typography sx={{ color: "rgba(255,255,255,0.88)", textTransform: "uppercase",
-                          letterSpacing: 1, fontSize: "0.67rem", fontWeight: 500 }}>{k.label}</Typography>
-                        <Typography variant="h4" fontWeight={800} sx={{ color: "#fff", lineHeight: 1.1, mt: 0.3 }}>
+                        <Typography sx={{ color: "var(--text-secondary)", textTransform: "uppercase",
+                          letterSpacing: 1, fontSize: "0.67rem", fontWeight: 600 }}>{k.label}</Typography>
+                        <Typography variant="h4" fontWeight={800} sx={{ color: "var(--text-primary)", lineHeight: 1.1, mt: 0.3 }}>
                           {k.value}
                         </Typography>
-                        <Typography sx={{ color: "rgba(255,255,255,0.82)", fontSize: "0.78rem", mt: 0.5, display: "block" }}>
+                        <Typography sx={{ color: "var(--text-secondary)", fontSize: "0.78rem", mt: 0.5, display: "block" }}>
                           {k.sub}
                         </Typography>
                       </Box>
-                      <Avatar sx={{ background: "rgba(255,255,255,0.15)", width: 42, height: 42, color: "white" }}>
+                      <Avatar sx={{ bgcolor: `${k.accent}18`, width: 42, height: 42, color: k.accent }}>
                         {k.icon}
                       </Avatar>
                     </Box>

@@ -198,7 +198,7 @@ export default function FormsPage() {
           </Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setNewDialog(true)}
-          sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#A07820" }, boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
+          sx={{ bgcolor: GOLD, color: "#fff", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" }, boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
           Nouveau formulaire
         </Button>
       </Box>

@@ -67,6 +67,37 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
+/* ── Formes animées « lampe à lave » (fond page de connexion) ───────────────── */
+@keyframes blobDriftA {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(6vw, -4vh) scale(1.15); }
+  66%  { transform: translate(-4vw, 5vh) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes blobDriftB {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(-7vw, 6vh) scale(0.92); }
+  66%  { transform: translate(5vw, -5vh) scale(1.12); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes blobDriftC {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(4vw, 6vh) scale(1.08); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.login-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(4px);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .login-blob-a { animation: blobDriftA 26s ease-in-out infinite; }
+  .login-blob-b { animation: blobDriftB 32s ease-in-out infinite; }
+  .login-blob-c { animation: blobDriftC 22s ease-in-out infinite; }
+}
+
 /* ── Animation de bascule du mode nuit ───────────────────────────────────── */
 /* On désactive le fondu croisé par défaut de la View Transitions API : seul
    le cercle animé en JS (ThemeModeContext.toggleMode), qui se propage depuis
