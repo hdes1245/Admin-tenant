@@ -72,7 +72,7 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
         <InsightsIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" fontWeight={700} color="white">Analytics &amp; Rapports</Typography>
@@ -121,7 +121,7 @@ export default function AnalyticsPage() {
 
       <Box sx={{ borderBottom: "1px solid var(--border)", background: "var(--bg-surface)", px: 3 }}>
         <Tabs value={tab} onChange={(_, v) => setTab(v)}
-          sx={{ "& .MuiTab-root": { fontWeight: 600, fontSize: 13, textTransform: "none", minHeight: 48 }, "& .Mui-selected": { color: GOLD }, "& .MuiTabs-indicator": { background: GOLD } }}>
+          sx={{ "& .MuiTab-root": { fontWeight: 600, fontSize: 13, textTransform: "none", minHeight: 48 }, "& .Mui-selected": { color: "var(--accent-text) !important" }, "& .MuiTabs-indicator": { background: "var(--accent-text)" } }}>
           {TAB_LABELS.map((l) => <Tab key={l} label={l} />)}
         </Tabs>
       </Box>

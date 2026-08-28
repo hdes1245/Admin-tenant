@@ -855,7 +855,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
       <Box sx={{ height: 4, bgcolor: GOLD, flexShrink: 0 }} />
 
       {/* Header */}
-      <Box sx={{ px: 3, py: 2, flexShrink: 0, background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)` }}>
+      <Box sx={{ px: 3, py: 2, flexShrink: 0, background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)` }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box display="flex" alignItems="center" gap={2}>
             <Avatar sx={{ bgcolor: GOLD, width: 42, height: 42 }}>
@@ -877,7 +877,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
               startIcon={generating ? <CircularProgress size={14} sx={{ color: "white" }} /> : <DownloadIcon />}
               onClick={handleExport}
               disabled={generating || filteredTickets.length === 0}
-              sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, fontSize: 13, "&:hover": { bgcolor: "#b8891f" } }}
+              sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, fontSize: 13, "&:hover": { bgcolor: "#2A5C34" } }}
             >
               {generating ? "Génération…" : "Exporter PDF"}
             </Button>
@@ -1064,7 +1064,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
               </Typography>
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={monthChartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--text-secondary)" }} />
                   <YAxis tick={{ fontSize: 11, fill: "var(--text-muted)" }} allowDecimals={false} />
                   <RTooltip contentStyle={{ borderRadius: 8, border: "1px solid var(--border)", fontSize: 12 }} />

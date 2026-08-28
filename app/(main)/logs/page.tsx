@@ -77,7 +77,7 @@ export default function LogsPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
         <FactCheckIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" fontWeight={700} color="white">Logs & Audit</Typography>

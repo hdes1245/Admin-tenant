@@ -14,7 +14,7 @@ export function PageSkeleton({ rows = 8 }: { rows?: number }) {
           borderRadius: 3,
           overflow: "hidden",
           mb: 3,
-          background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`,
+          background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
           p: 3,
           position: "relative",
         }}

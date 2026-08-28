@@ -115,7 +115,7 @@ const KPI_CARDS = [
   { key: "agences",   label: "Agences",   subtitle: "Agences actives",
     info: "Nombre total d'agences actives dans ce tenant.",
     icon: <BusinessIcon sx={{ fontSize: 26 }} />,
-    gradient: `linear-gradient(135deg,${NAVY} 0%,${STEEL} 100%)`, light: "#EFF6FF" },
+    gradient: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, light: "#EFF6FF" },
   { key: "cafs",      label: "CAFs",      subtitle: "Agents de terrain",
     info: "Nombre total de chargés d'affaires (agents de terrain) rattachés à ce tenant.",
     icon: <PeopleAltIcon sx={{ fontSize: 26 }} />,
@@ -123,11 +123,15 @@ const KPI_CARDS = [
   { key: "clients",   label: "Clients",   subtitle: "Portefeuille clients",
     info: "Nombre total de clients dans le portefeuille de ce tenant.",
     icon: <PersonPinCircleIcon sx={{ fontSize: 26 }} />,
-    gradient: `linear-gradient(135deg,${GOLD} 0%,#A07820 100%)`, light: "#FFFBEB" },
+    // Vert de marque (GOLD) → vert forêt plus sombre — remplace l'ancien
+    // dégradé vert→brun-doré (#A07820, résidu de la palette pré-rebranding).
+    gradient: `linear-gradient(135deg,${GOLD} 0%,#1F5C30 100%)`, light: "#FFFBEB" },
   { key: "locations", label: "Localisations", subtitle: "GPS capturées",
     info: "Nombre total de positions GPS capturées lors des visites terrain.",
     icon: <LocationOnIcon sx={{ fontSize: 26 }} />,
-    gradient: `linear-gradient(135deg,#059669 0%,#047857 100%)`, light: "#ECFDF5" },
+    // Vert émeraude — même famille que le vert de marque plutôt qu'un
+    // sarcelle indépendant, pour rester dans la palette Abedua.
+    gradient: `linear-gradient(135deg,#2F8F52 0%,#1B5C36 100%)`, light: "#ECFDF5" },
 ];
 
 // ─── Main page ───────────────────────────────────────────────────────────────
@@ -375,7 +379,7 @@ export default function DashboardPage() {
       <Box sx={{
         position: "relative",
         overflow: "hidden",
-        background: `linear-gradient(135deg,${NAVY} 0%,${STEEL} 100%)`,
+        background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
         px: 4, py: 2.75, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap",
         borderBottom: `1px solid rgba(60,128,71,0.4)`,
         boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
@@ -626,7 +630,7 @@ export default function DashboardPage() {
               sub: "clients par agence en moyenne",
               info: "Nombre moyen de clients par agence (total clients divisé par nombre d'agences).",
               icon: <PersonPinCircleIcon sx={{ fontSize: 24 }} />,
-              bg: `linear-gradient(135deg,${NAVY} 0%,${STEEL} 100%)` },
+              bg: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)` },
             { label: "Agences sans CAF",    value: String(derived.agencesSansCaf),
               sub: "agences sans agent terrain",
               info: "Nombre d'agences ne disposant d'aucun chargé d'affaires (CAF) rattaché.",
@@ -638,7 +642,9 @@ export default function DashboardPage() {
               sub: "rattachés à une agence",
               info: "Nombre distinct d'utilisateurs rattachés à au moins une agence (un même agent rattaché à plusieurs agences n'est compté qu'une fois).",
               icon: <ManageAccountsIcon sx={{ fontSize: 24 }} />,
-              bg: "linear-gradient(135deg,#3B0764 0%,#7c3aed 100%)" },
+              // Vert forêt (famille de marque) au lieu du violet, hors
+              // palette Abedua.
+              bg: "linear-gradient(135deg,#1F5C30 0%,#123D22 100%)" },
           ].map((k, i) => (
             <Grid item xs={6} md={3} key={k.label}>
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.06 }}>
@@ -709,9 +715,9 @@ export default function DashboardPage() {
                       <stop offset="95%" stopColor={STEEL} stopOpacity={0}   />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F4F8" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v) => v.slice(5)} />
-                  <YAxis tick={{ fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} tickFormatter={(v) => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
                   <RechartsTooltip
                     contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
                     formatter={(v: any) => [v, "Événements"]}
@@ -749,7 +755,7 @@ export default function DashboardPage() {
                         opacity={drillStatus && drillStatus !== cData.ticketsByStatus[idx]?.status ? 0.35 : 1} />
                     ))}
                   </Pie>
-                  <Legend formatter={(v) => statusLabel(v)} wrapperStyle={{ fontSize: 11 }} />
+                  <Legend formatter={(v) => statusLabel(v)} wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }} />
                   <RechartsTooltip formatter={(v, n) => [v, statusLabel(String(n))]} />
                 </PieChart>
               </ResponsiveContainer>
@@ -766,9 +772,9 @@ export default function DashboardPage() {
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={cData.clientsByAgency.slice(0, 8)} layout="vertical"
                   onClick={(e) => { if (e?.activeLabel) setDrillAction(null); }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F4F8" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 10 }} />
-                  <YAxis type="category" dataKey="agence" tick={{ fontSize: 9 }} width={90}
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                  <YAxis type="category" dataKey="agence" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} width={90}
                     tickFormatter={(v) => String(v).slice(0, 14)} />
                   <RechartsTooltip
                     contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
@@ -794,9 +800,9 @@ export default function DashboardPage() {
                     const act = e?.activePayload?.[0]?.payload?.action;
                     if (act) setDrillAction((d) => d === act ? null : act);
                   }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F4F8" />
-                  <XAxis dataKey="action" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="action" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
                   <RechartsTooltip
                     contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
                     formatter={(v) => [v, "Logs"]}
@@ -833,16 +839,16 @@ export default function DashboardPage() {
               </Typography>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={derived.cafsByAgence} barGap={4}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F4F8" />
-                  <XAxis dataKey="agence" tick={{ fontSize: 9 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="agence" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} />
                   {/* Échelle unique : les barres CAFs et Utilisateurs sont
                       directement comparables entre elles. Le nombre de clients
                       (échelle très différente) a son propre graphique dédié
                       « Clients par agence » ci-dessus. */}
-                  <YAxis tick={{ fontSize: 10 }} allowDecimals={false} label={{ value: "CAFs / Utilisateurs", angle: -90, position: "insideLeft", fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} allowDecimals={false} label={{ value: "CAFs / Utilisateurs", angle: -90, position: "insideLeft", fontSize: 10 }} />
                   <RechartsTooltip contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="CAFs" fill="#7c3aed" radius={[3, 3, 0, 0]} />
+                  <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }} />
+                  <Bar dataKey="CAFs" fill={STEEL} radius={[3, 3, 0, 0]} />
                   <Bar dataKey="Utilisateurs" fill={GOLD} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -872,7 +878,7 @@ export default function DashboardPage() {
                       <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Legend formatter={(v) => String(v).slice(0, 18)} wrapperStyle={{ fontSize: 10 }} />
+                  <Legend formatter={(v) => String(v).slice(0, 18)} wrapperStyle={{ fontSize: 10, color: "var(--text-secondary)" }} />
                   <RechartsTooltip formatter={(v, n) => [v, String(n)]} />
                 </PieChart>
               </ResponsiveContainer>
@@ -933,12 +939,12 @@ export default function DashboardPage() {
                       <stop offset="95%" stopColor={NAVY} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F4F8" />
-                  <XAxis dataKey="date" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                  <YAxis tick={{ fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
                   <RechartsTooltip contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
                     formatter={(v: any, n: any) => [v, n === "actuel" ? "Événements" : "Moy. mobile"]} />
-                  <Legend wrapperStyle={{ fontSize: 11 }}
+                  <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }}
                     formatter={(v) => v === "actuel" ? "Événements / jour" : "Moyenne mobile"} />
                   <Area type="monotone" dataKey="actuel" fill="url(#gradActuel)" stroke={NAVY} strokeWidth={1.5} dot={false} />
                   <Line type="monotone" dataKey="moy" stroke={GOLD} strokeWidth={2.5} dot={false} strokeDasharray="5 3" />

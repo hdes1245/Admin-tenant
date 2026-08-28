@@ -111,8 +111,8 @@ export function AgencesTable({
                 paginated.map((agence, idx) => {
                   const isSelected = selectedSet.has(agence.id);
                   const s = stats?.get(agence.id);
-                  const bg = isSelected ? "#F0F6FF" : "var(--bg-surface)";
-                  const cellSx = { bgcolor: bg, borderBottom: "1px solid #F1F5F9" };
+                  const bg = isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)";
+                  const cellSx = { bgcolor: bg, borderBottom: "1px solid var(--border)" };
                   return (
                     <motion.tr key={agence.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: idx * 0.015 }} style={{ display: "table-row" }}>
                       <TableCell padding="checkbox" sx={{ pl: 2, ...cellSx, borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent", transition: "all 0.12s" }}>

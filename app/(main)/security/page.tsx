@@ -50,7 +50,7 @@ function SectionCard({ title, icon, children, accent }: { title: string; icon: R
     <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid var(--border)", height: "100%" }}>
       <CardContent sx={{ p: 3 }}>
         <Box display="flex" alignItems="center" gap={1.5} mb={2.5}>
-          <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: accent ? `${accent}14` : "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", color: accent ?? "var(--text-primary)" }}>{icon}</Box>
+          <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: accent ? `${accent}14` : "var(--bg-hover)", display: "flex", alignItems: "center", justifyContent: "center", color: accent ?? "var(--text-primary)" }}>{icon}</Box>
           <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)", fontSize: 15 }}>{title}</Typography>
         </Box>
         {children}
@@ -62,7 +62,7 @@ function SectionCard({ title, icon, children, accent }: { title: string; icon: R
 function PolicyRow({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between"
-      sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid", borderColor: checked ? `${STEEL}30` : "var(--border)", bgcolor: checked ? `${STEEL}08` : "#FAFAFA", transition: "all .15s", cursor: "pointer", "&:hover": { borderColor: STEEL } }}
+      sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid", borderColor: checked ? `${STEEL}30` : "var(--border)", bgcolor: checked ? `${STEEL}08` : "var(--bg-page)", transition: "all .15s", cursor: "pointer", "&:hover": { borderColor: STEEL } }}
       onClick={() => onChange(!checked)}
     >
       <Box display="flex" alignItems="center" gap={1.5}>
@@ -76,7 +76,7 @@ function PolicyRow({ checked, onChange, label }: { checked: boolean; onChange: (
 
 function HealthRow({ label, value, highlight }: { label: string; value: React.ReactNode; highlight?: boolean }) {
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" py={1} sx={{ borderBottom: "1px solid #F1F5F9" }}>
+    <Box display="flex" alignItems="center" justifyContent="space-between" py={1} sx={{ borderBottom: "1px solid var(--border)" }}>
       <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 13 }}>{label}</Typography>
       <Box component="span" sx={{ fontWeight: 600, color: highlight ? "#DC2626" : "var(--text-primary)", fontSize: 13 }}>{value}</Box>
     </Box>
@@ -119,7 +119,7 @@ export default function SecurityPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
         <SecurityIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" fontWeight={700} color="white">Securite et Sante</Typography>
@@ -140,16 +140,16 @@ export default function SecurityPage() {
                   {([["requireUppercase","Majuscule obligatoire"],["requireLowercase","Minuscule obligatoire"],["requireDigit","Chiffre obligatoire"],["requireSpecialChar","Caractere special"]] as [keyof TenantPasswordPolicy, string][]).map(([k, lbl]) => (
                     <PolicyRow key={k} label={lbl} checked={!!policy[k]} onChange={(v) => setPolicy((p) => ({ ...p, [k]: v }))} />
                   ))}
-                  <Box sx={{ px: 2, py: 1.5, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "#FAFAFA" }}>
+                  <Box sx={{ px: 2, py: 1.5, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "var(--bg-page)" }}>
                     <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)", mb: 1 }}>Longueur minimale: <b>{policy.minLength}</b></Typography>
                     <Box component="input" type="range" min={6} max={32} value={policy.minLength} onChange={(e: any) => setPolicy((p) => ({ ...p, minLength: Number(e.target.value) }))} style={{ width: "100%", accentColor: STEEL }} />
                   </Box>
                 </Stack>
-                <Box mt={2} pt={2} sx={{ borderTop: "1px solid #F1F5F9" }}>
+                <Box mt={2} pt={2} sx={{ borderTop: "1px solid var(--border)" }}>
                   <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)", mb: 1.5 }}>Expiration et timeout</Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
-                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.maxAgeDays != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.maxAgeDays != null ? `${STEEL}08` : "#FAFAFA" }}>
+                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.maxAgeDays != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.maxAgeDays != null ? `${STEEL}08` : "var(--bg-page)" }}>
                         <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
                           <Box display="flex" alignItems="center" gap={1}><ScheduleIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Expiration MDP</Typography></Box>
                           <Switch size="small" checked={policy.maxAgeDays != null} onChange={(e) => setPolicy((p) => ({ ...p, maxAgeDays: e.target.checked ? 90 : null }))} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: STEEL } }} />
@@ -158,7 +158,7 @@ export default function SecurityPage() {
                       </Box>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.sessionTimeoutMinutes != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.sessionTimeoutMinutes != null ? `${STEEL}08` : "#FAFAFA" }}>
+                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.sessionTimeoutMinutes != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.sessionTimeoutMinutes != null ? `${STEEL}08` : "var(--bg-page)" }}>
                         <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
                           <Box display="flex" alignItems="center" gap={1}><TimerOffIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Timeout session</Typography></Box>
                           <Switch size="small" checked={policy.sessionTimeoutMinutes != null} onChange={(e) => setPolicy((p) => ({ ...p, sessionTimeoutMinutes: e.target.checked ? 30 : null }))} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: STEEL } }} />
@@ -240,7 +240,7 @@ export default function SecurityPage() {
                 {!sessionsQuery.isLoading && (sessionsQuery.data ?? []).length === 0 && <Typography variant="body2" sx={{ color: "var(--text-muted)", textAlign: "center", py: 2 }}>Aucune session detectee.</Typography>}
                 <Stack spacing={1}>
                   {(sessionsQuery.data ?? []).map((s) => (
-                    <Box key={s.userId} display="flex" alignItems="center" gap={1.5} sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "#FAFAFA" }}>
+                    <Box key={s.userId} display="flex" alignItems="center" gap={1.5} sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "var(--bg-page)" }}>
                       <Avatar sx={{ width: 32, height: 32, bgcolor: STEEL, fontSize: 13 }}>{s.userName.charAt(0).toUpperCase()}</Avatar>
                       <Box flex={1} minWidth={0}>
                         <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }} noWrap>{s.userName}</Typography>

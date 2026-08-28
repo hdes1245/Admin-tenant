@@ -146,9 +146,9 @@ export function ClientsTable({
                         padding="checkbox"
                         sx={{
                           pl: 2,
-                          bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)",
+                          bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)",
                           borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent",
-                          borderBottom: "1px solid #F1F5F9",
+                          borderBottom: "1px solid var(--border)",
                           transition: "all 0.12s",
                         }}
                       >
@@ -161,19 +161,19 @@ export function ClientsTable({
                       </TableCell>
                     )}
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pl: 2 }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pl: 2 }}>
                       <Avatar sx={{ width: 34, height: 34, bgcolor: NAVY, fontSize: 13, fontWeight: 700, letterSpacing: 0.3 }}>
                         {initials(client.name)}
                       </Avatar>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", py: 1.5 }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", py: 1.5 }}>
                       <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>
                         {client.name}
                       </Typography>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                       <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
                         <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: STEEL, letterSpacing: 0.3, fontFamily: "monospace" }}>
                           {client.codeClient}
@@ -181,13 +181,13 @@ export function ClientsTable({
                       </Box>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                       <Typography variant="body2" sx={{ color: client.agenceClient ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
                         {client.agenceClient ?? "—"}
                       </Typography>
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                       {client.cafName || client.cafCode ? (
                         <Box>
                           <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2, color: "var(--text-primary)" }}>
@@ -202,7 +202,7 @@ export function ClientsTable({
                       )}
                     </TableCell>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                       {client.contactInfo ? (
                         <Box display="flex" alignItems="center" gap={0.5}>
                           <PhoneIcon sx={{ fontSize: 14, color: "var(--text-muted)" }} />
@@ -214,7 +214,7 @@ export function ClientsTable({
                     </TableCell>
 
                     {canManage && (
-                      <TableCell align="right" sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pr: 2 }}>
+                      <TableCell align="right" sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pr: 2 }}>
                         <Box
                           display="flex"
                           justifyContent="flex-end"

@@ -104,8 +104,8 @@ function cafDisplayLabel(r: any): string {
 function RiskClientRow({ r, showLastVisit = true }: { r: any; showLastVisit?: boolean }) {
   return (
     <TableRow hover sx={{
-      bgcolor: r.risk_score === 4 ? "#fef2f2" : r.risk_score === 3 ? "#fff5f5" : "inherit",
-      "&:hover": { bgcolor: "#fff1f2 !important" }
+      bgcolor: r.risk_score === 4 ? "rgba(220,38,38,0.14)" : r.risk_score === 3 ? "rgba(220,38,38,0.08)" : "inherit",
+      "&:hover": { bgcolor: "rgba(220,38,38,0.18) !important" }
     }}>
       <TableCell>
         <Typography fontWeight={700} fontSize={13}>{r.full_name ?? "—"}</Typography>
@@ -136,7 +136,7 @@ function RiskClientRow({ r, showLastVisit = true }: { r: any; showLastVisit?: bo
       </TableCell>
       <TableCell>
         <Typography fontWeight={700} fontSize={12}
-          color={r.nombre_jour_retard > 90 ? "#7f1d1d" : r.nombre_jour_retard > 30 ? RED : ORANGE}>
+          color={r.nombre_jour_retard > 90 ? "#b91c1c" : r.nombre_jour_retard > 30 ? RED : ORANGE}>
           {r.nombre_jour_retard > 0 ? `${fmt(r.nombre_jour_retard)}j` : "—"}
         </Typography>
       </TableCell>
@@ -164,7 +164,7 @@ function RiskClientRow({ r, showLastVisit = true }: { r: any; showLastVisit?: bo
 function CafRiskGroupRow({ group, expanded, onToggle }: { group: any; expanded: boolean; onToggle: () => void }) {
   return (
     <>
-      <TableRow hover sx={{ cursor: "pointer", bgcolor: expanded ? "#fff1f2" : "inherit" }} onClick={onToggle}>
+      <TableRow hover sx={{ cursor: "pointer", bgcolor: expanded ? "rgba(220,38,38,0.10)" : "inherit" }} onClick={onToggle}>
         <TableCell sx={{ width: 40 }}>
           <IconButton size="small">
             {expanded ? <ExpandMoreIcon sx={{ transform: "rotate(180deg)" }} /> : <ExpandMoreIcon />}
@@ -200,7 +200,7 @@ function CafRiskGroupRow({ group, expanded, onToggle }: { group: any; expanded: 
             <Box sx={{ p: 2, bgcolor: "#fafbfc" }}>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ background: "#fff1f2" }}>
+                  <TableRow sx={{ background: "rgba(220,38,38,0.12)" }}>
                     {["Client","Code","Agence","CAF","Statut risque","Retard","Capital impayé","Encours"].map(h =>
                       <TableCell key={h} sx={{ fontWeight: 700, fontSize: 10, color: RED }}>{h}</TableCell>)}
                   </TableRow>
@@ -330,7 +330,7 @@ export default function ClientPortfolioPage() {
 
   const pieRisk = [
     { name: "Souffrant",  value: risk.souffrant ?? 0, color: RED },
-    { name: "Perte",      value: risk.perte     ?? 0, color: "#7f1d1d" },
+    { name: "Perte",      value: risk.perte     ?? 0, color: "#b91c1c" },
     { name: "Encours",    value: risk.encours   ?? 0, color: ORANGE },
   ];
 
@@ -384,7 +384,7 @@ export default function ClientPortfolioPage() {
                 info="Nombre total de dossiers classés en risque crédit (souffrance, perte ou encours en retard)." />
               <KpiCard label="Souffrant / Perte" value={fmt((risk.souffrant??0)+(risk.perte??0))} color={RED} icon={TrendingDownIcon} urgent
                 info="Dossiers dont le statut de risque est Souffrance ou Perte, les niveaux de risque les plus critiques." />
-              <KpiCard label="Capital impayé" value={fmtM(risk.total_capital_impaye??0)} color={"#7f1d1d"} icon={TrendingDownIcon}
+              <KpiCard label="Capital impayé" value={fmtM(risk.total_capital_impaye??0)} color={"#b91c1c"} icon={TrendingDownIcon}
                 sub="FCFA — total portefeuille"
                 info="Somme du capital impayé cumulé sur l'ensemble des dossiers à risque du portefeuille." />
               <KpiCard label="Risque non visité" value={fmt(risk.risk_never_visited??0)} color={RED} icon={PersonOffIcon}
@@ -525,13 +525,13 @@ export default function ClientPortfolioPage() {
           <Typography fontWeight={700} fontSize={13} mb={1.5} color="var(--text-primary)">Risque par agence — capital impayé & dossiers critiques</Typography>
           <ResponsiveContainer width="100%" height={Math.max(agStatsRisk.length * 44, 160)}>
             <BarChart data={agStatsRisk} layout="vertical" margin={{ left: 8, right: 60, top: 4, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis type="category" dataKey="agence" width={210} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 11, fill: "var(--text-secondary)" }} tickLine={false} axisLine={false} />
+              <YAxis type="category" dataKey="agence" width={210} tick={{ fontSize: 11, fill: "var(--text-secondary)" }} tickLine={false} axisLine={false} />
               <RTooltip formatter={(v: any, n: any) => [fmt(v), n]} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-              <Legend />
+              <Legend wrapperStyle={{ color: "var(--text-secondary)" }} />
               <Bar dataKey="souffrant" name="Souffrant" fill={RED}     radius={[0,3,3,0]} stackId="a" barSize={16} />
-              <Bar dataKey="perte"     name="Perte"     fill="#7f1d1d" radius={[0,3,3,0]} stackId="a" barSize={16}>
+              <Bar dataKey="perte"     name="Perte"     fill="#b91c1c" radius={[0,3,3,0]} stackId="a" barSize={16}>
                 <LabelList dataKey="capital_impaye" position="right" style={{ fontSize: 10, fill: RED }}
                   formatter={(v: any) => v > 0 ? fmtM(v) : ""} />
               </Bar>
@@ -545,7 +545,7 @@ export default function ClientPortfolioPage() {
       <Paper sx={{ borderRadius: 3, overflow: "hidden" }}>
         <Box sx={{ background: NAVY, p: 2 }}>
           <Tabs value={tab} onChange={(_, v) => { setTab(v); setStatus(""); setPage(0); }}
-            sx={{ "& .MuiTab-root": { color: "rgba(255,255,255,0.7)", minHeight: 40 }, "& .Mui-selected": { color: GOLD } }}>
+            sx={{ "& .MuiTab-root": { color: "rgba(255,255,255,0.7)", minHeight: 40 }, "& .Mui-selected": { color: "#4ADE80 !important" }, "& .MuiTabs-indicator": { background: "#4ADE80" } }}>
             <Tab label={`Tous (${fmt(kpi.total)})`} />
             <Tab label={`Jamais visités (${fmt(kpi.no_visit)})`} />
             <Tab label={`À relancer (${fmt(kpi.stale)})`} />
@@ -652,9 +652,9 @@ export default function ClientPortfolioPage() {
         {/* ── Onglet Clients à risque ───────────────────────────────────── */}
         {tab === 3 && (
           <Box>
-            <Box sx={{ borderBottom: "1px solid #e2e8f0", px: 2, pt: 1, bgcolor: "#fff9f9" }}>
+            <Box sx={{ borderBottom: "1px solid var(--border)", px: 2, pt: 1, bgcolor: "rgba(220,38,38,0.05)" }}>
               <Tabs value={riskTab} onChange={(_,v) => setRiskTab(v)}
-                sx={{ "& .MuiTab-root": { fontSize: 12, minHeight: 38 }, "& .Mui-selected": { color: RED } }}>
+                sx={{ "& .MuiTab-root": { fontSize: 12, minHeight: 38 }, "& .Mui-selected": { color: `${RED} !important` } }}>
                 <Tab label={`🔥 Urgence absolue — Jamais visités (${fmt(unvisited.length)})`} />
                 <Tab label={`Par CAF (${fmt(cafGroups.length)} agent(s) — ${fmt(topRisk.length)} dossier(s))`} />
               </Tabs>
@@ -667,7 +667,7 @@ export default function ClientPortfolioPage() {
                   <Box sx={{ overflowX: "auto" }}>
                     <Table size="small">
                       <TableHead>
-                        <TableRow sx={{ background: "#fff1f2" }}>
+                        <TableRow sx={{ background: "rgba(220,38,38,0.12)" }}>
                           {["Client","Code","Agence","CAF","Statut risque","Retard","Capital impayé","Encours","Dernière visite"].map(h =>
                             <TableCell key={h} sx={{ fontWeight: 700, fontSize: 11, color: RED }}>{h}</TableCell>)}
                         </TableRow>
@@ -684,7 +684,7 @@ export default function ClientPortfolioPage() {
                   <Box sx={{ overflowX: "auto" }}>
                     <Table size="small">
                       <TableHead>
-                        <TableRow sx={{ background: "#fff1f2" }}>
+                        <TableRow sx={{ background: "rgba(220,38,38,0.12)" }}>
                           {["","CAF (chargé d'affaires)","Agence","Clients à risque","Capital impayé","Encours global"].map(h =>
                             <TableCell key={h} sx={{ fontWeight: 700, fontSize: 11, color: RED }}>{h}</TableCell>)}
                         </TableRow>

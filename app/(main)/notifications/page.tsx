@@ -196,7 +196,7 @@ function MyNotificationsTab() {
             Tout marquer lu
           </Button>
         </Box>
-        <Box display="flex" gap={1} alignItems="center" mt={1.5} pt={1} sx={{ borderTop: "1px solid #F1F5F9" }}>
+        <Box display="flex" gap={1} alignItems="center" mt={1.5} pt={1} sx={{ borderTop: "1px solid var(--border)" }}>
           <Typography variant="caption" color="text.secondary">{filteredItems.length} notification{filteredItems.length !== 1 ? "s" : ""}{search ? ` sur ${total}` : ` au total`}</Typography>
           {unread > 0 && <><Typography variant="caption" sx={{ color: "var(--border-strong)" }}>·</Typography><Typography variant="caption" sx={{ color: STEEL, fontWeight: 600 }}>{unread} non lue{unread > 1 ? "s" : ""}</Typography></>}
         </Box>
@@ -215,7 +215,7 @@ function MyNotificationsTab() {
       <Box display="flex" flexDirection="column" gap={1.5}>
         {filteredItems.map((n, idx) => (
           <motion.div key={n.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.04, duration: 0.25 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: n.isRead ? "var(--border)" : STEEL + "60", borderRadius: 3, bgcolor: n.isRead ? "var(--bg-surface)" : "#F0F6FF" }}>
+            <Card elevation={0} sx={{ border: "1px solid", borderColor: n.isRead ? "var(--border)" : STEEL + "60", borderRadius: 3, bgcolor: n.isRead ? "var(--bg-surface)" : "rgba(30,96,145,0.10)" }}>
               <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1}>
                   <Box display="flex" gap={1.5} flex={1}>
@@ -421,7 +421,7 @@ function MessagingTab() {
             Diffusion
           </Button>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => openNew("alert")}
-            sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}>
+            sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" } }}>
             Nouvelle alerte
           </Button>
         </Box>
@@ -438,7 +438,7 @@ function MessagingTab() {
             endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
           }}
         />
-        <Box mt={1.5} pt={1} sx={{ borderTop: "1px solid #F1F5F9" }}>
+        <Box mt={1.5} pt={1} sx={{ borderTop: "1px solid var(--border)" }}>
           <Typography variant="caption" color="text.secondary">
             {activeRules} alerte{activeRules !== 1 ? "s" : ""} active{activeRules !== 1 ? "s" : ""} · {sent.length} diffusion{sent.length !== 1 ? "s" : ""} envoyée{sent.length !== 1 ? "s" : ""}
           </Typography>
@@ -593,7 +593,7 @@ function MessagingTab() {
                       sx={{
                         cursor: "pointer", borderRadius: 2, p: 1.25,
                         border: "1.5px solid", borderColor: selected ? NAVY : "var(--border)",
-                        bgcolor: selected ? "#F0F6FF" : "var(--bg-surface)", transition: "all .15s",
+                        bgcolor: selected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", transition: "all .15s",
                       }}>
                       <Box display="flex" alignItems="center" gap={0.75} sx={{ color: selected ? "var(--text-primary)" : "var(--text-secondary)" }}>
                         {opt.icon}
@@ -832,7 +832,7 @@ export default function NotificationsPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
         <CampaignIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" fontWeight={700} color="white">Notifications</Typography>
@@ -874,7 +874,7 @@ export default function NotificationsPage() {
         <Box sx={{ borderBottom: "1px solid var(--border)", mb: 3 }}>
           <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{
             "& .MuiTab-root": { fontWeight: 600, fontSize: 14, textTransform: "none", minHeight: 44, color: "var(--text-secondary)" },
-            "& .Mui-selected": { color: "var(--text-primary)" },
+            "& .Mui-selected": { color: "var(--text-primary) !important" },
             "& .MuiTabs-indicator": { bgcolor: GOLD, height: 3, borderRadius: "3px 3px 0 0" },
           }}>
             <Tab value="mine" label={

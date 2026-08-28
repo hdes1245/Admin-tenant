@@ -230,9 +230,9 @@ export function UsersTable({
                         padding="checkbox"
                         sx={{
                           pl: 2,
-                          bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)",
+                          bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)",
                           borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent",
-                          borderBottom: "1px solid #F1F5F9",
+                          borderBottom: "1px solid var(--border)",
                           transition: "all 0.12s",
                         }}
                       >
@@ -245,7 +245,7 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Utilisateur */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", py: 1.5 }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", py: 1.5 }}>
                         <Box display="flex" alignItems="center" gap={1.5}>
                           <Avatar
                             sx={{
@@ -276,7 +276,7 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Login */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                         <Typography
                           variant="body2"
                           sx={{ fontFamily: "monospace", fontSize: 12.5, color: "var(--text-secondary)", fontWeight: 500 }}
@@ -286,7 +286,7 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Role */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                         <Box
                           sx={{
                             display: "inline-flex",
@@ -306,21 +306,21 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Agence */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                         <Typography variant="body2" sx={{ color: user.agenceName ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
                           {user.agenceName ?? "—"}
                         </Typography>
                       </TableCell>
 
                       {/* Zone */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                         <Typography variant="body2" sx={{ color: user.zoneName ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
                           {user.zoneName ?? "—"}
                         </Typography>
                       </TableCell>
 
                       {/* Code CAF */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                         {user.cafCode ? (
                           <Box
                             sx={{
@@ -341,7 +341,7 @@ export function UsersTable({
                       </TableCell>
 
                       {/* Statut */}
-                      <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                         <Box display="flex" alignItems="center" gap={0.75}>
                           <Box sx={{
                             width: 6, height: 6, borderRadius: "50%",
@@ -357,8 +357,8 @@ export function UsersTable({
                       <TableCell
                         align="right"
                         sx={{
-                          bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)",
-                          borderBottom: "1px solid #F1F5F9",
+                          bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)",
+                          borderBottom: "1px solid var(--border)",
                           pr: 2,
                         }}
                       >

@@ -388,7 +388,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
       <Box
         sx={{
           px: 3, py: 2, flexShrink: 0,
-          background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`,
+          background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
           color: "white",
         }}
       >

@@ -187,7 +187,7 @@ export default function FormsPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg,${NAVY} 0%,${STEEL} 100%)`,
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
         px: 4, py: 2.5, display: "flex", alignItems: "center", gap: 2,
         borderBottom: `3px solid ${GOLD}` }}>
         <AssignmentIcon sx={{ color: GOLD, fontSize: 28 }} />

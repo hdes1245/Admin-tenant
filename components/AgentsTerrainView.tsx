@@ -182,9 +182,9 @@ function PerformanceTab() {
                   <stop offset="95%" stopColor={GOLD} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="day" tick={{ fontSize: 10 }} tickFormatter={(v) => v?.slice?.(5) ?? v} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} tickFormatter={(v) => v?.slice?.(5) ?? v} />
+              <YAxis tick={{ fontSize: 11, fill: "var(--text-secondary)" }} />
               <RTooltip />
               <Area type="monotone" dataKey="count" name="Captures" fill="url(#g1)" stroke={GOLD} strokeWidth={2} />
             </AreaChart>
@@ -563,7 +563,7 @@ export function AgentsTerrainView({ embedded = false }: { embedded?: boolean }) 
     <Box>
       {/* Header (masqué lorsqu'intégré dans la page Analytics) */}
       {!embedded && (
-        <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white" }}>
+        <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white" }}>
           <Stack direction="row" alignItems="center" spacing={1.5}>
             <GroupsIcon sx={{ color: GOLD, fontSize: 30 }} />
             <Box>
@@ -577,7 +577,7 @@ export function AgentsTerrainView({ embedded = false }: { embedded?: boolean }) 
       {/* Tabs */}
       <Box sx={{ borderBottom: "1px solid var(--border)", background: "var(--bg-surface)", px: 3 }}>
         <Tabs value={mainTab} onChange={(_, v) => setMainTab(v)}
-          sx={{ "& .MuiTab-root": { fontWeight: 600, fontSize: 13, textTransform: "none", minHeight: 48 }, "& .Mui-selected": { color: GOLD }, "& .MuiTabs-indicator": { background: GOLD } }}>
+          sx={{ "& .MuiTab-root": { fontWeight: 600, fontSize: 13, textTransform: "none", minHeight: 48 }, "& .Mui-selected": { color: "var(--accent-text) !important" }, "& .MuiTabs-indicator": { background: "var(--accent-text)" } }}>
           <Tab icon={<GroupsIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Performance équipe" />
           <Tab icon={<PhoneAndroidIcon sx={{ fontSize: 18 }} />} iconPosition="start" label="Flotte mobile" />
         </Tabs>

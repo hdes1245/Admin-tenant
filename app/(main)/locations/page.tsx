@@ -87,7 +87,7 @@ function getTypeCfg(type: string | null | undefined): TypeCfg {
     case "caution":
       return { label: "Caution", bg: "#FFFBEB", color: "#b45309", border: "#FDE68A", icon: <WarningAmberIcon sx={{ fontSize: 12 }} /> };
     default:
-      return { label: type ?? "Autres", bg: "#F1F5F9", color: "var(--text-secondary)", border: "var(--border)", icon: <ExploreIcon sx={{ fontSize: 12 }} /> };
+      return { label: type ?? "Autres", bg: "#F1F5F9", color: "#64748B", border: "#E2E8F0", icon: <ExploreIcon sx={{ fontSize: 12 }} /> };
   }
 }
 
@@ -295,7 +295,7 @@ export default function LocationsPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
         <GpsFixedIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" fontWeight={700} color="white">Localisations</Typography>
@@ -322,7 +322,7 @@ export default function LocationsPage() {
       </Box>
 
       {(
-        <Box sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 140px)", bgcolor: "#F4F6F9" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 140px)", bgcolor: "var(--bg-page)" }}>
           {/* KPIs */}
           <Box sx={{ px: 3, pt: 2, pb: 1.5 }}>
             <Grid container spacing={2}>
@@ -354,7 +354,7 @@ export default function LocationsPage() {
           <Box sx={{ display: "flex", flex: 1, minHeight: 0, px: 3, pb: 3, gap: 2 }}>
             {/* Left panel — filters */}
             <Paper elevation={0} sx={{ width: 270, flexShrink: 0, borderRadius: 2.5, border: "1px solid var(--border)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              <Box sx={{ px: 2.5, py: 2, borderBottom: "1px solid #F1F5F9", display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ px: 2.5, py: 2, borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 1 }}>
                 <FilterListIcon sx={{ fontSize: 16, color: GOLD }} />
                 <Typography fontSize={13} fontWeight={700} color="var(--text-primary)">Filtres</Typography>
               </Box>
@@ -387,7 +387,7 @@ export default function LocationsPage() {
                           onClick={() => { setSearch(s.label); setShowSuggestions(false); }}
                           sx={{
                             px: 1.5, py: 1, cursor: "pointer", display: "flex", alignItems: "center", gap: 1.25,
-                            borderBottom: idx < suggestions.length - 1 ? "1px solid #F1F5F9" : "none",
+                            borderBottom: idx < suggestions.length - 1 ? "1px solid var(--border)" : "none",
                             "&:hover": { bgcolor: "var(--bg-page)" },
                           }}
                         >
@@ -434,7 +434,7 @@ export default function LocationsPage() {
                 />
                 {hasFilters && (
                   <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 14 }} />} onClick={resetFilters}
-                    sx={{ fontWeight: 600, color: "var(--text-secondary)", justifyContent: "flex-start", textTransform: "none", "&:hover": { bgcolor: "#F1F5F9" } }}>
+                    sx={{ fontWeight: 600, color: "var(--text-secondary)", justifyContent: "flex-start", textTransform: "none", "&:hover": { bgcolor: "var(--bg-hover)" } }}>
                     Effacer les filtres
                   </Button>
                 )}
@@ -630,7 +630,7 @@ export default function LocationsPage() {
             ) : (
               <Box sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2, mb: 3 }}>
                 {Object.entries(detailLocation.metadata).map(([key, value]) => (
-                  <Box key={key} sx={{ display: "flex", gap: 1.5, py: 0.75, borderBottom: "1px solid #F1F5F9", "&:last-child": { borderBottom: "none" } }}>
+                  <Box key={key} sx={{ display: "flex", gap: 1.5, py: 0.75, borderBottom: "1px solid var(--border)", "&:last-child": { borderBottom: "none" } }}>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: "var(--text-secondary)", minWidth: 140, flexShrink: 0, wordBreak: "break-word" }}>
                       {key}
                     </Typography>
@@ -651,7 +651,7 @@ export default function LocationsPage() {
                 Photos de capture
               </Typography>
               {!detailPhotosLoading && (
-                <Chip label={detailPhotos.length} size="small" sx={{ height: 18, fontSize: 11, bgcolor: "#F1F5F9" }} />
+                <Chip label={detailPhotos.length} size="small" sx={{ height: 18, fontSize: 11, bgcolor: "var(--bg-hover)", color: "var(--text-primary)" }} />
               )}
             </Box>
 
@@ -775,7 +775,7 @@ export default function LocationsPage() {
                       <Chip
                         label={log.deletedByRole}
                         size="small"
-                        sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontWeight: 600, fontSize: 11 }}
+                        sx={{ bgcolor: "var(--bg-hover)", color: "var(--text-secondary)", fontWeight: 600, fontSize: 11 }}
                       />
                     )}
                     {/* Code client */}

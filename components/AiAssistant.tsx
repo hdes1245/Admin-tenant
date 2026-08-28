@@ -143,7 +143,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
             height: 56,
             borderRadius: "50%",
             background: open
-              ? `linear-gradient(135deg, ${STEEL} 0%, ${NAVY} 100%)`
+              ? `linear-gradient(135deg, var(--banner-to) 0%, var(--banner-from) 100%)`
               : `linear-gradient(135deg, ${GOLD} 0%, #A07820 100%)`,
             display: "flex",
             alignItems: "center",
@@ -183,7 +183,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
           {/* Header */}
           <Box
             sx={{
-              background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`,
+              background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
               px: 2, py: 1.5,
               display: "flex",
               alignItems: "center",

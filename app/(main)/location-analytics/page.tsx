@@ -160,11 +160,11 @@ export default function LocationAnalyticsPage() {
                     <stop offset="95%" stopColor={GOLD} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="day" tick={{ fontSize: 10 }} tickFormatter={(v) => v?.slice?.(5) ?? v} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} tickFormatter={(v) => v?.slice?.(5) ?? v} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--text-secondary)" }} />
                 <RTooltip />
-                <Legend />
+                <Legend wrapperStyle={{ color: "var(--text-secondary)" }} />
                 <Area type="monotone" dataKey="count" name="Captures" fill="url(#locGrad)" stroke={GOLD} strokeWidth={2} />
                 <Line type="monotone" dataKey="count" name="Tendance" stroke={STEEL} strokeWidth={1} strokeDasharray="4 2" dot={false} />
               </ComposedChart>
@@ -232,9 +232,9 @@ export default function LocationAnalyticsPage() {
             </ResponsiveContainer>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={byType} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="type" type="category" tick={{ fontSize: 11 }} width={100} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis type="number" tick={{ fontSize: 11, fill: "var(--text-secondary)" }} />
+                <YAxis dataKey="type" type="category" tick={{ fontSize: 11, fill: "var(--text-secondary)" }} width={100} />
                 <RTooltip />
                 <Bar dataKey="count" name="Captures" fill={GOLD} radius={[0,4,4,0]} />
               </BarChart>
@@ -249,9 +249,9 @@ export default function LocationAnalyticsPage() {
               <Typography fontWeight={700} mb={2} color="var(--text-primary)">Top agents ({period}j)</Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={byUser.slice(0, 10)} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis type="number" tick={{ fontSize: 11 }} />
-                  <YAxis dataKey="user_name" type="category" tick={{ fontSize: 10 }} width={110} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: "var(--text-secondary)" }} />
+                  <YAxis dataKey="user_name" type="category" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} width={110} />
                   <RTooltip />
                   <Bar dataKey="locations_count" name="Captures" fill={STEEL} radius={[0,4,4,0]} />
                 </BarChart>
@@ -261,9 +261,9 @@ export default function LocationAnalyticsPage() {
               <Typography fontWeight={700} mb={2} color="var(--text-primary)">Par agence ({period}j)</Typography>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={byAgence}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="agence_name" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="agence_name" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "var(--text-secondary)" }} />
                   <RTooltip />
                   <Bar dataKey="locations_count" name="Captures" fill={GOLD} radius={[3,3,0,0]} />
                 </BarChart>

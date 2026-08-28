@@ -17,6 +17,14 @@ html { scroll-behavior: smooth; background: var(--bg-page); }
   --scrollbar-thumb:    #CBD5E1;
   --scrollbar-thumb-hover: #94A3B8;
   --shadow-color:       15,23,42;
+  /* Bannière de titre de page (dégradé sous la barre du haut) — brand navy/steel en clair. */
+  --banner-from:        #0F3B5C;
+  --banner-to:          #1E6091;
+  /* Sidebar — bleu marine de marque en clair. */
+  --sidebar-bg:         #0F3B5C;
+  /* Accent (onglets sélectionnés, indicateurs) sur une surface neutre —
+     GOLD (#3C8047, vert foncé) reste lisible sur fond clair. */
+  --accent-text:        #3C8047;
 }
 
 /* ── Jetons de couleur — mode nuit ───────────────────────────────────────── */
@@ -33,6 +41,17 @@ html { scroll-behavior: smooth; background: var(--bg-page); }
   --scrollbar-thumb:    #32475F;
   --scrollbar-thumb-hover: #46607F;
   --shadow-color:       0,0,0;
+  /* En nuit, la bannière reste dans la même famille sombre que la sidebar
+     et le fond de page au lieu du bleu vif — moins de contraste de teinte. */
+  --banner-from:        #0A1420;
+  --banner-to:          #142A42;
+  /* Ancien bleu nuit (pré-rebranding Abedua) — nettement plus sombre que le
+     navy de marque #0F3B5C, pour que la sidebar se fonde avec le reste de
+     l'interface au lieu de trancher comme un bleu plus clair. */
+  --sidebar-bg:         #0D1B2A;
+  /* En nuit, GOLD (vert foncé) devient quasi invisible sur une surface
+     sombre (onglet sélectionné illisible) — on bascule sur un vert clair. */
+  --accent-text:        #4ADE80;
 }
 
 body {

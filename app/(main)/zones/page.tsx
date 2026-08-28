@@ -172,7 +172,7 @@ function ZonesTab() {
   return (
     <>
       {/* Action bar */}
-      <Box sx={{ px: 3, py: 1.5, borderBottom: "1px solid var(--border)", background: "#fafbfc", display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+      <Box sx={{ px: 3, py: 1.5, borderBottom: "1px solid var(--border)", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
         <Tooltip title="Exporter les zones en CSV">
           <Button variant="outlined" size="small" startIcon={<DownloadIcon />}
             onClick={() => downloadCsv(filteredZones, [{ key: "code", label: "Code" }, { key: "name", label: "Nom" }], "zones.csv")}
@@ -187,7 +187,7 @@ function ZonesTab() {
         </Button>
         <Box flex={1} />
         <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={openCreate}
-          sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" } }}>
+          sx={{ bgcolor: GOLD, color: "#fff", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" } }}>
           Ajouter une zone
         </Button>
       </Box>
@@ -240,7 +240,7 @@ function ZonesTab() {
             )}
           </Box>
           <Collapse in={filtersOpen}>
-            <Box display="flex" gap={1.5} mt={1.5} pt={1.5} sx={{ borderTop: "1px solid #F1F5F9" }} flexWrap="wrap">
+            <Box display="flex" gap={1.5} mt={1.5} pt={1.5} sx={{ borderTop: "1px solid var(--border)" }} flexWrap="wrap">
               <TextField label="Du" type="date" size="small" InputLabelProps={{ shrink: true }} value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} sx={{ minWidth: 160 }} />
               <TextField label="Au" type="date" size="small" InputLabelProps={{ shrink: true }} value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} sx={{ minWidth: 160 }} />
             </Box>
@@ -289,24 +289,24 @@ function ZonesTab() {
                     const isSelected = selectedZoneSet.has(z.id);
                     return (
                       <motion.tr key={z.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: idx * 0.02 }} style={{ display: "table-row" }}>
-                        <TableCell padding="checkbox" sx={{ pl: 2, bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent", borderBottom: "1px solid #F1F5F9", transition: "all 0.12s" }}>
+                        <TableCell padding="checkbox" sx={{ pl: 2, bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent", borderBottom: "1px solid var(--border)", transition: "all 0.12s" }}>
                           <Checkbox size="small" checked={isSelected} onChange={() => toggleZoneSelection(z.id)} sx={{ "&.Mui-checked": { color: STEEL }, padding: "4px" }} />
                         </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pl: 2 }}>
+                        <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pl: 2 }}>
                           <Avatar sx={{ width: 34, height: 34, bgcolor: NAVY }}><MapIcon sx={{ fontSize: 17, color: "rgba(255,255,255,0.7)" }} /></Avatar>
                         </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                        <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                           <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
                             <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: STEEL, letterSpacing: 0.3 }}>{z.code}</Typography>
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                        <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                           <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>{z.name}</Typography>
                         </TableCell>
-                        <TableCell align="center" sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9" }}>
+                        <TableCell align="center" sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
                           {(() => { const cnt = agencesPerZone.get(z.id) ?? 0; return cnt > 0 ? <Chip label={cnt} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${STEEL}15`, color: STEEL }} /> : <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>—</Typography>; })()}
                         </TableCell>
-                        <TableCell align="right" sx={{ bgcolor: isSelected ? "#F0F6FF" : "var(--bg-surface)", borderBottom: "1px solid #F1F5F9", pr: 2 }}>
+                        <TableCell align="right" sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pr: 2 }}>
                           <Box display="flex" justifyContent="flex-end" gap={0.5} sx={{ opacity: 0.4, transition: "opacity 0.15s", "tr:hover &": { opacity: 1 } }}>
                             <Tooltip title="Modifier">
                               <IconButton size="small" onClick={() => openEdit(z)} sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
@@ -430,7 +430,7 @@ export default function ReferentielsPage() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white" }}>
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white" }}>
         <Box display="flex" alignItems="center" gap={1.5}>
           <MapIcon sx={{ color: GOLD, fontSize: 30 }} />
           <Box>

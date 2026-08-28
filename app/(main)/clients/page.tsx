@@ -380,7 +380,7 @@ export default function ClientsPage() {
 
   return (
     <>
-      <Box sx={{ background: "linear-gradient(135deg, #0F3B5C 0%, #1E6091 100%)", borderBottom: "3px solid #3C8047", px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+      <Box sx={{ background: "linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)", borderBottom: "3px solid #3C8047", px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
         <PersonPinCircleIcon sx={{ color: "#3C8047", fontSize: 30, flexShrink: 0 }} />
         <Box sx={{ flex: 1, minWidth: 200 }}>
           <Typography variant="h5" fontWeight={700} color="white">Clients</Typography>
@@ -411,7 +411,7 @@ export default function ClientsPage() {
                 {canManageClients && (
                   <Button
                     variant="contained" startIcon={<AddIcon />} onClick={openCreateDialog}
-                    sx={{ bgcolor: "#3C8047", color: "#0F3B5C", fontWeight: 700, "&:hover": { bgcolor: "#b8891f" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
+                    sx={{ bgcolor: "#3C8047", color: "#0F3B5C", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
                   >
                     Ajouter un client
                   </Button>

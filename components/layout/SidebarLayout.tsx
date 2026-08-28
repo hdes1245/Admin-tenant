@@ -317,7 +317,7 @@ function SidebarContent({
   const toggle = (id: string) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: NAVY, overflow: "hidden" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: "var(--sidebar-bg)", overflow: "hidden" }}>
 
       {/* Accent top bar */}
       <Box sx={{ height: 3, background: `linear-gradient(90deg, ${GOLD}, ${SIDEBAR_ACCENT_SOFT})`, flexShrink: 0 }} />
@@ -572,13 +572,13 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
           open={mobileOpen}
           onClose={() => setMobileOpen(false)}
           ModalProps={{ keepMounted: true }}
-          sx={{ display: { xs: "block", sm: "none" }, "& .MuiDrawer-paper": { width: DRAWER_WIDTH, bgcolor: NAVY, border: "none" } }}
+          sx={{ display: { xs: "block", sm: "none" }, "& .MuiDrawer-paper": { width: DRAWER_WIDTH, bgcolor: "var(--sidebar-bg)", border: "none" } }}
         >
           <SidebarContent {...sidebarProps} />
         </Drawer>
         <Drawer
           variant="permanent"
-          sx={{ display: { xs: "none", sm: "block" }, "& .MuiDrawer-paper": { width: DRAWER_WIDTH, bgcolor: NAVY, border: "none", boxShadow: "4px 0 24px rgba(0,0,0,0.2)" } }}
+          sx={{ display: { xs: "none", sm: "block" }, "& .MuiDrawer-paper": { width: DRAWER_WIDTH, bgcolor: "var(--sidebar-bg)", border: "none", boxShadow: "4px 0 24px rgba(0,0,0,0.2)" } }}
           open
         >
           <SidebarContent {...sidebarProps} />

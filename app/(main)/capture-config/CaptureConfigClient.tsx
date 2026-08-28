@@ -56,7 +56,7 @@ export function CaptureConfigPanel() {
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{
         mb: 3, borderBottom: "1px solid rgba(0,0,0,0.08)",
         "& .MuiTab-root": { fontSize: 13, fontWeight: 600, textTransform: "none" },
-        "& .Mui-selected": { color: "var(--text-primary)" },
+        "& .Mui-selected": { color: "var(--text-primary) !important" },
         "& .MuiTabs-indicator": { bgcolor: GOLD, height: 3 },
       }}>
         <Tab label="Types de lieux"        icon={<ListIcon        sx={{ fontSize: 18 }} />} iconPosition="start" />

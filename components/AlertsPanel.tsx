@@ -71,7 +71,7 @@ export default function AlertsPanel({ open, onClose, thresholds, triggeredAlerts
       PaperProps={{ sx: { width: { xs: "100vw", sm: 420 }, display: "flex", flexDirection: "column" } }}>
 
       {/* Header */}
-      <Box sx={{ background: `linear-gradient(135deg, ${NAVY} 0%, ${STEEL} 100%)`,
+      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
         px: 2.5, py: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
         <Badge badgeContent={triggeredAlerts.length} color="error" max={9}>
           <NotificationsIcon sx={{ color: GOLD, fontSize: 24 }} />
