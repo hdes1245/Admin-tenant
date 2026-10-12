@@ -322,7 +322,7 @@ export default function LocationsPage() {
       </Box>
 
       {(
-        <Box sx={{ display: "flex", flexDirection: "column", height: "calc(100vh - 140px)", bgcolor: "var(--bg-page)" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "calc(100vh / var(--ui-zoom) - 140px)", bgcolor: "var(--bg-page)" }}>
           {/* KPIs */}
           <Box sx={{ px: 3, pt: 2, pb: 1.5 }}>
             <Grid container spacing={2}>

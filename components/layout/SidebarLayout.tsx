@@ -509,7 +509,7 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
     !isPathAllowedForSupervisor(pathname, normalizeRole(user.role));
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", minHeight: "calc(100vh / var(--ui-zoom))" }}>
       <CssBaseline />
       {/* Modale globale de reconnexion en cas de session expirée (401). */}
       <SessionExpiredDialog />
@@ -586,10 +586,10 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
       </Box>
 
       {/* Main content */}
-      <Box component="main" sx={{ flexGrow: 1, width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: "100vh", bgcolor: "var(--bg-page)" }}>
+      <Box component="main" sx={{ flexGrow: 1, width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: "calc(100vh / var(--ui-zoom))", bgcolor: "var(--bg-page)" }}>
         <Toolbar />
         {supervisorBlocked ? (
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "calc(60vh / var(--ui-zoom))" }}>
             <Typography color="text.secondary" fontSize={14}>Redirection…</Typography>
           </Box>
         ) : (

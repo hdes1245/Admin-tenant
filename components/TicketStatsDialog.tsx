@@ -850,7 +850,7 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
       onClose={onClose}
       fullWidth
       maxWidth="lg"
-      PaperProps={{ sx: { borderRadius: 3, overflow: "hidden", height: { xs: "100dvh", sm: "92vh" }, display: "flex", flexDirection: "column" } }}
+      PaperProps={{ sx: { borderRadius: 3, overflow: "hidden", height: { xs: "100dvh", sm: "calc(92vh / var(--ui-zoom))" }, display: "flex", flexDirection: "column" } }}
     >
       <Box sx={{ height: 4, bgcolor: GOLD, flexShrink: 0 }} />
 

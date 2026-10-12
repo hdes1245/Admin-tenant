@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <body>
-        <Providers>{children}</Providers>
+        <Providers><div className="app-zoom-root">{children}</div></Providers>
       </body>
     </html>
   );

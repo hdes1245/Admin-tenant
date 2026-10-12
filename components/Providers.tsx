@@ -64,6 +64,10 @@ function buildTheme(mode: "light" | "dark") {
     "0 46px 100px rgba(15,23,42,0.50)",
   ] as any,
   components: {
+    // L'indicateur d'onglet MUI est positionné en JS via getBoundingClientRect : sous zoom CSS il serait
+    // décalé de 10 %. On le remplace par un soulignement CSS pur (couleur = texte de l'onglet actif).
+    MuiTabs: { styleOverrides: { indicator: { display: "none" } } },
+    MuiTab: { styleOverrides: { root: { "&.Mui-selected": { boxShadow: "inset 0 -2.5px 0 0 currentColor" } } } },
     MuiCssBaseline: {
       styleOverrides: {
         body: {
@@ -203,6 +207,7 @@ function buildTheme(mode: "light" | "dark") {
     MuiDialog: {
       styleOverrides: {
         paper: {
+          zoom: "var(--ui-zoom)",
           borderRadius: 16,
           border: "1px solid var(--border)",
           boxShadow: "0 20px 60px rgba(15,23,42,0.15)",

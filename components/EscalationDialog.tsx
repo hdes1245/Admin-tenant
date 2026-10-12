@@ -307,7 +307,7 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
         sx: {
           borderRadius: 3,
           overflow: "hidden",
-          height: { xs: "100dvh", sm: "92vh" },
+          height: { xs: "100dvh", sm: "calc(92vh / var(--ui-zoom))" },
           display: "flex",
           flexDirection: "column",
         },

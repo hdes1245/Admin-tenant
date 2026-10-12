@@ -375,7 +375,7 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
         sx: {
           borderRadius: 3,
           overflow: "hidden",
-          height: { xs: "100dvh", sm: "90vh" },
+          height: { xs: "100dvh", sm: "calc(90vh / var(--ui-zoom))" },
           display: "flex",
           flexDirection: "column",
         },

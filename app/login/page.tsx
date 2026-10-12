@@ -109,7 +109,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "var(--bg-page)" }}>
+    <Box sx={{ display: "flex", minHeight: "calc(100vh / var(--ui-zoom))", bgcolor: "var(--bg-page)" }}>
 
       {/* Left panel — branding */}
       <Box

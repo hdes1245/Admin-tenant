@@ -56,7 +56,7 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "var(--bg-page)", display: "flex", alignItems: "center", justifyContent: "center", p: 3 }}>
+    <Box sx={{ minHeight: "calc(100vh / var(--ui-zoom))", bgcolor: "var(--bg-page)", display: "flex", alignItems: "center", justifyContent: "center", p: 3 }}>
       <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD }} />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <Box sx={{ width: 420, maxWidth: "90vw", bgcolor: "var(--bg-surface)", borderRadius: 3, border: "1px solid var(--border)", boxShadow: "0 4px 24px rgba(15,59,92,0.06)", p: 4 }}>

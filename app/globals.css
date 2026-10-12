@@ -113,3 +113,16 @@ body {
 ::view-transition-new(root) {
   z-index: 2;
 }
+
+/* ── Échelle générale de l'interface ─────────────────────────────────────────
+   Réduit toute l'interface (≈ zoom navigateur 90 %). Le zoom est appliqué à un
+   conteneur dédié et NON à <html> : les portails MUI (menus, popovers,
+   tooltips) restent hors du conteneur, sinon leurs positions calculées via
+   getBoundingClientRect seraient décalées de 10 %. Pour changer l'échelle,
+   modifier uniquement --ui-zoom. Les hauteurs en vh à l'intérieur du
+   conteneur doivent être écrites calc(Nvh / var(--ui-zoom)). */
+:root { --ui-zoom: 0.9; }
+.app-zoom-root {
+  zoom: var(--ui-zoom);
+  min-height: calc(100vh / var(--ui-zoom));
+}

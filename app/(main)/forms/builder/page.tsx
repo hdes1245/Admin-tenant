@@ -513,7 +513,7 @@ export default function FormBuilderPage() {
 
   if (!form) return (
     <>
-      <Box display="flex" alignItems="center" justifyContent="center" minHeight="60vh">
+      <Box display="flex" alignItems="center" justifyContent="center" minHeight="calc(60vh / var(--ui-zoom))">
         <Typography color="text.secondary">Chargement…</Typography>
       </Box>
     </>
@@ -566,7 +566,7 @@ export default function FormBuilderPage() {
       </Box>
 
       {/* Builder body */}
-      <Box sx={{ display: "flex", height: "calc(100vh - 128px)", bgcolor: "var(--bg-page)" }}>
+      <Box sx={{ display: "flex", height: "calc(100vh / var(--ui-zoom) - 128px)", bgcolor: "var(--bg-page)" }}>
 
         {/* LEFT: Field palette */}
         <Box sx={{ width: 220, borderRight: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
