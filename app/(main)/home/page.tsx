@@ -270,8 +270,9 @@ export default function DashboardPage() {
         activityByAction:  charts?.activityByAction ?? [],
       };
 
-      const { generateDashboardPdf } = await import("@/lib/dashboardPdf");
-      generateDashboardPdf(reportData);
+      // Construction du PDF dans un Web Worker : le dashboard reste fluide pendant la génération.
+      const { renderPdf } = await import("@/lib/pdf/pdfClient");
+      await renderPdf({ kind: "dashboard", data: reportData });
       setSnack("PDF généré avec succès !");
     } catch (err: any) {
       setSnack(`Erreur PDF : ${err?.message ?? "inconnue"}`);

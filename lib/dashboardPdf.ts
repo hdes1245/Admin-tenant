@@ -35,7 +35,8 @@ function statusLabel(s: string) {
   return ({ open:"Ouvert", in_progress:"En cours", resolved:"Résolu", closed:"Fermé" } as any)[s] ?? s;
 }
 // ─── Main export ──────────────────────────────────────────────────────────────
-export function generateDashboardPdf(data: PdfReportData) {
+// Constructeur PUR (aucun DOM) : exécutable dans un Web Worker — la sauvegarde est faite par pdfClient.
+export function buildDashboardPdf(data: PdfReportData): jsPDF {
   const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
@@ -358,7 +359,11 @@ export function generateDashboardPdf(data: PdfReportData) {
   // ══════════════════════════════════════════════════════════════════════════════
   finalizePageNumbers(doc, W, H, M);
 
-  const slug=data.tenantName.toLowerCase().replace(/\s+/g,"-");
-  doc.save(`rapport-${slug}-${new Date().toISOString().slice(0,10)}.pdf`);
+  return doc;
+}
+
+export function dashboardFileName(tenantName: string): string {
+  const slug = tenantName.toLowerCase().replace(/\s+/g, "-");
+  return `rapport-${slug}-${new Date().toISOString().slice(0, 10)}.pdf`;
 }
 
