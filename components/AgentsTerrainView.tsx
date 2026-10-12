@@ -1,4 +1,5 @@
 "use client";
+import { useLiveInterval } from "@/lib/realtime/RealtimeProvider";
 
 import { useState } from "react";
 import {
@@ -81,10 +82,11 @@ function PerformanceTab() {
   const [agenceFilter, setAgenceFilter] = useState("");
   const [search, setSearch] = useState("");
 
+  const teamPollMs = useLiveInterval(60_000);
   const { data: statsRaw, refetch } = useQuery({
     queryKey: ["team-stats", period],
     queryFn: () => apiFetch(`/users/stats?days=${period}`),
-    refetchInterval: 60_000,
+    refetchInterval: teamPollMs,
   });
 
   // IMPORTANT : même queryKey ["agences"] que les autres pages → le fetcher
@@ -294,10 +296,11 @@ function FleetTab() {
   const [notifDialog, setNotifDialog] = useState<any>(null);
   const [notifMsg, setNotifMsg] = useState("");
 
+  const fleetPollMs = useLiveInterval(30_000);
   const { data: fleet = [], isLoading, refetch } = useQuery({
     queryKey: ["mobile-fleet"],
     queryFn: () => apiFetch("/users/mobile-fleet"),
-    refetchInterval: 30_000,
+    refetchInterval: fleetPollMs,
   });
 
   // Même contrainte que plus haut : queryKey partagé ["agences"] ⇒ fetcher mappé obligatoire.

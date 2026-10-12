@@ -1,4 +1,5 @@
 "use client";
+import { useLiveInterval } from "@/lib/realtime/RealtimeProvider";
 
 import { useState } from "react";
 import {
@@ -60,10 +61,12 @@ export default function MobileFleetPage() {
   const [notifDialog, setNotifDialog] = useState<any>(null);
   const [notifMsg, setNotifMsg] = useState("");
 
+  // Temps réel : le polling ne sert plus que de filet de sécurité tant que le WebSocket est connecté.
+  const fleetPollMs = useLiveInterval(30_000);
   const { data: fleet = [], isLoading, refetch } = useQuery({
     queryKey: ["mobile-fleet"],
     queryFn: () => apiFetch("/users/mobile-fleet"),
-    refetchInterval: 30_000,
+    refetchInterval: fleetPollMs,
   });
 
   // queryKey partagé ["agences"] avec les autres pages ⇒ fetcher mappé

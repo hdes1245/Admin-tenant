@@ -4,6 +4,7 @@ import { ReactNode, useMemo, useState } from "react";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeModeProvider, useThemeMode } from "@/components/ThemeModeContext";
+import { RealtimeProvider } from "@/lib/realtime/RealtimeProvider";
 
 function buildTheme(mode: "light" | "dark") {
   const isDark = mode === "dark";
@@ -341,9 +342,11 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeModeProvider>
-        <ThemedApp>{children}</ThemedApp>
-      </ThemeModeProvider>
+      <RealtimeProvider>
+        <ThemeModeProvider>
+          <ThemedApp>{children}</ThemedApp>
+        </ThemeModeProvider>
+      </RealtimeProvider>
     </QueryClientProvider>
   );
 }

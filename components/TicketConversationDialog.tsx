@@ -1,4 +1,5 @@
 "use client";
+import { useLiveInterval } from "@/lib/realtime/RealtimeProvider";
 
 import {
   Alert,
@@ -285,11 +286,12 @@ export function TicketConversationDialog({ ticket, open, onClose }: Props) {
     }
   }, [ticket]);
 
+  const commentsPollMs = useLiveInterval(15_000, 60_000);
   const commentsQuery = useQuery({
     queryKey: ["ticket-comments", ticket?.id],
     queryFn: () => fetchTicketComments(ticket!.id),
     enabled: open && !!ticket,
-    refetchInterval: open ? 15000 : false,
+    refetchInterval: open ? commentsPollMs : false,
   });
 
   const attachmentsQuery = useQuery({

@@ -1,4 +1,5 @@
 "use client";
+import { useLiveInterval } from "@/lib/realtime/RealtimeProvider";
 
 import {
   Alert,
@@ -211,11 +212,12 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
   });
 
   // Escalation thread comments
+  const commentsPollMs = useLiveInterval(15_000, 60_000);
   const threadCommentsQuery = useQuery({
     queryKey: ["escalation-comments", ticket?.id],
     queryFn: () => fetchTicketComments(ticket!.id),
     enabled: open && !!ticket && phase === "thread",
-    refetchInterval: open && phase === "thread" ? 15000 : false,
+    refetchInterval: open && phase === "thread" ? commentsPollMs : false,
   });
 
   // Attachments

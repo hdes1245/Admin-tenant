@@ -51,7 +51,8 @@ const nextConfig = {
       "font-src 'self' https://fonts.gstatic.com data:",
       // https: large pour couvrir les différents fournisseurs de tuiles de carte (OSM, Esri, CartoDB).
       "img-src 'self' data: blob: https:",
-      `connect-src 'self' ${backendUrl}`,
+      // + WebSocket temps réel (Socket.IO) vers le backend : http(s)://h -> ws(s)://h
+      `connect-src 'self' ${backendUrl} ${backendUrl.replace(/^http/, 'ws')}`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

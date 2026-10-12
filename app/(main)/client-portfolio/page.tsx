@@ -1,4 +1,5 @@
 "use client";
+import { useLiveInterval } from "@/lib/realtime/RealtimeProvider";
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
@@ -250,16 +251,17 @@ export default function ClientPortfolioPage() {
   }, [agenceFilter, effectiveStatus, dSearch, tab]);
 
   // ── Queries ──────────────────────────────────────────────────────────────
+  const portfolioPollMs = useLiveInterval(120_000);
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
     queryKey: ["client-coverage-stats"],
     queryFn:  () => apiFetch("/clients/coverage/stats"),
-    staleTime: 60_000, refetchInterval: 120_000,
+    staleTime: 60_000, refetchInterval: portfolioPollMs,
   });
 
   const { data: riskData, isLoading: riskLoading, refetch: refetchRisk } = useQuery({
     queryKey: ["client-risk-analysis"],
     queryFn:  () => apiFetch("/clients/risk-analysis"),
-    staleTime: 60_000, refetchInterval: 120_000,
+    staleTime: 60_000, refetchInterval: portfolioPollMs,
   });
 
   const listParams = useMemo(() => {
