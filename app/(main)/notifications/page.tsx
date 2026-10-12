@@ -20,59 +20,25 @@ import {
 import { PaginationBar } from "@/components/PaginationBar";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  Chip,
-  CircularProgress,
-  Container,
-  Grid,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  FormControlLabel,
-  FormGroup,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Paper,
-  Select,
-  Switch,
-  Tab,
-  Tabs,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import CampaignIcon from "@mui/icons-material/Campaign";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
-import AddIcon from "@mui/icons-material/Add";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import SendIcon from "@mui/icons-material/Send";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import GroupsIcon from "@mui/icons-material/Groups";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import BoltIcon from "@mui/icons-material/Bolt";
+  Bell, BellRing, Check, CheckCheck, CircleCheck, Clock, Eye, Megaphone, Pencil, Play, Plus, Search, Send,
+  Trash2, TriangleAlert, Users, X, Zap,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input, Field, Textarea } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip } from "@/components/ui/tooltip";
+import { TabBar } from "@/components/ui/tabs";
+import { KpiTile, PageContainer, PageHeader, Panel } from "@/components/ui/page-blocks";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
 const PAGE_SIZE = 15;
 
 const TENANT_ROLES = [
@@ -142,6 +108,13 @@ function fmtDatetimeLocal(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/** Petite pastille colorée. */
+function Tag({ bg, color, children, className = "" }: { bg: string; color: string; children: React.ReactNode; className?: string }) {
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2 text-[10px] font-bold leading-[18px] ${className}`} style={{ background: bg, color }}>{children}</span>;
+}
+
+const subLabel = "mb-1.5 block text-xs font-bold uppercase tracking-[0.8px] text-muted-foreground";
+
 // ── Onglet Mes notifications ──────────────────────────────────────────────────
 function MyNotificationsTab() {
   const queryClient = useQueryClient();
@@ -175,77 +148,72 @@ function MyNotificationsTab() {
   }, [items, search]);
 
   return (
-    <Box>
-      <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
-        <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
-          <TextField
-            size="small" placeholder="Rechercher dans les notifications..."
-            value={search} onChange={(e) => setSearch(e.target.value)}
-            sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} /></InputAdornment>,
-              endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-            }}
-          />
+    <div>
+      <Panel className="mb-5 p-4 shadow-[0_1px_4px_rgba(15,59,92,0.04)]">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative min-w-60 flex-1">
+            <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Rechercher dans les notifications..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-9" />
+            {search && (
+              <button type="button" aria-label="Effacer la recherche" onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"><X size={16} /></button>
+            )}
+          </div>
           <Button
-            variant="outlined" size="small" startIcon={<DoneAllIcon />}
+            variant="outline" size="sm" className="shrink-0 border-[#0F3B5C] font-semibold"
             onClick={async () => { setActionError(null); try { await markAllMutation.mutateAsync(); } catch (e) { setActionError(e instanceof Error ? e.message : "Erreur"); } }}
             disabled={markAllMutation.isPending || unread === 0}
-            sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 600, borderRadius: 2, flexShrink: 0 }}
           >
-            Tout marquer lu
+            <CheckCheck size={16} /> Tout marquer lu
           </Button>
-        </Box>
-        <Box display="flex" gap={1} alignItems="center" mt={1.5} pt={1} sx={{ borderTop: "1px solid var(--border)" }}>
-          <Typography variant="caption" color="text.secondary">{filteredItems.length} notification{filteredItems.length !== 1 ? "s" : ""}{search ? ` sur ${total}` : ` au total`}</Typography>
-          {unread > 0 && <><Typography variant="caption" sx={{ color: "var(--border-strong)" }}>·</Typography><Typography variant="caption" sx={{ color: STEEL, fontWeight: 600 }}>{unread} non lue{unread > 1 ? "s" : ""}</Typography></>}
-        </Box>
-      </Paper>
+        </div>
+        <div className="mt-3 flex items-center gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
+          <span>{filteredItems.length} notification{filteredItems.length !== 1 ? "s" : ""}{search ? ` sur ${total}` : ` au total`}</span>
+          {unread > 0 && <><span className="text-border-strong">·</span><span className="font-semibold text-[#1E6091]">{unread} non lue{unread > 1 ? "s" : ""}</span></>}
+        </div>
+      </Panel>
 
-      {actionError && <Alert severity="error" sx={{ mb: 2 }}>{actionError}</Alert>}
-      {notificationsQuery.isLoading && <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>}
+      {actionError && <Alert severity="error" className="mb-4">{actionError}</Alert>}
+      {notificationsQuery.isLoading && <div className="flex justify-center py-12"><Spinner className="size-8" /></div>}
 
       {!notificationsQuery.isLoading && filteredItems.length === 0 && (
-        <Box display="flex" flexDirection="column" alignItems="center" gap={2} py={8} color="text.secondary">
-          <NotificationsNoneIcon sx={{ fontSize: 52, opacity: 0.3 }} />
-          <Typography fontWeight={500}>{search ? "Aucune notification ne correspond à la recherche." : "Aucune notification pour l’instant."}</Typography>
-        </Box>
+        <div className="flex flex-col items-center gap-4 py-16 text-muted-foreground">
+          <Bell size={52} className="opacity-30" />
+          <span className="font-medium">{search ? "Aucune notification ne correspond à la recherche." : "Aucune notification pour l’instant."}</span>
+        </div>
       )}
 
-      <Box display="flex" flexDirection="column" gap={1.5}>
+      <div className="flex flex-col gap-3">
         {filteredItems.map((n, idx) => (
           <motion.div key={n.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.04, duration: 0.25 }}>
-            <Card elevation={0} sx={{ border: "1px solid", borderColor: n.isRead ? "var(--border)" : STEEL + "60", borderRadius: 3, bgcolor: n.isRead ? "var(--bg-surface)" : "rgba(30,96,145,0.10)" }}>
-              <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-                <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1}>
-                  <Box display="flex" gap={1.5} flex={1}>
-                    <Box sx={{ width: 4, minHeight: 40, borderRadius: 4, bgcolor: n.isRead ? "var(--border)" : STEEL, flexShrink: 0 }} />
-                    <Box flex={1}>
-                      <Box display="flex" alignItems="center" gap={1} mb={0.3} flexWrap="wrap">
-                        <Typography variant="subtitle2" fontWeight={700}>{n.title}</Typography>
-                        {!n.isRead && <Chip label="Nouveau" size="small" sx={{ bgcolor: "#EFF6FF", color: STEEL, fontWeight: 700, fontSize: 10, height: 18 }} />}
-                        {n.type && <Chip label={n.type} size="small" sx={{ bgcolor: "#F1F5F9", color: "#334155", fontWeight: 600, fontSize: 10, height: 18 }} />}
-                      </Box>
-                      <Typography variant="body2" color="text.secondary" mb={0.5}>{n.body || "—"}</Typography>
-                      <Typography variant="caption" color="text.disabled">{fmt(n.createdAt)}</Typography>
-                    </Box>
-                  </Box>
-                  {!n.isRead && (
-                    <Button size="small" variant="outlined" disabled={markReadMutation.isPending}
-                      sx={{ flexShrink: 0, fontSize: 11, borderRadius: 2, height: 28, borderColor: STEEL, color: STEEL }}
-                      onClick={async () => { setActionError(null); try { await markReadMutation.mutateAsync(n.id); } catch (e) { setActionError(e instanceof Error ? e.message : "Erreur"); } }}>
-                      Marquer lu
-                    </Button>
-                  )}
-                </Box>
-              </CardContent>
-            </Card>
+            <div className={`rounded-xl border px-4 py-3 ${n.isRead ? "border-border bg-surface" : "border-[#1E6091]/40 bg-[#1E6091]/10"}`}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-1 gap-3">
+                  <span className={`min-h-10 w-1 shrink-0 rounded ${n.isRead ? "bg-border" : "bg-[#1E6091]"}`} />
+                  <div className="flex-1">
+                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-bold">{n.title}</span>
+                      {!n.isRead && <Tag bg="#EFF6FF" color={STEEL}>Nouveau</Tag>}
+                      {n.type && <Tag bg="#F1F5F9" color="#334155" className="font-semibold">{n.type}</Tag>}
+                    </div>
+                    <p className="mb-1 text-sm text-muted-foreground">{n.body || "—"}</p>
+                    <span className="text-xs text-muted-foreground/70">{fmt(n.createdAt)}</span>
+                  </div>
+                </div>
+                {!n.isRead && (
+                  <Button size="sm" variant="outline" className="h-7 shrink-0 border-[#1E6091] text-[11px] text-[#1E6091]" disabled={markReadMutation.isPending}
+                    onClick={async () => { setActionError(null); try { await markReadMutation.mutateAsync(n.id); } catch (e) { setActionError(e instanceof Error ? e.message : "Erreur"); } }}>
+                    Marquer lu
+                  </Button>
+                )}
+              </div>
+            </div>
           </motion.div>
         ))}
-      </Box>
+      </div>
 
       {total > PAGE_SIZE && <PaginationBar page={page} totalPages={totalPages} total={total} pageSize={PAGE_SIZE} onPageChange={setPage} />}
-    </Box>
+    </div>
   );
 }
 
@@ -406,404 +374,325 @@ function MessagingTab() {
   const activeRules = rules.filter((r) => r.isActive).length;
 
   return (
-    <Box>
+    <div>
       {/* En-tête + entrée unique */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap="wrap" gap={1}>
-        <Box>
-          <Typography variant="h6" fontWeight={700} color="var(--text-primary)">Diffusions &amp; alertes</Typography>
-          <Typography variant="body2" color="text.secondary">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-bold text-foreground">Diffusions &amp; alertes</h2>
+          <p className="text-sm text-muted-foreground">
             Envoyez un message ponctuel aux équipes, ou créez une alerte automatique déclenchée par les clients à risque.
-          </Typography>
-        </Box>
-        <Box display="flex" gap={1} flexWrap="wrap">
-          <Button variant="outlined" startIcon={<CampaignIcon />} onClick={() => openNew("broadcast")}
-            sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 700 }}>
-            Diffusion
-          </Button>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => openNew("alert")}
-            sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" } }}>
-            Nouvelle alerte
-          </Button>
-        </Box>
-      </Box>
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" className="border-[#0F3B5C] font-bold" onClick={() => openNew("broadcast")}><Megaphone size={16} /> Diffusion</Button>
+          <Button className="bg-[#3C8047] font-bold hover:bg-[#2A5C34] hover:opacity-100" onClick={() => openNew("alert")}><Plus size={16} /> Nouvelle alerte</Button>
+        </div>
+      </div>
 
       {/* Recherche */}
-      <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
-        <TextField
-          fullWidth size="small" placeholder="Rechercher une diffusion ou une alerte..."
-          value={search} onChange={(e) => setSearch(e.target.value)}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
-          InputProps={{
-            startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} /></InputAdornment>,
-            endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-          }}
-        />
-        <Box mt={1.5} pt={1} sx={{ borderTop: "1px solid var(--border)" }}>
-          <Typography variant="caption" color="text.secondary">
-            {activeRules} alerte{activeRules !== 1 ? "s" : ""} active{activeRules !== 1 ? "s" : ""} · {sent.length} diffusion{sent.length !== 1 ? "s" : ""} envoyée{sent.length !== 1 ? "s" : ""}
-          </Typography>
-        </Box>
-      </Paper>
+      <Panel className="mb-5 p-4 shadow-[0_1px_4px_rgba(15,59,92,0.04)]">
+        <div className="relative">
+          <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Rechercher une diffusion ou une alerte..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-9" />
+          {search && (
+            <button type="button" aria-label="Effacer la recherche" onClick={() => setSearch("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"><X size={16} /></button>
+          )}
+        </div>
+        <div className="mt-3 border-t border-border pt-2 text-xs text-muted-foreground">
+          {activeRules} alerte{activeRules !== 1 ? "s" : ""} active{activeRules !== 1 ? "s" : ""} · {sent.length} diffusion{sent.length !== 1 ? "s" : ""} envoyée{sent.length !== 1 ? "s" : ""}
+        </div>
+      </Panel>
 
-      {banner && <Alert severity={banner.kind} sx={{ mb: 2 }} onClose={() => setBanner(null)}>{banner.msg}</Alert>}
+      {banner && <Alert severity={banner.kind} className="mb-4" onClose={() => setBanner(null)}>{banner.msg}</Alert>}
 
       {/* ── Section Alertes automatiques ── */}
-      <Box mb={3}>
-        <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-          <WarningAmberIcon sx={{ fontSize: 16, color: "#b45309" }} />
-          <Typography variant="subtitle2" fontWeight={700} sx={{ color: "#b45309" }}>
-            Alertes automatiques ({filteredRules.length})
-          </Typography>
-        </Box>
-        {rLoading && <Box display="flex" justifyContent="center" py={3}><CircularProgress size={26} /></Box>}
+      <div className="mb-6">
+        <div className="mb-3 flex items-center gap-2">
+          <TriangleAlert size={16} className="text-amber-700" />
+          <span className="text-sm font-bold text-amber-700">Alertes automatiques ({filteredRules.length})</span>
+        </div>
+        {rLoading && <div className="flex justify-center py-6"><Spinner className="size-6" /></div>}
         {!rLoading && filteredRules.length === 0 && (
-          <Box display="flex" flexDirection="column" alignItems="center" gap={1} py={4} color="text.secondary">
-            <WarningAmberIcon sx={{ fontSize: 42, opacity: 0.28 }} />
-            <Typography fontSize={13.5} fontWeight={500}>Aucune alerte automatique configurée.</Typography>
-            <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => openNew("alert")}
-              sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 600 }}>Créer une alerte</Button>
-          </Box>
+          <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+            <TriangleAlert size={42} className="opacity-30" />
+            <span className="text-[13.5px] font-medium">Aucune alerte automatique configurée.</span>
+            <Button size="sm" variant="outline" className="border-[#0F3B5C] font-semibold" onClick={() => openNew("alert")}><Plus size={15} /> Créer une alerte</Button>
+          </div>
         )}
-        <Box display="flex" flexDirection="column" gap={1.25}>
+        <div className="flex flex-col gap-2.5">
           {filteredRules.map((r) => {
             const m = criterionMeta(r.criterion);
             return (
-              <Card key={r.id} elevation={0} sx={{ border: "1px solid", borderColor: r.isActive ? STEEL + "50" : "var(--border)", borderRadius: 3, bgcolor: r.isActive ? "#FBFDFF" : "var(--bg-page)", opacity: r.isActive ? 1 : 0.75 }}>
-                <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1} flexWrap="wrap">
-                    <Box display="flex" gap={1.5} flex={1} minWidth={240}>
-                      <Avatar sx={{ width: 38, height: 38, bgcolor: r.isActive ? NAVY : "#94A3B8", flexShrink: 0 }}>
-                        <WarningAmberIcon sx={{ color: GOLD, fontSize: 20 }} />
-                      </Avatar>
-                      <Box flex={1}>
-                        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap" mb={0.3}>
-                          <Typography variant="subtitle2" fontWeight={700}>{r.name}</Typography>
-                          <Chip label={alertSummary(r)} size="small" sx={{ bgcolor: "#FFF7ED", color: "#b45309", fontWeight: 700, fontSize: 10, height: 18 }} />
-                          <Chip label={r.digest ? "Récap" : "Par dossier"} size="small" sx={{ bgcolor: "#EFF6FF", color: STEEL, fontWeight: 700, fontSize: 10, height: 18 }} />
-                          {!r.isActive && <Chip label="Inactive" size="small" sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontWeight: 600, fontSize: 10, height: 18 }} />}
-                        </Box>
-                        <Typography variant="caption" color="text.secondary">{m.help}</Typography>
-                        <Box display="flex" gap={0.5} flexWrap="wrap" mt={0.6}>
-                          {r.targetRoles.map((role) => (
-                            <Chip key={role} label={TENANT_ROLES.find((t) => t.code === role)?.label ?? role} size="small"
-                              sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontSize: 10, height: 16 }} />
-                          ))}
-                        </Box>
-                        <Typography variant="caption" color="text.disabled" display="block" mt={0.6}>
-                          {r.totalFired} alerte{r.totalFired !== 1 ? "s" : ""} émise{r.totalFired !== 1 ? "s" : ""}
-                          {r.lastRunAt ? ` · dernière éval. ${fmt(r.lastRunAt)}` : " · jamais évaluée"}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box display="flex" alignItems="center" gap={0.5} flexShrink={0}>
-                      <Tooltip title={r.isActive ? "Désactiver" : "Activer"}>
-                        <Switch size="small" checked={r.isActive} onChange={() => toggleRule(r)}
-                          sx={{ "& .Mui-checked": { color: STEEL }, "& .Mui-checked + .MuiSwitch-track": { bgcolor: STEEL } }} />
-                      </Tooltip>
-                      <Tooltip title="Tester maintenant">
-                        <IconButton size="small" onClick={() => runRule(r)} sx={{ color: "#16a34a" }}><PlayArrowIcon sx={{ fontSize: 19 }} /></IconButton>
-                      </Tooltip>
-                      <Tooltip title="Modifier">
-                        <IconButton size="small" onClick={() => openEditRule(r)} sx={{ color: STEEL }}><EditOutlinedIcon sx={{ fontSize: 17 }} /></IconButton>
-                      </Tooltip>
-                      <Tooltip title="Supprimer">
-                        <IconButton size="small" onClick={() => deleteRule(r)} sx={{ color: "#dc2626" }}><DeleteOutlineIcon sx={{ fontSize: 17 }} /></IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
+              <div key={r.id} className={`rounded-xl border px-4 py-3 ${r.isActive ? "border-[#1E6091]/30 bg-[#FBFDFF] dark:bg-surface" : "border-border bg-background opacity-75"}`}>
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="flex min-w-60 flex-1 gap-3">
+                    <span className={`flex size-[38px] shrink-0 items-center justify-center rounded-full text-[#3C8047] ${r.isActive ? "bg-[#0F3B5C]" : "bg-slate-400"}`}><TriangleAlert size={20} /></span>
+                    <div className="flex-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-bold">{r.name}</span>
+                        <Tag bg="#FFF7ED" color="#b45309">{alertSummary(r)}</Tag>
+                        <Tag bg="#EFF6FF" color={STEEL}>{r.digest ? "Récap" : "Par dossier"}</Tag>
+                        {!r.isActive && <Tag bg="#F1F5F9" color="var(--text-secondary)" className="font-semibold">Inactive</Tag>}
+                      </div>
+                      <span className="text-xs text-muted-foreground">{m.help}</span>
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {r.targetRoles.map((role) => (
+                          <span key={role} className="rounded-full bg-slate-100 px-2 text-[10px] leading-4 text-slate-600">{TENANT_ROLES.find((t) => t.code === role)?.label ?? role}</span>
+                        ))}
+                      </div>
+                      <span className="mt-1.5 block text-xs text-muted-foreground/70">
+                        {r.totalFired} alerte{r.totalFired !== 1 ? "s" : ""} émise{r.totalFired !== 1 ? "s" : ""}
+                        {r.lastRunAt ? ` · dernière éval. ${fmt(r.lastRunAt)}` : " · jamais évaluée"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Tooltip title={r.isActive ? "Désactiver" : "Activer"}>
+                      <Switch aria-label={`${r.isActive ? "Désactiver" : "Activer"} ${r.name}`} checked={r.isActive} onCheckedChange={() => toggleRule(r)} />
+                    </Tooltip>
+                    <Tooltip title="Tester maintenant">
+                      <button type="button" aria-label="Tester maintenant" onClick={() => runRule(r)} className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-green-600 hover:bg-green-50"><Play size={19} /></button>
+                    </Tooltip>
+                    <Tooltip title="Modifier">
+                      <button type="button" aria-label="Modifier" onClick={() => openEditRule(r)} className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-[#1E6091] hover:bg-blue-50"><Pencil size={17} /></button>
+                    </Tooltip>
+                    <Tooltip title="Supprimer">
+                      <button type="button" aria-label="Supprimer" onClick={() => deleteRule(r)} className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-red-600 hover:bg-red-50"><Trash2 size={17} /></button>
+                    </Tooltip>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
-      <Divider sx={{ my: 2 }} />
+      <hr className="my-4 border-border" />
 
       {/* ── Section Diffusions ── */}
       {pending.length > 0 && (
-        <Box mb={3}>
-          <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-            <ScheduleIcon sx={{ fontSize: 16, color: "#d97706" }} />
-            <Typography variant="subtitle2" fontWeight={700} color="#d97706">
-              Diffusions planifiées ({pending.length})
-            </Typography>
-          </Box>
-          <Box display="flex" flexDirection="column" gap={1.5}>
+        <div className="mb-6">
+          <div className="mb-3 flex items-center gap-2">
+            <Clock size={16} className="text-amber-600" />
+            <span className="text-sm font-bold text-amber-600">Diffusions planifiées ({pending.length})</span>
+          </div>
+          <div className="flex flex-col gap-3">
             {pending.map((b) => (
               <BroadcastCard key={b.id} broadcast={b}
                 onCancel={async () => { setBanner(null); try { await cancelMutation.mutateAsync(b.id); } catch (e) { setBanner({ kind: "error", msg: e instanceof Error ? e.message : "Erreur" }); } }}
                 cancelling={cancelMutation.isPending}
               />
             ))}
-          </Box>
-        </Box>
+          </div>
+        </div>
       )}
 
-      <Box>
-        <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-          <CheckCircleIcon sx={{ fontSize: 16, color: "#16a34a" }} />
-          <Typography variant="subtitle2" fontWeight={700} color="#16a34a">
-            Diffusions envoyées ({sent.length})
-          </Typography>
-        </Box>
-        {bLoading && <Box display="flex" justifyContent="center" py={4}><CircularProgress size={28} /></Box>}
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <CircleCheck size={16} className="text-green-600" />
+          <span className="text-sm font-bold text-green-600">Diffusions envoyées ({sent.length})</span>
+        </div>
+        {bLoading && <div className="flex justify-center py-8"><Spinner className="size-7" /></div>}
         {!bLoading && sent.length === 0 && (
-          <Box display="flex" flexDirection="column" alignItems="center" gap={1} py={4} color="text.secondary">
-            <CampaignIcon sx={{ fontSize: 42, opacity: 0.25 }} />
-            <Typography fontSize={13.5} fontWeight={500}>Aucune diffusion envoyée pour l&apos;instant.</Typography>
-            <Button size="small" variant="outlined" startIcon={<CampaignIcon />} onClick={() => openNew("broadcast")}
-              sx={{ borderColor: NAVY, color: "var(--text-primary)", fontWeight: 600 }}>Nouvelle diffusion</Button>
-          </Box>
+          <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+            <Megaphone size={42} className="opacity-25" />
+            <span className="text-[13.5px] font-medium">Aucune diffusion envoyée pour l&apos;instant.</span>
+            <Button size="sm" variant="outline" className="border-[#0F3B5C] font-semibold" onClick={() => openNew("broadcast")}><Megaphone size={15} /> Nouvelle diffusion</Button>
+          </div>
         )}
-        <Box display="flex" flexDirection="column" gap={1.5}>
+        <div className="flex flex-col gap-3">
           {sent.map((b) => <BroadcastCard key={b.id} broadcast={b} />)}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* ── Dialog unifié (diffusion / alerte) ── */}
-      <Dialog open={open} onClose={() => !saving && setOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}>
-              {mode === "alert"
-                ? <WarningAmberIcon sx={{ color: GOLD, fontSize: 20 }} />
-                : <CampaignIcon sx={{ color: GOLD, fontSize: 20 }} />}
-            </Avatar>
-            <Typography variant="h6" fontWeight={700}>
-              {editRuleId ? "Modifier l'alerte" : mode === "alert" ? "Nouvelle alerte automatique" : "Nouvelle diffusion"}
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2.5 }}>
-          <Box display="flex" flexDirection="column" gap={2.5}>
+      <Dialog open={open} onOpenChange={(o) => !o && !saving && setOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={mode === "alert" ? <TriangleAlert size={20} /> : <Megaphone size={20} />}>
+            {editRuleId ? "Modifier l'alerte" : mode === "alert" ? "Nouvelle alerte automatique" : "Nouvelle diffusion"}
+          </DialogHeader>
+          <DialogBody className="max-h-[72vh] overflow-y-auto">
+            <div className="flex flex-col gap-5">
+              {/* Sélecteur de mode (masqué en édition de règle) */}
+              {!editRuleId && (
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { m: "broadcast" as Mode, label: "Diffusion ponctuelle", icon: <Megaphone size={16} />, desc: "Un message, une fois" },
+                    { m: "alert" as Mode, label: "Alerte automatique", icon: <TriangleAlert size={16} />, desc: "Déclenchée par les risques" },
+                  ]).map((opt) => {
+                    const selected = mode === opt.m;
+                    return (
+                      <button key={opt.m} type="button" onClick={() => switchMode(opt.m)}
+                        className={`cursor-pointer rounded-lg border-[1.5px] p-2.5 text-left transition-all ${selected ? "border-[#0F3B5C] bg-[#1E6091]/10" : "border-border bg-surface"}`}>
+                        <span className={`flex items-center gap-1.5 text-[13px] font-bold ${selected ? "text-foreground" : "text-muted-foreground"}`}>{opt.icon} {opt.label}</span>
+                        <span className="text-xs text-muted-foreground">{opt.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
 
-            {/* Sélecteur de mode (masqué en édition de règle) */}
-            {!editRuleId && (
-              <Box display="grid" gridTemplateColumns="1fr 1fr" gap={1}>
-                {([
-                  { m: "broadcast" as Mode, label: "Diffusion ponctuelle", icon: <CampaignIcon sx={{ fontSize: 16 }} />, desc: "Un message, une fois" },
-                  { m: "alert" as Mode, label: "Alerte automatique", icon: <WarningAmberIcon sx={{ fontSize: 16 }} />, desc: "Déclenchée par les risques" },
-                ]).map((opt) => {
-                  const selected = mode === opt.m;
-                  return (
-                    <Box key={opt.m} onClick={() => switchMode(opt.m)}
-                      sx={{
-                        cursor: "pointer", borderRadius: 2, p: 1.25,
-                        border: "1.5px solid", borderColor: selected ? NAVY : "var(--border)",
-                        bgcolor: selected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", transition: "all .15s",
-                      }}>
-                      <Box display="flex" alignItems="center" gap={0.75} sx={{ color: selected ? "var(--text-primary)" : "var(--text-secondary)" }}>
-                        {opt.icon}
-                        <Typography variant="body2" fontWeight={700} fontSize={13}>{opt.label}</Typography>
-                      </Box>
-                      <Typography variant="caption" color="text.secondary">{opt.desc}</Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
-            )}
+              {/* Titre / nom */}
+              <Field label={mode === "alert" ? "Nom de la règle *" : "Titre *"}>
+                <Input value={name} onChange={(e) => setName(e.target.value)}
+                  placeholder={mode === "alert" ? "ex: Retards critiques recouvrement" : "ex: Maintenance prévue ce vendredi"} />
+              </Field>
 
-            {/* Titre / nom */}
-            <TextField
-              label={mode === "alert" ? "Nom de la règle *" : "Titre *"} fullWidth size="small"
-              value={name} onChange={(e) => setName(e.target.value)}
-              placeholder={mode === "alert" ? "ex: Retards critiques recouvrement" : "ex: Maintenance prévue ce vendredi"} />
+              {/* Champs propres à la DIFFUSION */}
+              {mode === "broadcast" && (
+                <Field label="Message (optionnel)"><Textarea rows={3} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Détaillez votre message ici..." /></Field>
+              )}
 
-            {/* Champs propres à la DIFFUSION */}
-            {mode === "broadcast" && (
-              <TextField label="Message (optionnel)" fullWidth size="small" multiline minRows={3}
-                value={body} onChange={(e) => setBody(e.target.value)}
-                placeholder="Détaillez votre message ici..." />
-            )}
+              {/* Champs propres à l'ALERTE */}
+              {mode === "alert" && (
+                <>
+                  <div>
+                    <span className={subLabel}>Critère déclencheur *</span>
+                    <Select value={criterion} onChange={(e) => onCriterionChange(e.target.value as AlertCriterion)}>
+                      {CRITERIA.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
+                    </Select>
+                    <span className="mt-1 block text-xs text-muted-foreground">{meta.help}</span>
+                  </div>
+                  {meta.needsThreshold && (
+                    <Field label={`Seuil (${meta.unit})`} help={meta.unit === "FCFA" ? "Montant en francs CFA." : "Nombre de jours."}>
+                      <Input type="number" min={1} value={threshold} onChange={(e) => setThreshold(e.target.value)} />
+                    </Field>
+                  )}
+                  {meta.needsTranches && (
+                    <div>
+                      <span className={subLabel}>Tranches de retard surveillées *</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {TRANCHES.map((t) => {
+                          const on = tranches.includes(t.code);
+                          return (
+                            <button key={t.code} type="button" onClick={() => toggleTranche(t.code)}
+                              className={`h-6 cursor-pointer rounded-full border px-3 text-xs font-bold ${on ? "border-orange-200 bg-orange-50 text-amber-700" : "border-border-strong bg-transparent text-muted-foreground"}`}>
+                              {t.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
-            {/* Champs propres à l'ALERTE */}
-            {mode === "alert" && (
-              <>
-                <Box>
-                  <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 0.75, display: "block" }}>
-                    Critère déclencheur *
-                  </Typography>
-                  <Select fullWidth size="small" value={criterion} onChange={(e) => onCriterionChange(e.target.value as AlertCriterion)}>
-                    {CRITERIA.map((c) => <MenuItem key={c.code} value={c.code}>{c.label}</MenuItem>)}
-                  </Select>
-                  <Typography variant="caption" color="text.secondary" mt={0.5} display="block">{meta.help}</Typography>
-                </Box>
-                {meta.needsThreshold && (
-                  <TextField label={`Seuil (${meta.unit})`} type="number" fullWidth size="small"
-                    value={threshold} onChange={(e) => setThreshold(e.target.value)} inputProps={{ min: 1 }}
-                    helperText={meta.unit === "FCFA" ? "Montant en francs CFA." : "Nombre de jours."} />
-                )}
-                {meta.needsTranches && (
-                  <Box>
-                    <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 0.75, display: "block" }}>
-                      Tranches de retard surveillées *
-                    </Typography>
-                    <Box display="flex" gap={0.75} flexWrap="wrap">
-                      {TRANCHES.map((t) => {
-                        const on = tranches.includes(t.code);
-                        return (
-                          <Chip key={t.code} label={t.label} onClick={() => toggleTranche(t.code)}
-                            variant={on ? "filled" : "outlined"} size="small"
-                            sx={{ fontWeight: 700, cursor: "pointer",
-                              bgcolor: on ? "#FFF7ED" : "transparent",
-                              color: on ? "#b45309" : "var(--text-secondary)",
-                              borderColor: on ? "#FED7AA" : "var(--border-strong)" }} />
-                        );
-                      })}
-                    </Box>
-                  </Box>
-                )}
+                  <Alert severity="info" className="flex items-start gap-2 py-1.5 text-[12.5px]">
+                    <Users size={16} className="mt-0.5 shrink-0" />
+                    <span>Chaque destinataire ne reçoit que les clients de son périmètre : un CAF ses propres clients, un chef d&apos;agence son agence, un responsable de zone sa zone, les autres rôles l&apos;ensemble du portefeuille.</span>
+                  </Alert>
 
-                <Alert severity="info" icon={<GroupsIcon fontSize="inherit" />} sx={{ py: 0.5, borderRadius: 2, "& .MuiAlert-message": { fontSize: 12.5 } }}>
-                  Chaque destinataire ne reçoit que les clients de son périmètre : un CAF ses propres clients, un chef d&apos;agence son agence, un responsable de zone sa zone, les autres rôles l&apos;ensemble du portefeuille.
-                </Alert>
+                  <div className="rounded-lg border border-border p-3">
+                    <label className="flex items-center gap-2">
+                      <Switch aria-label="Notification récapitulative" checked={digest} onCheckedChange={setDigest} />
+                      <span className="text-sm font-semibold">Notification récapitulative</span>
+                    </label>
+                    <span className="ml-1 mt-1 block text-xs text-muted-foreground">
+                      {digest
+                        ? "Un seul message par destinataire (ex : « 5 clients en 91–180 j dans votre portefeuille »)."
+                        : "Une notification par dossier concerné (plus détaillé, mais volumineux)."}
+                    </span>
+                  </div>
+                </>
+              )}
 
-                <Box sx={{ border: "1px solid var(--border)", borderRadius: 2, p: 1.25 }}>
-                  <FormControlLabel
-                    control={<Switch checked={digest} onChange={(e) => setDigest(e.target.checked)} size="small" sx={{ "& .Mui-checked": { color: STEEL }, "& .Mui-checked + .MuiSwitch-track": { bgcolor: STEEL } }} />}
-                    label={<Typography variant="body2" fontWeight={600}>Notification récapitulative</Typography>}
-                  />
-                  <Typography variant="caption" color="text.secondary" display="block" sx={{ ml: 0.5 }}>
-                    {digest
-                      ? "Un seul message par destinataire (ex : « 5 clients en 91–180 j dans votre portefeuille »)."
-                      : "Une notification par dossier concerné (plus détaillé, mais volumineux)."}
-                  </Typography>
-                </Box>
-              </>
-            )}
-
-            {/* Rôles destinataires (commun) */}
-            <Box>
-              <Box display="flex" alignItems="center" gap={1} mb={1}>
-                <GroupsIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
-                <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                  Rôles destinataires *
-                </Typography>
-              </Box>
-              <Box sx={{ border: "1px solid var(--border)", borderRadius: 2, p: 1.5 }}>
-                <FormGroup>
-                  <Box display="grid" gridTemplateColumns="1fr 1fr" gap={0.5}>
+              {/* Rôles destinataires (commun) */}
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <Users size={16} className="text-muted-foreground" />
+                  <span className="text-xs font-bold uppercase tracking-[0.8px] text-muted-foreground">Rôles destinataires *</span>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <div className="grid grid-cols-2 gap-1">
                     {TENANT_ROLES.map((r) => (
-                      <FormControlLabel key={r.code} control={
-                        <Checkbox size="small" checked={roles.includes(r.code)} onChange={() => toggleRole(r.code)}
-                          sx={{ color: "var(--border-strong)", "&.Mui-checked": { color: NAVY } }} />
-                      } label={<Typography variant="body2" fontSize={13}>{r.label}</Typography>} />
+                      <label key={r.code} className="flex cursor-pointer items-center gap-2 py-1">
+                        <Checkbox checked={roles.includes(r.code)} onChange={() => toggleRole(r.code)} />
+                        <span className="text-[13px]">{r.label}</span>
+                      </label>
                     ))}
-                  </Box>
-                </FormGroup>
-                <Divider sx={{ my: 1 }} />
-                <Button size="small" onClick={() => setRoles(roles.length === TENANT_ROLES.length ? [] : TENANT_ROLES.map(r => r.code))}
-                  sx={{ fontSize: 12, color: STEEL }}>
-                  {roles.length === TENANT_ROLES.length ? "Tout déselectionner" : "Tout sélectionner"}
-                </Button>
-              </Box>
-            </Box>
+                  </div>
+                  <hr className="my-2 border-border" />
+                  <Button size="sm" variant="ghost" className="text-xs text-[#1E6091]" onClick={() => setRoles(roles.length === TENANT_ROLES.length ? [] : TENANT_ROLES.map((r) => r.code))}>
+                    {roles.length === TENANT_ROLES.length ? "Tout déselectionner" : "Tout sélectionner"}
+                  </Button>
+                </div>
+              </div>
 
-            {/* Planification (diffusion uniquement) */}
-            {mode === "broadcast" && (
-              <Box>
-                <FormControlLabel control={
-                  <Checkbox checked={scheduleMode} onChange={(e) => setScheduleMode(e.target.checked)}
-                    sx={{ color: "var(--border-strong)", "&.Mui-checked": { color: NAVY } }} />
-                } label={
-                  <Box display="flex" alignItems="center" gap={0.5}>
-                    <ScheduleIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
-                    <Typography variant="body2" fontWeight={600}>Planifier pour plus tard</Typography>
-                  </Box>
-                } />
-                {scheduleMode && (
-                  <TextField
-                    type="datetime-local" fullWidth size="small" sx={{ mt: 1 }}
-                    value={scheduledAt}
-                    inputProps={{ min: fmtDatetimeLocal(new Date(Date.now() + 60_000).toISOString()) }}
-                    InputLabelProps={{ shrink: true }}
-                    onChange={(e) => setScheduledAt(e.target.value)}
-                    label="Date et heure d'envoi"
-                  />
-                )}
-              </Box>
-            )}
+              {/* Planification (diffusion uniquement) */}
+              {mode === "broadcast" && (
+                <div>
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <Checkbox checked={scheduleMode} onChange={(e) => setScheduleMode(e.target.checked)} />
+                    <span className="flex items-center gap-1 text-sm font-semibold"><Clock size={16} className="text-muted-foreground" /> Planifier pour plus tard</span>
+                  </label>
+                  {scheduleMode && (
+                    <Field label="Date et heure d'envoi" className="mt-2">
+                      <Input type="datetime-local" value={scheduledAt} min={fmtDatetimeLocal(new Date(Date.now() + 60_000).toISOString())} onChange={(e) => setScheduledAt(e.target.value)} />
+                    </Field>
+                  )}
+                </div>
+              )}
 
-            {formError && <Alert severity="error">{formError}</Alert>}
-          </Box>
+              {formError && <Alert severity="error">{formError}</Alert>}
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={saving}>Annuler</Button>
+            <Button onClick={handleSave} disabled={saving} className="hover:bg-[#1E6091] hover:opacity-100">
+              {mode === "alert" ? <Zap size={16} /> : scheduleMode ? <Clock size={16} /> : <Send size={16} />}
+              {saving
+                ? "Enregistrement..."
+                : mode === "alert"
+                  ? (editRuleId ? "Enregistrer" : "Créer l'alerte")
+                  : scheduleMode ? "Planifier" : "Envoyer maintenant"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setOpen(false)} variant="outlined" color="inherit" disabled={saving}>Annuler</Button>
-          <Button onClick={handleSave} variant="contained" disabled={saving}
-            startIcon={mode === "alert" ? <BoltIcon /> : scheduleMode ? <ScheduleIcon /> : <SendIcon />}
-            sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            {saving
-              ? "Enregistrement..."
-              : mode === "alert"
-                ? (editRuleId ? "Enregistrer" : "Créer l'alerte")
-                : scheduleMode ? "Planifier" : "Envoyer maintenant"}
-          </Button>
-        </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   );
 }
 
 function BroadcastCard({ broadcast: b, onCancel, cancelling }: { broadcast: BroadcastDto; onCancel?: () => void; cancelling?: boolean }) {
   return (
-    <Card elevation={0} sx={{ border: "1px solid", borderColor: b.isSent ? "var(--border)" : "#FEF3C7", borderRadius: 3, bgcolor: b.isSent ? "var(--bg-surface)" : "#FFFBEB" }}>
-      <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1} flexWrap="wrap">
-          <Box flex={1}>
-            <Box display="flex" alignItems="center" gap={1} mb={0.5} flexWrap="wrap">
-              <Typography variant="subtitle2" fontWeight={700}>{b.title}</Typography>
-              {b.isSent ? (
-                <>
-                  <Chip label={`${b.recipientCount} destinataire${b.recipientCount !== 1 ? "s" : ""}`} size="small" sx={{ bgcolor: "#F0FDF4", color: "#16a34a", fontWeight: 700, fontSize: 10, height: 18 }} />
-                  <Tooltip title={`${b.readCount} agent${b.readCount !== 1 ? "s ont" : " a"} lu ce message`} arrow>
-                    <Chip
-                      icon={<VisibilityIcon sx={{ fontSize: 11, color: b.readCount > 0 ? "#1E6091 !important" : "var(--text-muted) !important" }} />}
-                      label={`${b.readCount} / ${b.recipientCount} lu${b.readCount !== 1 ? "s" : ""}`}
-                      size="small"
-                      sx={{
-                        bgcolor: b.readCount > 0 ? "#EFF6FF" : "#F1F5F9",
-                        color: b.readCount > 0 ? "#1E6091" : "var(--text-muted)",
-                        fontWeight: 700,
-                        fontSize: 10,
-                        height: 18,
-                        cursor: "default",
-                      }}
-                    />
-                  </Tooltip>
-                </>
-              ) : (
-                <Chip icon={<ScheduleIcon sx={{ fontSize: 12, color: "#d97706 !important" }} />} label="Planifiée" size="small" sx={{ bgcolor: "#FEF3C7", color: "#d97706", fontWeight: 700, fontSize: 10, height: 18 }} />
-              )}
-            </Box>
-            {b.body && <Typography variant="body2" color="text.secondary" mb={0.5}>{b.body}</Typography>}
-            <Box display="flex" gap={0.5} flexWrap="wrap" mb={0.5}>
-              {b.targetRoles.map((r) => (
-                <Chip key={r} label={r} size="small" sx={{ bgcolor: "#F1F5F9", color: "var(--text-secondary)", fontSize: 10, height: 16 }} />
-              ))}
-            </Box>
-            <Typography variant="caption" color="text.disabled">
-              {b.isSent ? `Envoyée le ${fmt(b.sentAt)}` : `Planifiée pour le ${fmt(b.scheduledAt)}`}
-              {" · "}Créée le {fmt(b.createdAt)}
-            </Typography>
-          </Box>
-          {!b.isSent && onCancel && (
-            <Tooltip title="Annuler cette diffusion planifiée">
-              <span>
-                <Button size="small" variant="outlined" color="error" startIcon={<DeleteOutlineIcon />}
-                  disabled={cancelling} onClick={onCancel}
-                  sx={{ fontSize: 11, height: 28, flexShrink: 0 }}>
-                  Annuler
-                </Button>
-              </span>
-            </Tooltip>
-          )}
-        </Box>
-      </CardContent>
-    </Card>
+    <div className={`rounded-xl border px-4 py-3 ${b.isSent ? "border-border bg-surface" : "border-amber-100 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20"}`}>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex-1">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <span className="text-sm font-bold">{b.title}</span>
+            {b.isSent ? (
+              <>
+                <Tag bg="#F0FDF4" color="#16a34a">{`${b.recipientCount} destinataire${b.recipientCount !== 1 ? "s" : ""}`}</Tag>
+                <Tooltip title={`${b.readCount} agent${b.readCount !== 1 ? "s ont" : " a"} lu ce message`}>
+                  <span
+                    className="inline-flex cursor-default items-center gap-1 rounded-full px-2 text-[10px] font-bold leading-[18px]"
+                    style={{ background: b.readCount > 0 ? "#EFF6FF" : "#F1F5F9", color: b.readCount > 0 ? "#1E6091" : "var(--text-muted)" }}
+                  >
+                    <Eye size={11} /> {`${b.readCount} / ${b.recipientCount} lu${b.readCount !== 1 ? "s" : ""}`}
+                  </span>
+                </Tooltip>
+              </>
+            ) : (
+              <Tag bg="#FEF3C7" color="#d97706"><Clock size={12} /> Planifiée</Tag>
+            )}
+          </div>
+          {b.body && <p className="mb-1 text-sm text-muted-foreground">{b.body}</p>}
+          <div className="mb-1 flex flex-wrap gap-1">
+            {b.targetRoles.map((r) => <span key={r} className="rounded-full bg-slate-100 px-2 text-[10px] leading-4 text-slate-600">{r}</span>)}
+          </div>
+          <span className="text-xs text-muted-foreground/70">
+            {b.isSent ? `Envoyée le ${fmt(b.sentAt)}` : `Planifiée pour le ${fmt(b.scheduledAt)}`}
+            {" · "}Créée le {fmt(b.createdAt)}
+          </span>
+        </div>
+        {!b.isSent && onCancel && (
+          <Tooltip title="Annuler cette diffusion planifiée">
+            <Button size="sm" variant="outline" className="h-7 shrink-0 border-red-300 text-[11px] text-red-600" disabled={cancelling} onClick={onCancel}>
+              <Trash2 size={15} /> Annuler
+            </Button>
+          </Tooltip>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -832,71 +721,32 @@ export default function NotificationsPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <CampaignIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Notifications</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
-            Recevez les alertes système, diffusez des messages et automatisez les alertes clients à risque
-          </Typography>
-        </Box>
-      </Box>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-
+      <PageHeader icon={<Megaphone size={30} />} title="Notifications" subtitle="Recevez les alertes système, diffusez des messages et automatisez les alertes clients à risque" />
+      <PageContainer>
         {/* KPIs */}
-        <Grid container spacing={2} mb={3}>
-          {[
-            { label: "Mes notifications",   value: notifKpiQuery.data?.total ?? 0, accent: NAVY,      icon: <NotificationsNoneIcon sx={{ fontSize: 22 }} /> },
-            { label: "Non lues",            value: kpiUnread,                      accent: "#d97706", icon: <NotificationsActiveIcon sx={{ fontSize: 22 }} /> },
-            { label: "Diffusions envoyées", value: kpiSent,                        accent: "#059669", icon: <CampaignIcon sx={{ fontSize: 22 }} /> },
-            { label: "Alertes actives",     value: kpiActiveRules,                 accent: "#b45309", icon: <WarningAmberIcon sx={{ fontSize: 22 }} /> },
-          ].map((kpi, i) => (
-            <Grid item xs={6} sm={3} key={i}>
-              <Box sx={{
-                borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
-                px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
-                position: "relative", overflow: "hidden",
-                boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
-                "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" },
-                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
-              }}>
-                <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
-                <Box>
-                  <Typography variant="h5" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpi.value}</Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ lineHeight: 1.3 }}>{kpi.label}</Typography>
-                </Box>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
+        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <KpiTile label="Mes notifications"   value={notifKpiQuery.data?.total ?? 0} accent={NAVY}      icon={<Bell size={22} />} />
+          <KpiTile label="Non lues"            value={kpiUnread}                      accent="#d97706" icon={<BellRing size={22} />} />
+          <KpiTile label="Diffusions envoyées" value={kpiSent}                        accent="#059669" icon={<Megaphone size={22} />} />
+          <KpiTile label="Alertes actives"     value={kpiActiveRules}                 accent="#b45309" icon={<TriangleAlert size={22} />} />
+        </div>
 
         {/* Onglets */}
-        <Box sx={{ borderBottom: "1px solid var(--border)", mb: 3 }}>
-          <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{
-            "& .MuiTab-root": { fontWeight: 600, fontSize: 14, textTransform: "none", minHeight: 44, color: "var(--text-secondary)" },
-            "& .Mui-selected": { color: "var(--text-primary) !important" },
-            "& .MuiTabs-indicator": { bgcolor: GOLD, height: 3, borderRadius: "3px 3px 0 0" },
-          }}>
-            <Tab value="mine" label={
-              <Box display="flex" alignItems="center" gap={1}>
-                <NotificationsNoneIcon sx={{ fontSize: 18 }} />
-                Mes notifications
-              </Box>
-            } />
-            <Tab value="messaging" label={
-              <Box display="flex" alignItems="center" gap={1}>
-                <CampaignIcon sx={{ fontSize: 18 }} />
-                Diffusions &amp; alertes
-              </Box>
-            } />
-          </Tabs>
-        </Box>
+        <div className="mb-6 border-b border-border">
+          <TabBar
+            value={tab === "mine" ? 0 : 1}
+            onChange={(i) => setTab(i === 0 ? "mine" : "messaging")}
+            tabs={[
+              <span key="m" className="flex items-center gap-2"><Bell size={18} /> Mes notifications</span>,
+              <span key="s" className="flex items-center gap-2"><Megaphone size={18} /> Diffusions &amp; alertes</span>,
+            ]}
+          />
+        </div>
 
         <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
           {tab === "mine" ? <MyNotificationsTab /> : <MessagingTab />}
         </motion.div>
-
-      </Container>
+      </PageContainer>
     </>
   );
 }

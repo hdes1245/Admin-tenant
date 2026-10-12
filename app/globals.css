@@ -1,6 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── Tailwind v4 — coexiste avec MUI pendant la migration page par page ──────────
+   Pas de « preflight » (il réinitialiserait les styles MUI). Ordre des couches :
+   theme < base < components < utilities. Le reset historique ci-dessous est placé en
+   @layer base : hors couche, il battrait les utilitaires (p-4, m-2…) car les styles
+   non-layered ont priorité sur toute couche. Les styles MUI/emotion (non-layered)
+   gardent la main sur lui, comme avant (spécificité 0 du sélecteur *). */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Le mode nuit de l'app se pilote par data-color-scheme (pas par la préférence système). */
+@custom-variant dark (&:where([data-color-scheme="dark"], [data-color-scheme="dark"] *));
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+}
+
+/* Jetons shadcn/ui -> variables CSS existantes : le mode nuit (data-color-scheme) suit tout seul. */
+@theme inline {
+  --color-background: var(--bg-page);
+  --color-surface: var(--bg-surface);
+  --color-surface-alt: var(--bg-surface-alt);
+  --color-muted: var(--bg-hover);
+  --color-foreground: var(--text-primary);
+  --color-muted-foreground: var(--text-secondary);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: #0F3B5C;
+  --color-primary-foreground: #FFFFFF;
+  --color-accent: var(--accent-text);
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  --radius-lg: 0.625rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.375rem;
+  --font-sans: "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
+
 html { scroll-behavior: smooth; background: var(--bg-page); }
 
 /* ── Jetons de couleur — mode clair (par défaut) ─────────────────────────── */
@@ -126,3 +163,8 @@ body {
   zoom: var(--ui-zoom);
   min-height: calc(100vh / var(--ui-zoom));
 }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes kpiBell { 0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 0 0 rgba(252,165,165,0); } 50% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 0 6px rgba(252,165,165,0.22); } }

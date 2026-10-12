@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { AgencesTable } from "@/components/AgencesTable";
 import { Agence, AgenceStats, createAgence, deleteAgence, fetchAgences, fetchAgencesStats, updateAgence } from "@/lib/agences";
@@ -6,33 +6,20 @@ import { fetchUsers } from "@/lib/users";
 import { fetchZones, Zone } from "@/lib/zones";
 import { downloadCsv } from "@/lib/csvExport";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Alert, Avatar, Box, Button, Chip, CircularProgress, Collapse,
-  Container, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, Grid, IconButton, InputAdornment, MenuItem, Paper, Select,
-  Stack, TextField, Tooltip, Typography,
-} from "@mui/material";
-import BusinessIcon from "@mui/icons-material/Business";
-import DownloadIcon from "@mui/icons-material/Download";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import LinkOffIcon from "@mui/icons-material/LinkOff";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import CodeIcon from "@mui/icons-material/Code";
-import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import { Building2, Code, Download, FileUp, Network, Plus, Search, Trash2, TriangleAlert, Unlink, Users, Wallet, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo, useState, ChangeEvent, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input, Field } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Alert } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { HeaderButton, KpiTile, PageContainer, PageHeader, Panel } from "@/components/ui/page-blocks";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
 
 export default function AgencesPage() {
   const queryClient = useQueryClient();
@@ -143,108 +130,94 @@ export default function AgencesPage() {
   const toggleSelectAll = (checked: boolean, ids: number[]) => setSelectedAgenceIds(checked ? ids : []);
 
   const KPI_DATA = [
-    { label: "Total agences", value: agences.length, accent: NAVY, icon: <BusinessIcon sx={{ fontSize: 20 }} /> },
-    { label: "Zones distinctes", value: zonesLinked, accent: STEEL, icon: <AccountTreeIcon sx={{ fontSize: 20 }} /> },
-    { label: "Sans zone", value: agences.length - agencesWithZone, accent: "var(--text-muted)", icon: <LinkOffIcon sx={{ fontSize: 20 }} /> },
-    { label: "Total clients", value: totalClients, accent: STEEL, icon: <PeopleOutlineIcon sx={{ fontSize: 20 }} /> },
-    { label: "Total CAFs", value: totalCafs, accent: "#7c3aed", icon: <AccountBalanceWalletOutlinedIcon sx={{ fontSize: 20 }} /> },
+    { label: "Total agences", value: agences.length, accent: NAVY, icon: <Building2 size={20} /> },
+    { label: "Zones distinctes", value: zonesLinked, accent: STEEL, icon: <Network size={20} /> },
+    { label: "Sans zone", value: agences.length - agencesWithZone, accent: "var(--text-muted)", icon: <Unlink size={20} /> },
+    { label: "Total clients", value: totalClients, accent: STEEL, icon: <Users size={20} /> },
+    { label: "Total CAFs", value: totalCafs, accent: "#7c3aed", icon: <Wallet size={20} /> },
   ];
+
+  const selStats = deleteTarget ? statsMap.get(deleteTarget.id) : undefined;
+  const hasLinks = !!selStats && (selStats.nbClients > 0 || selStats.nbCafs > 0 || selStats.nbUsers > 0);
 
   return (
     <>
       {/* ── Header ── */}
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <BusinessIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Agences</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>Gestion des agences, rattachement aux zones et statistiques de portefeuille</Typography>
-        </Box>
-        <Box display="flex" gap={1.5} flexWrap="wrap">
-                <Tooltip title="Exporter les agences visibles en CSV">
-                  <Button variant="outlined" startIcon={<DownloadIcon />}
-                    onClick={() => downloadCsv(filteredAgences as unknown as Record<string, unknown>[], [{ key: "code", label: "code" }, { key: "name", label: "nom" }, { key: "zoneName", label: "zone" }], "agences.csv")}
-                    sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-                    Exporter CSV
-                  </Button>
-                </Tooltip>
-                <Button variant="outlined" startIcon={<UploadFileIcon />}
-                  onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedImportRows([]); setImportFileName(null); }}
-                  sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-                  Importer CSV
-                </Button>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}
-                  sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}>
-                  Ajouter une agence
-                </Button>
-              </Box>
-      </Box>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+      <PageHeader icon={<Building2 size={30} />} title="Agences" subtitle="Gestion des agences, rattachement aux zones et statistiques de portefeuille">
+        <div className="flex flex-wrap gap-3">
+          <Tooltip title="Exporter les agences visibles en CSV">
+            <HeaderButton onClick={() => downloadCsv(filteredAgences as unknown as Record<string, unknown>[], [{ key: "code", label: "code" }, { key: "name", label: "nom" }, { key: "zoneName", label: "zone" }], "agences.csv")}>
+              <Download size={16} /> Exporter CSV
+            </HeaderButton>
+          </Tooltip>
+          <HeaderButton onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedImportRows([]); setImportFileName(null); }}>
+            <FileUp size={16} /> Importer CSV
+          </HeaderButton>
+          <Button className="bg-[#3C8047] shadow-lg hover:bg-[#2A5C34] hover:opacity-100" onClick={openCreate}>
+            <Plus size={16} /> Ajouter une agence
+          </Button>
+        </div>
+      </PageHeader>
 
+      <PageContainer>
         {/* ── KPI tiles ── */}
         {!isLoading && agences.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
-            <Grid container spacing={2} mb={3}>
+            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {KPI_DATA.map((kpi, i) => (
-                <Grid item xs={6} sm={4} key={i}>
-                  <Box sx={{ borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" } }}>
-                    <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
-                    <Box>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpi.value}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500}>{kpi.label}</Typography>
-                    </Box>
-                  </Box>
-                </Grid>
+                <KpiTile key={i} label={kpi.label} value={kpi.value} accent={kpi.accent} icon={kpi.icon} />
               ))}
-            </Grid>
+            </div>
           </motion.div>
         )}
 
         {/* ── Filter bar ── */}
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
-          <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
-            <TextField
-              size="small" placeholder="Rechercher par code, nom ou zone..."
-              value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
-                endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-              }}
-            />
+        <Panel className="mb-5 p-4 shadow-[0_1px_4px_rgba(15,59,92,0.04)]">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-60 flex-1">
+              <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Rechercher par code, nom ou zone..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-9" />
+              {search && (
+                <button type="button" aria-label="Effacer la recherche" onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted">
+                  <X size={16} />
+                </button>
+              )}
+            </div>
             <Select
-              size="small" displayEmpty value={filterZone === "" ? "" : String(filterZone)}
+              aria-label="Filtrer par zone"
+              value={filterZone === "" ? "" : String(filterZone)}
               onChange={(e) => { const v = e.target.value; setFilterZone(v === "" ? "" : Number(v)); }}
-              sx={{ minWidth: 180, borderRadius: 2, bgcolor: "var(--bg-page)", "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}
+              className="w-auto min-w-44"
             >
-              <MenuItem value="">Toutes les zones</MenuItem>
-              <MenuItem value="none">Sans zone</MenuItem>
-              {zones.map((z) => <MenuItem key={z.id} value={String(z.id)}>{z.name}</MenuItem>)}
+              <option value="">Toutes les zones</option>
+              <option value="none">Sans zone</option>
+              {zones.map((z) => <option key={z.id} value={String(z.id)}>{z.name}</option>)}
             </Select>
             {activeFilters > 0 && (
-              <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={() => { setSearch(""); setFilterZone(""); }}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
-                Effacer ({activeFilters})
+              <Button size="sm" variant="ghost" className="font-medium text-muted-foreground" onClick={() => { setSearch(""); setFilterZone(""); }}>
+                <X size={15} /> Effacer ({activeFilters})
               </Button>
             )}
-          </Box>
-        </Paper>
+          </div>
+        </Panel>
 
-        {isError && <Alert severity="error" sx={{ mb: 3 }}>Impossible de charger les agences. {error instanceof Error ? error.message : null}</Alert>}
-        {actionError && <Alert severity="error" sx={{ mb: 3 }}>{actionError}</Alert>}
+        {isError && <Alert severity="error" className="mb-6">Impossible de charger les agences. {error instanceof Error ? error.message : null}</Alert>}
+        {actionError && <Alert severity="error" className="mb-6">{actionError}</Alert>}
 
         {/* ── Bulk selection bar ── */}
         {selectedAgenceIds.length > 0 && (
-          <Box sx={{ mb: 2, px: 2.5, py: 1.5, borderRadius: 2, bgcolor: "#FFF7ED", border: "1px solid #FED7AA", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Typography variant="body2" fontWeight={600} sx={{ color: "#92400E" }}>
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 dark:border-orange-900 dark:bg-orange-950/40">
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-200">
               {selectedAgenceIds.length} agence{selectedAgenceIds.length > 1 ? "s" : ""} selectionnee{selectedAgenceIds.length > 1 ? "s" : ""}
-            </Typography>
-            <Box display="flex" gap={1}>
-              <Button size="small" color="inherit" onClick={() => setSelectedAgenceIds([])} sx={{ fontSize: 12 }}>Deselectionner</Button>
-              <Button size="small" variant="contained" color="error" startIcon={<DeleteOutlineIcon />} onClick={() => setBulkDeleteOpen(true)}>
-                Supprimer ({selectedAgenceIds.length})
+            </span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" className="text-xs" onClick={() => setSelectedAgenceIds([])}>Deselectionner</Button>
+              <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                <Trash2 size={15} /> Supprimer ({selectedAgenceIds.length})
               </Button>
-            </Box>
-          </Box>
+            </div>
+          </div>
         )}
 
         {/* ── Table ── */}
@@ -264,104 +237,121 @@ export default function AgencesPage() {
             onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
           />
         </motion.div>
-      </Container>
+      </PageContainer>
 
       {/* ── Create/Edit dialog ── */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}><Box display="flex" alignItems="center" gap={1.5}><Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}><BusinessIcon sx={{ color: GOLD, fontSize: 20 }} /></Avatar><Typography variant="h6" fontWeight={700}>{editing ? "Modifier l'agence" : "Nouvelle agence"}</Typography></Box></DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2.5, pb: 1 }}>
-          <TextField label="Code agence *" fullWidth margin="normal" value={code} onChange={(e) => setCode(e.target.value)} placeholder="ex: AG001" size="small" />
-          <TextField label="Nom de l'agence *" fullWidth margin="normal" value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Agence Centre-Ville" size="small" />
-          <TextField label="Zone (optionnel)" select fullWidth margin="normal" value={zoneId === "" ? "" : String(zoneId)} onChange={(e) => { const v = e.target.value; setZoneId(v === "" ? "" : Number(v)); }} helperText="Rattacher cette agence a une zone geographique." size="small">
-            <MenuItem value="">Aucune zone</MenuItem>
-            {zones.map((z) => <MenuItem key={z.id} value={String(z.id)}>{z.name} ({z.code})</MenuItem>)}
-          </TextField>
-          {formError && <Alert severity="error" sx={{ mt: 1 }}>{formError}</Alert>}
+      <Dialog open={dialogOpen} onOpenChange={(o) => !o && setDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={<Building2 size={20} />}>{editing ? "Modifier l'agence" : "Nouvelle agence"}</DialogHeader>
+          <DialogBody className="flex flex-col gap-4">
+            <Field label="Code agence *"><Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="ex: AG001" /></Field>
+            <Field label="Nom de l'agence *"><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Agence Centre-Ville" /></Field>
+            <Field label="Zone (optionnel)" help="Rattacher cette agence a une zone geographique.">
+              <Select value={zoneId === "" ? "" : String(zoneId)} onChange={(e) => { const v = e.target.value; setZoneId(v === "" ? "" : Number(v)); }}>
+                <option value="">Aucune zone</option>
+                {zones.map((z) => <option key={z.id} value={String(z.id)}>{z.name} ({z.code})</option>)}
+              </Select>
+            </Field>
+            {formError && <Alert severity="error">{formError}</Alert>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleSave} disabled={!code.trim() || !name.trim() || createMutation.isPending || updateMutation.isPending} className="hover:bg-[#1E6091] hover:opacity-100">
+              {editing ? "Enregistrer les modifications" : "Creer l'agence"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={handleSave} variant="contained" disabled={!code.trim() || !name.trim() || createMutation.isPending || updateMutation.isPending} sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            {editing ? "Enregistrer les modifications" : "Creer l'agence"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* ── Import CSV dialog ── */}
-      <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}><Box display="flex" alignItems="center" gap={1.5}><Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}><UploadFileIcon sx={{ color: GOLD, fontSize: 20 }} /></Avatar><Typography variant="h6" fontWeight={700}>Importer des agences via CSV</Typography></Box></DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
-            <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name,zone_code</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
-              <b>code</b> — obligatoire (ex: AG001)<br /><b>name</b> — obligatoire (ex: Agence Centre)<br /><b>zone_code</b> — optionnel, rattache automatiquement a la zone correspondante
-            </Typography>
-          </Box>
-          <Button component="label" variant="outlined" startIcon={<UploadFileIcon />} sx={{ borderRadius: 2 }}>
-            Choisir un fichier CSV
-            <input type="file" accept=".csv,text/csv" hidden onChange={handleCsvFile} />
-          </Button>
-          {importFileName && <Box mt={2}><Chip label={importFileName} size="small" icon={<UploadFileIcon />} color="warning" variant="outlined" /></Box>}
-          {parsedImportRows.length > 0 && <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }}><b>{parsedImportRows.length} agence{parsedImportRows.length > 1 ? "s" : ""}</b> pretes a etre importees.</Alert>}
-          {importError && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{importError}</Alert>}
+      <Dialog open={importDialogOpen} onOpenChange={(o) => !o && setImportDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={<FileUp size={20} />}>Importer des agences via CSV</DialogHeader>
+          <DialogBody>
+            <div className="mb-5 rounded-lg border border-border bg-muted/40 p-4">
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground"><Code size={16} /> Format attendu</div>
+              <code className="mb-3 block rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs">code,name,zone_code</code>
+              <p className="text-xs leading-8 text-muted-foreground">
+                <b>code</b> — obligatoire (ex: AG001)<br /><b>name</b> — obligatoire (ex: Agence Centre)<br /><b>zone_code</b> — optionnel, rattache automatiquement a la zone correspondante
+              </p>
+            </div>
+            <label className="inline-flex">
+              <span className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border-strong bg-surface px-4 text-sm font-semibold hover:bg-muted">
+                <FileUp size={15} /> Choisir un fichier CSV
+              </span>
+              <input type="file" accept=".csv,text/csv" hidden onChange={handleCsvFile} />
+            </label>
+            {importFileName && (
+              <div className="mt-4">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 px-2.5 py-0.5 text-xs text-amber-700 dark:text-amber-300"><FileUp size={13} /> {importFileName}</span>
+              </div>
+            )}
+            {parsedImportRows.length > 0 && <Alert severity="success" className="mt-4"><b>{parsedImportRows.length} agence{parsedImportRows.length > 1 ? "s" : ""}</b> pretes a etre importees.</Alert>}
+            {importError && <Alert severity="error" className="mt-4">{importError}</Alert>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>Annuler</Button>
+            <Button
+              disabled={!parsedImportRows.length || importMutation.isPending}
+              className="hover:bg-[#1E6091] hover:opacity-100"
+              onClick={async () => { if (!parsedImportRows.length) return; setImportError(null); try { await importMutation.mutateAsync(parsedImportRows); } catch (err: any) { setImportError(err?.message ?? "Import impossible."); } }}
+            >
+              {importMutation.isPending ? <Spinner className="size-4" /> : <FileUp size={15} />}
+              Lancer l&apos;import ({parsedImportRows.length})
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setImportDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={async () => { if (!parsedImportRows.length) return; setImportError(null); try { await importMutation.mutateAsync(parsedImportRows); } catch (err: any) { setImportError(err?.message ?? "Import impossible."); } }}
-            variant="contained" disabled={!parsedImportRows.length || importMutation.isPending}
-            startIcon={importMutation.isPending ? <CircularProgress size={16} sx={{ color: "white" }} /> : <UploadFileIcon />}
-            sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            Lancer l&apos;import ({parsedImportRows.length})
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* ── Bulk delete dialog ── */}
-      <Dialog open={bulkDeleteOpen} onClose={() => setBulkDeleteOpen(false)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}><Box display="flex" alignItems="center" gap={1.5}><Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}><WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} /></Avatar><Typography variant="h6" fontWeight={700}>Supprimer la selection</Typography></Box></DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary">Vous allez supprimer <Typography component="span" fontWeight={700} color="text.primary">{selectedAgenceIds.length} agence{selectedAgenceIds.length > 1 ? "s" : ""}</Typography>. La suppression sera refusee pour les agences encore liees a des clients, CAFs ou utilisateurs.</Typography>
+      <Dialog open={bulkDeleteOpen} onOpenChange={(o) => !o && setBulkDeleteOpen(false)}>
+        <DialogContent size="xs" aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer la selection</DialogHeader>
+          <DialogBody className="text-sm text-muted-foreground">
+            Vous allez supprimer <strong className="text-foreground">{selectedAgenceIds.length} agence{selectedAgenceIds.length > 1 ? "s" : ""}</strong>. La suppression sera refusee pour les agences encore liees a des clients, CAFs ou utilisateurs.
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkDeleteOpen(false)}>Annuler</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending || selectedAgenceIds.length === 0}
+              onClick={async () => { setActionError(null); const ids = [...selectedAgenceIds]; const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id))); const failed = results.filter((r) => r.status === "rejected").length; if (failed > 0) setActionError(`${failed} suppression(s) ont echoue (agences encore liees).`); setBulkDeleteOpen(false); setSelectedAgenceIds([]); }}
+            >
+              <Trash2 size={15} /> Supprimer la selection
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setBulkDeleteOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button color="error" variant="contained" startIcon={<DeleteOutlineIcon />} disabled={deleteMutation.isPending || selectedAgenceIds.length === 0}
-            onClick={async () => { setActionError(null); const ids = [...selectedAgenceIds]; const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id))); const failed = results.filter((r) => r.status === "rejected").length; if (failed > 0) setActionError(`${failed} suppression(s) ont echoue (agences encore liees).`); setBulkDeleteOpen(false); setSelectedAgenceIds([]); }}>
-            Supprimer la selection
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* ── Single delete dialog ── */}
-      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}><Box display="flex" alignItems="center" gap={1.5}><Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}><WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} /></Avatar><Typography variant="h6" fontWeight={700}>Supprimer l&apos;agence</Typography></Box></DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          {deleteTarget && statsMap.get(deleteTarget.id) && (statsMap.get(deleteTarget.id)!.nbClients > 0 || statsMap.get(deleteTarget.id)!.nbCafs > 0 || statsMap.get(deleteTarget.id)!.nbUsers > 0) && (
-            <Alert severity="warning" sx={{ mb: 2, borderRadius: 2, fontSize: 12 }}>
-              Cette agence possede encore {[
-                statsMap.get(deleteTarget.id)!.nbClients > 0 ? `${statsMap.get(deleteTarget.id)!.nbClients} client(s)` : "",
-                statsMap.get(deleteTarget.id)!.nbCafs > 0 ? `${statsMap.get(deleteTarget.id)!.nbCafs} CAF(s)` : "",
-                statsMap.get(deleteTarget.id)!.nbUsers > 0 ? `${statsMap.get(deleteTarget.id)!.nbUsers} utilisateur(s)` : "",
-              ].filter(Boolean).join(", ")}. La suppression sera refusee.
-            </Alert>
-          )}
-          <Typography variant="body2" color="text.secondary">Vous etes sur le point de supprimer l&apos;agence <Typography component="span" fontWeight={700} color="text.primary">{deleteTarget?.name}</Typography> ({deleteTarget?.code}). Cette action est irreversible.</Typography>
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent size="xs" aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer l&apos;agence</DialogHeader>
+          <DialogBody>
+            {hasLinks && selStats && (
+              <Alert severity="warning" className="mb-4 text-xs">
+                Cette agence possede encore {[
+                  selStats.nbClients > 0 ? `${selStats.nbClients} client(s)` : "",
+                  selStats.nbCafs > 0 ? `${selStats.nbCafs} CAF(s)` : "",
+                  selStats.nbUsers > 0 ? `${selStats.nbUsers} utilisateur(s)` : "",
+                ].filter(Boolean).join(", ")}. La suppression sera refusee.
+              </Alert>
+            )}
+            <p className="text-sm text-muted-foreground">
+              Vous etes sur le point de supprimer l&apos;agence <strong className="text-foreground">{deleteTarget?.name}</strong> ({deleteTarget?.code}). Cette action est irreversible.
+            </p>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Annuler</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending}
+              onClick={async () => { if (deleteTarget?.id != null) { setActionError(null); try { await deleteMutation.mutateAsync(deleteTarget.id); setDeleteTarget(null); } catch (err) { setActionError(err instanceof Error ? err.message : "Suppression impossible."); setDeleteTarget(null); } } }}
+            >
+              <Trash2 size={15} /> Supprimer
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDeleteTarget(null)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={async () => { if (deleteTarget?.id != null) { setActionError(null); try { await deleteMutation.mutateAsync(deleteTarget.id); setDeleteTarget(null); } catch (err) { setActionError(err instanceof Error ? err.message : "Suppression impossible."); setDeleteTarget(null); } } }} color="error" variant="contained" disabled={deleteMutation.isPending} startIcon={<DeleteOutlineIcon />}>Supprimer</Button>
-        </DialogActions>
       </Dialog>
     </>
   );

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { TicketsTable } from "@/components/TicketsTable";
 import { TicketConversationDialog } from "@/components/TicketConversationDialog";
@@ -12,35 +12,16 @@ import {
 } from "@/lib/tickets";
 import { downloadCsv } from "@/lib/csvExport";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  Tab,
-  Tabs,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download";
-import AddIcon from "@mui/icons-material/Add";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import BugReportIcon from "@mui/icons-material/BugReport";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import LockIcon from "@mui/icons-material/Lock";
+import { BarChart3, Bug, CircleCheck, Circle, Download, Hourglass, Lock, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input, Textarea } from "@/components/ui/input";
+import { Alert } from "@/components/ui/alert";
+import { Tooltip } from "@/components/ui/tooltip";
+import { TabBar } from "@/components/ui/tabs";
+import { HeaderButton, KpiTile, PageContainer, PageHeader } from "@/components/ui/page-blocks";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
@@ -151,118 +132,73 @@ export default function TicketsPage() {
   };
 
   const KPI_DATA = [
-    { label: "Total", value: kpi.total, accent: "#64748b", icon: <BugReportIcon sx={{ fontSize: 18 }} /> },
-    { label: "Ouverts", value: kpi.open, accent: "#d97706", icon: <RadioButtonUncheckedIcon sx={{ fontSize: 18 }} /> },
-    { label: "En cours", value: kpi.in_progress, accent: STEEL, icon: <HourglassEmptyIcon sx={{ fontSize: 18 }} /> },
-    { label: "Resolus", value: kpi.resolved, accent: "#16a34a", icon: <CheckCircleOutlineIcon sx={{ fontSize: 18 }} /> },
-    { label: "Fermes", value: kpi.closed, accent: "#94A3B8", icon: <LockIcon sx={{ fontSize: 18 }} /> },
+    { label: "Total", value: kpi.total, accent: "#64748b", icon: <Bug size={18} /> },
+    { label: "Ouverts", value: kpi.open, accent: "#d97706", icon: <Circle size={18} /> },
+    { label: "En cours", value: kpi.in_progress, accent: STEEL, icon: <Hourglass size={18} /> },
+    { label: "Resolus", value: kpi.resolved, accent: "#16a34a", icon: <CircleCheck size={18} /> },
+    { label: "Fermes", value: kpi.closed, accent: "#94A3B8", icon: <Lock size={18} /> },
   ];
+
+  const errCls = "text-xs text-red-600";
+  const sectionLabel = (err: boolean) => `mb-2 block text-xs font-bold uppercase tracking-[0.8px] ${err ? "text-red-600" : "text-muted-foreground"}`;
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <BugReportIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Tickets IT</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
-            Suivi des incidents, demandes et resolutions pour votre tenant
-          </Typography>
-        </Box>
-        <Box display="flex" gap={1.5} flexWrap="wrap">
-                <Button
-                  variant="outlined" startIcon={<BarChartIcon />}
-                  onClick={() => setStatsOpen(true)}
-                  sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}
-                >
-                  Statistiques
-                </Button>
-                <Tooltip title="Exporter les tickets en CSV">
-                  <Button
-                    variant="outlined" startIcon={<DownloadIcon />}
-                    onClick={() => downloadCsv(
-                      sortedTickets,
-                      [{ key: "id", label: "Id" }, { key: "title", label: "Titre" }, { key: "description", label: "Description" }, { key: "severity", label: "Severite" }, { key: "status", label: "Statut" }, { key: "category", label: "Categorie" }, { key: "createdAt", label: "Date creation" }, { key: "requesterName", label: "Demandeur" }, { key: "requesterEmail", label: "Email demandeur" }, { key: "itResponse", label: "Reponse IT" }],
-                      "tickets-it.csv"
-                    )}
-                    sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}
-                  >
-                    Exporter CSV
-                  </Button>
-                </Tooltip>
-                <Button
-                  variant="contained" startIcon={<AddIcon />} onClick={openCreate}
-                  sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
-                >
-                  Creer un ticket
-                </Button>
-              </Box>
-      </Box>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+      <PageHeader icon={<Bug size={30} />} title="Tickets IT" subtitle="Suivi des incidents, demandes et resolutions pour votre tenant">
+        <div className="flex flex-wrap gap-3">
+          <HeaderButton onClick={() => setStatsOpen(true)}>
+            <BarChart3 size={16} /> Statistiques
+          </HeaderButton>
+          <Tooltip title="Exporter les tickets en CSV">
+            <HeaderButton
+              onClick={() => downloadCsv(
+                sortedTickets,
+                [{ key: "id", label: "Id" }, { key: "title", label: "Titre" }, { key: "description", label: "Description" }, { key: "severity", label: "Severite" }, { key: "status", label: "Statut" }, { key: "category", label: "Categorie" }, { key: "createdAt", label: "Date creation" }, { key: "requesterName", label: "Demandeur" }, { key: "requesterEmail", label: "Email demandeur" }, { key: "itResponse", label: "Reponse IT" }],
+                "tickets-it.csv"
+              )}
+            >
+              <Download size={16} /> Exporter CSV
+            </HeaderButton>
+          </Tooltip>
+          <Button className="bg-[#3C8047] shadow-lg hover:bg-[#2A5C34] hover:opacity-100" onClick={openCreate}>
+            <Plus size={16} /> Creer un ticket
+          </Button>
+        </div>
+      </PageHeader>
 
+      <PageContainer>
         {!isLoading && tickets.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
-            <Grid container spacing={2} mb={3}>
-              {KPI_DATA.map((kpiItem, i) => (
-                <Grid item xs={6} sm={4} md={12 / 5} key={i}>
-                  <Box sx={{
-                    borderRadius: 3, border: "1px solid var(--border)",
-                    bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5,
-                    display: "flex", alignItems: "center", gap: 2,
-                    position: "relative", overflow: "hidden",
-                    boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
-                    "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpiItem.accent, borderRadius: "3px 0 0 3px" },
-                    transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
-                  }}>
-                    <Avatar sx={{ width: 44, height: 44, bgcolor: kpiItem.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpiItem.accent}44`, flexShrink: 0 }}>
-                      {kpiItem.icon}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: kpiItem.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpiItem.value}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500}>{kpiItem.label}</Typography>
-                    </Box>
-                  </Box>
-                </Grid>
+            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+              {KPI_DATA.map((k, i) => (
+                <KpiTile key={i} label={k.label} value={k.value} accent={k.accent} icon={k.icon} />
               ))}
-            </Grid>
+            </div>
           </motion.div>
         )}
 
-        {isError && <Alert severity="error" sx={{ mb: 3 }}>Impossible de charger les tickets. {error instanceof Error ? error.message : null}</Alert>}
-        {actionError && <Alert severity="error" sx={{ mb: 3 }}>{actionError}</Alert>}
+        {isError && <Alert severity="error" className="mb-6">Impossible de charger les tickets. {error instanceof Error ? error.message : null}</Alert>}
+        {actionError && <Alert severity="error" className="mb-6">{actionError}</Alert>}
 
         {/* Onglets */}
-        <Box sx={{ borderBottom: "1px solid var(--border)", mb: 3 }}>
-          <Tabs
-            value={tab}
-            onChange={(_, v) => setTab(v)}
-            sx={{
-              "& .MuiTab-root": { fontWeight: 600, fontSize: 14, textTransform: "none", minHeight: 44, color: "var(--text-secondary)" },
-              "& .Mui-selected": { color: "var(--text-primary) !important" },
-              "& .MuiTabs-indicator": { bgcolor: GOLD, height: 3, borderRadius: "3px 3px 0 0" },
-            }}
-          >
-            <Tab
-              value="users"
-              label={
-                <Box display="flex" alignItems="center" gap={1}>
-                  Tickets utilisateurs
-                  <Chip label={sortedTickets.length} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: tab === "users" ? NAVY : "#E2E8F0", color: tab === "users" ? "white" : "var(--text-secondary)" }} />
-                </Box>
-              }
-            />
-            <Tab
-              value="mine"
-              label={
-                <Box display="flex" alignItems="center" gap={1}>
-                  Mes tickets & escaladés
-                  {myItTickets.length > 0 && (
-                    <Chip label={myItTickets.length} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: tab === "mine" ? GOLD : "#FEF3C7", color: tab === "mine" ? "var(--text-primary)" : "#92400E" }} />
-                  )}
-                </Box>
-              }
-            />
-          </Tabs>
-        </Box>
+        <div className="mb-6 border-b border-border">
+          <TabBar
+            value={tab === "users" ? 0 : 1}
+            onChange={(i) => setTab(i === 0 ? "users" : "mine")}
+            tabs={[
+              <span key="u" className="flex items-center gap-2">
+                Tickets utilisateurs
+                <span className={`rounded-full px-2 text-[11px] font-bold leading-5 ${tab === "users" ? "bg-[#0F3B5C] text-white" : "bg-slate-200 text-slate-600"}`}>{sortedTickets.length}</span>
+              </span>,
+              <span key="m" className="flex items-center gap-2">
+                Mes tickets & escaladés
+                {myItTickets.length > 0 && (
+                  <span className={`rounded-full px-2 text-[11px] font-bold leading-5 ${tab === "mine" ? "bg-[#3C8047] text-white" : "bg-amber-100 text-amber-800"}`}>{myItTickets.length}</span>
+                )}
+              </span>,
+            ]}
+          />
+        </div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}>
           {tab === "users" ? (
@@ -275,13 +211,11 @@ export default function TicketsPage() {
           ) : (
             <>
               {myItTickets.length === 0 && !myItLoading ? (
-                <Box sx={{ textAlign: "center", py: 8, color: "var(--text-muted)" }}>
-                  <BugReportIcon sx={{ fontSize: 48, mb: 2, opacity: 0.4 }} />
-                  <Typography fontWeight={600}>Aucun ticket personnel ni escaladé</Typography>
-                  <Typography variant="body2" sx={{ mt: 0.5 }}>
-                    Creez un ticket IT ou escaladez un ticket utilisateur pour le voir ici.
-                  </Typography>
-                </Box>
+                <div className="py-16 text-center text-muted-foreground">
+                  <Bug size={48} className="mx-auto mb-4 opacity-40" />
+                  <div className="font-semibold">Aucun ticket personnel ni escaladé</div>
+                  <div className="mt-1 text-sm">Creez un ticket IT ou escaladez un ticket utilisateur pour le voir ici.</div>
+                </div>
               ) : (
                 <TicketsTable
                   tickets={[...myItTickets].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())}
@@ -293,7 +227,7 @@ export default function TicketsPage() {
             </>
           )}
         </motion.div>
-      </Container>
+      </PageContainer>
 
       {/* Stats dialog */}
       <TicketStatsDialog
@@ -317,109 +251,99 @@ export default function TicketsPage() {
       />
 
       {/* Create ticket dialog */}
-      <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}>
-              <BugReportIcon sx={{ color: GOLD, fontSize: 20 }} />
-            </Avatar>
-            <Typography variant="h6" fontWeight={700}>Creer un ticket IT</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2.5, pb: 1 }}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-
+      <Dialog open={createDialogOpen} onOpenChange={(o) => !o && setCreateDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={<Bug size={20} />}>Creer un ticket IT</DialogHeader>
+          <DialogBody className="flex max-h-[70vh] flex-col gap-5 overflow-y-auto">
             {/* Catégorie */}
-            <Box>
-              <Typography variant="caption" fontWeight={700} sx={{ color: fieldErrors.category ? "#DC2626" : "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 1, display: "block" }}>
-                Categorie *
-              </Typography>
-              <Grid container spacing={1}>
+            <div>
+              <span className={sectionLabel(fieldErrors.category)}>Categorie *</span>
+              <div className="grid grid-cols-3 gap-2">
                 {STANDARD_CATEGORIES.map((cat) => {
                   const selected = category === cat.label;
                   return (
-                    <Grid item xs={4} key={cat.label}>
-                      <Box
-                        onClick={() => { setCategory(cat.label); setFieldErrors((e) => ({ ...e, category: false })); }}
-                        sx={{
-                          border: `1.5px solid ${selected ? NAVY : fieldErrors.category ? "#DC2626" : "var(--border)"}`,
-                          borderRadius: 2, p: 1, cursor: "pointer", textAlign: "center",
-                          bgcolor: selected ? NAVY : "var(--bg-surface)",
-                          transition: "all 0.15s",
-                          "&:hover": { borderColor: NAVY, bgcolor: selected ? NAVY : "var(--bg-hover)" },
-                        }}
-                      >
-                        <Typography sx={{ fontSize: 18, lineHeight: 1, mb: 0.25 }}>{cat.icon}</Typography>
-                        <Typography sx={{ fontSize: 10, fontWeight: selected ? 700 : 500, color: selected ? "white" : "#334155", lineHeight: 1.2 }}>
-                          {cat.label}
-                        </Typography>
-                      </Box>
-                    </Grid>
+                    <button
+                      key={cat.label}
+                      type="button"
+                      onClick={() => { setCategory(cat.label); setFieldErrors((e) => ({ ...e, category: false })); }}
+                      className={`cursor-pointer rounded-lg border-[1.5px] p-2 text-center transition-all hover:border-[#0F3B5C] ${
+                        selected
+                          ? "border-[#0F3B5C] bg-[#0F3B5C]"
+                          : `bg-surface hover:bg-muted ${fieldErrors.category ? "border-red-600" : "border-border"}`
+                      }`}
+                    >
+                      <div className="mb-0.5 text-lg leading-none">{cat.icon}</div>
+                      <div className={`text-[10px] leading-tight ${selected ? "font-bold text-white" : "font-medium text-foreground"}`}>{cat.label}</div>
+                    </button>
                   );
                 })}
-              </Grid>
-              {fieldErrors.category && <Typography variant="caption" color="error" sx={{ mt: 0.5, display: "block" }}>Veuillez choisir une categorie</Typography>}
-            </Box>
+              </div>
+              {fieldErrors.category && <span className={`${errCls} mt-1 block`}>Veuillez choisir une categorie</span>}
+            </div>
 
             {/* Titre */}
-            <TextField
-              label="Titre *" fullWidth size="small" value={title}
-              error={fieldErrors.title}
-              helperText={fieldErrors.title ? "Le titre est obligatoire" : undefined}
-              onChange={(e) => { setTitle(e.target.value); setFieldErrors((er) => ({ ...er, title: false })); }}
-              placeholder="ex: Probleme de connexion a l'application"
-            />
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-muted-foreground">Titre *</span>
+              <Input
+                value={title}
+                aria-invalid={fieldErrors.title}
+                className={fieldErrors.title ? "border-red-600" : ""}
+                onChange={(e) => { setTitle(e.target.value); setFieldErrors((er) => ({ ...er, title: false })); }}
+                placeholder="ex: Probleme de connexion a l'application"
+              />
+              {fieldErrors.title && <span className={`${errCls} mt-1 block`}>Le titre est obligatoire</span>}
+            </label>
 
             {/* Description */}
-            <TextField
-              label="Description *" fullWidth size="small" value={description}
-              error={fieldErrors.description}
-              helperText={fieldErrors.description ? "La description est obligatoire" : undefined}
-              onChange={(e) => { setDescription(e.target.value); setFieldErrors((er) => ({ ...er, description: false })); }}
-              placeholder="Decrivez le probleme rencontre en detail"
-              multiline minRows={4}
-            />
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold text-muted-foreground">Description *</span>
+              <Textarea
+                rows={4}
+                value={description}
+                aria-invalid={fieldErrors.description}
+                className={fieldErrors.description ? "border-red-600" : ""}
+                onChange={(e) => { setDescription(e.target.value); setFieldErrors((er) => ({ ...er, description: false })); }}
+                placeholder="Decrivez le probleme rencontre en detail"
+              />
+              {fieldErrors.description && <span className={`${errCls} mt-1 block`}>La description est obligatoire</span>}
+            </label>
 
             {/* Sévérité */}
-            <Box>
-              <Typography variant="caption" fontWeight={700} sx={{ color: fieldErrors.severity ? "#DC2626" : "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 1, display: "block" }}>
-                Severite *
-              </Typography>
-              <Box display="flex" gap={1} flexWrap="wrap">
+            <div>
+              <span className={sectionLabel(fieldErrors.severity)}>Severite *</span>
+              <div className="flex flex-wrap gap-2">
                 {SEVERITY_OPTIONS.map((opt) => {
                   const sel = severity === opt.value;
                   return (
-                    <Chip
-                      key={opt.value} label={opt.label} clickable
+                    <button
+                      key={opt.value}
+                      type="button"
                       onClick={() => { setSeverity(opt.value); setFieldErrors((e) => ({ ...e, severity: false })); }}
-                      sx={{
-                        fontWeight: 700, fontSize: 13,
-                        bgcolor: sel ? opt.color : "transparent",
+                      className="h-8 cursor-pointer rounded-full px-4 text-[13px] font-bold transition-colors"
+                      style={{
+                        background: sel ? opt.color : "transparent",
                         color: sel ? "white" : opt.color,
                         border: `2px solid ${sel ? opt.color : fieldErrors.severity ? "#DC2626" : opt.color + "60"}`,
-                        "&:hover": { bgcolor: opt.color + "22" },
                       }}
-                    />
+                    >
+                      {opt.label}
+                    </button>
                   );
                 })}
-              </Box>
-              {fieldErrors.severity && <Typography variant="caption" color="error" sx={{ mt: 0.5, display: "block" }}>Veuillez choisir un niveau de severite</Typography>}
-            </Box>
+              </div>
+              {fieldErrors.severity && <span className={`${errCls} mt-1 block`}>Veuillez choisir un niveau de severite</span>}
+            </div>
 
             {createError && <Alert severity="error">{createError}</Alert>}
-          </Box>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleCreate} disabled={createMutation.isPending} className="hover:bg-[#1E6091] hover:opacity-100">
+              {createMutation.isPending ? "Creation..." : "Creer le ticket"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setCreateDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={handleCreate} variant="contained" disabled={createMutation.isPending} sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            {createMutation.isPending ? "Creation..." : "Creer le ticket"}
-          </Button>
-        </DialogActions>
       </Dialog>
-
     </>
   );
 }

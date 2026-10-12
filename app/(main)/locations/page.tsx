@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { fetchLocations, fetchLocationHistory, fetchDeletionLogs, fetchLocationPhotos, deleteLocationPhoto } from "@/lib/locations";
 import { downloadCsv } from "@/lib/csvExport";
@@ -7,52 +7,22 @@ import { fetchMe } from "@/lib/auth";
 import { useThemeMode } from "@/components/ThemeModeContext";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Grid,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Paper,
-  Select,
-  Tab,
-  Tabs,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import PlaceIcon from "@mui/icons-material/Place";
-import DownloadIcon from "@mui/icons-material/Download";
-import GpsFixedIcon from "@mui/icons-material/GpsFixed";
-import HomeIcon from "@mui/icons-material/Home";
-import VerifiedIcon from "@mui/icons-material/Verified";
-import TimelineIcon from "@mui/icons-material/Timeline";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import ExploreIcon from "@mui/icons-material/Explore";
-import PersonIcon from "@mui/icons-material/Person";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import ClearIcon from "@mui/icons-material/Clear";
-import HistoryIcon from "@mui/icons-material/History";
-import CloseIcon from "@mui/icons-material/Close";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import SwapVertIcon from "@mui/icons-material/SwapVert";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import BrokenImageIcon from "@mui/icons-material/BrokenImage";
-import { Drawer } from "@mui/material";
+  ArrowUpDown, Compass, Download, ExternalLink, Filter, History, House, ImageOff, Images, Info, LocateFixed,
+  MapPin, Search, ShieldCheck, Trash, Trash2, TriangleAlert, User, Activity, X,
+} from "lucide-react";
 import { useState, useCallback, useMemo } from "react";
 import { buildTenantMapHtml } from "@/lib/buildTenantMapHtml";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input, Field } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { HeaderButton, PageHeader } from "@/components/ui/page-blocks";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
 
 const LOCATION_TYPES = [
   { value: "", label: "Tous les types" },
@@ -70,27 +40,6 @@ function fmt(s?: string | null): string {
   } catch { return s; }
 }
 
-function initials(name: string): string {
-  return name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?";
-}
-
-type TypeCfg = { label: string; bg: string; color: string; border: string; icon: React.ReactNode };
-
-function getTypeCfg(type: string | null | undefined): TypeCfg {
-  switch ((type ?? "").toLowerCase()) {
-    case "activite":
-      return { label: type ?? "Activite", bg: "#EFF6FF", color: STEEL, border: "#BFDBFE", icon: <TimelineIcon sx={{ fontSize: 12 }} /> };
-    case "garantie":
-      return { label: "Garantie", bg: "#F0FDF4", color: "#15803d", border: "#BBF7D0", icon: <VerifiedIcon sx={{ fontSize: 12 }} /> };
-    case "domicile":
-      return { label: "Domicile", bg: "#FAF5FF", color: "#7c3aed", border: "#DDD6FE", icon: <HomeIcon sx={{ fontSize: 12 }} /> };
-    case "caution":
-      return { label: "Caution", bg: "#FFFBEB", color: "#b45309", border: "#FDE68A", icon: <WarningAmberIcon sx={{ fontSize: 12 }} /> };
-    default:
-      return { label: type ?? "Autres", bg: "#F1F5F9", color: "#64748B", border: "#E2E8F0", icon: <ExploreIcon sx={{ fontSize: 12 }} /> };
-  }
-}
-
 const LOCATION_CSV_COLUMNS = [
   { key: "id" as const, label: "ID" },
   { key: "clientName" as const, label: "Client" },
@@ -103,6 +52,25 @@ const LOCATION_CSV_COLUMNS = [
   { key: "timestamp" as const, label: "Date", format: (v: unknown) => (v ? fmt(String(v)) : "--") },
 ];
 
+const sectionLabel = "mb-3 text-[13px] font-bold uppercase tracking-[0.8px] text-muted-foreground";
+
+function SheetHeader({ icon, title, subtitle, onClose, bg }: { icon: React.ReactNode; title: string; subtitle?: string; onClose: () => void; bg: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 px-6 py-5 text-white" style={{ background: bg }}>
+      <div className="flex items-center gap-3">
+        {icon}
+        <div>
+          <SheetTitle className="text-[15px] font-bold">{title}</SheetTitle>
+          {subtitle && <div className="text-xs opacity-70">{subtitle}</div>}
+        </div>
+      </div>
+      <button type="button" aria-label="Fermer" onClick={onClose} className="cursor-pointer rounded-full border-0 bg-transparent p-1 text-white/70 hover:text-white"><X size={18} /></button>
+    </div>
+  );
+}
+
+const chip = (bg: string, color: string) => ({ background: bg, color });
+
 export default function LocationsPage() {
   const [page, setPage] = useState(1);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -110,8 +78,6 @@ export default function LocationsPage() {
   const [typeFilter, setTypeFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<LocationItem | null>(null);
   const [historyLocation, setHistoryLocation] = useState<LocationItem | null>(null);
   const [historyItems, setHistoryItems] = useState<LocationHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -161,19 +127,13 @@ export default function LocationsPage() {
   });
 
   const items = query.data?.items ?? [];
-  const total = query.data?.total ?? 0;
-  const totalPages = query.data?.totalPages ?? 1;
-  const currentPage = query.data?.page ?? 1;
 
   const statsQuery = useQuery({
     queryKey: ["locations-stats"],
     queryFn: () => fetchLocations({ page: 1, limit: 1000 }),
     staleTime: 60_000,
   });
-  const statsItems = statsQuery.data?.items ?? [];
-  const countDomicile  = useMemo(() => statsItems.filter((i) => i.type === "domicile").length,  [statsItems]);
-  const countActivite  = useMemo(() => statsItems.filter((i) => i.type === "activite").length,  [statsItems]);
-  const countGarantie  = useMemo(() => statsItems.filter((i) => i.type === "garantie").length,  [statsItems]);
+  void statsQuery;
 
   const mapItems = useMemo(() => {
     let list = (mapQuery.data?.items ?? []).filter((l) => l.latitude != null && l.longitude != null);
@@ -268,6 +228,7 @@ export default function LocationsPage() {
       setDetailPhotosLoading(false);
     }
   };
+  void openDetail;
 
   const handleDeletePhoto = async (photoId: number) => {
     setDeletingPhotoId(photoId);
@@ -292,383 +253,281 @@ export default function LocationsPage() {
       setHistoryLoading(false);
     }
   };
+  void openHistory;
+
+  const kpis = [
+    { label: "Total points GPS", value: mapItems.length,   accent: NAVY,      icon: <LocateFixed size={20} /> },
+    { label: "Domicile",         value: countDomicileMap,  accent: "#7c3aed", icon: <House size={20} /> },
+    { label: "Activité",         value: countActiviteMap,  accent: STEEL,     icon: <Activity size={20} /> },
+    { label: "Garantie",         value: countGarantieMap,  accent: "#059669", icon: <ShieldCheck size={20} /> },
+  ];
+
+  const legend = [
+    { label: "Domicile", color: "#7c3aed" },
+    { label: "Activité", color: "#1E6091" },
+    { label: "Garantie", color: "#15803d" },
+    { label: "Caution",  color: "#b45309" },
+    { label: "Autre",    color: "var(--text-secondary)" },
+  ];
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <GpsFixedIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Localisations</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>Historique des captures GPS des clients</Typography>
-        </Box>
-              <Box display="flex" gap={1.5} flexWrap="wrap" alignItems="center">
-                <Tooltip title="Exporter les localisations en CSV">
-                  <Button
-                    variant="outlined" startIcon={<DownloadIcon />} onClick={handleExportCsv} disabled={mapItems.length === 0}
-                    sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}
-                  >
-                    CSV
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Journal des suppressions de localisations">
-                  <Button
-                    variant="outlined" startIcon={<DeleteForeverIcon />} onClick={openDeletionAudit}
-                    sx={{ borderColor: "rgba(239,68,68,0.55)", color: "#FCA5A5", fontWeight: 600, "&:hover": { borderColor: "#FCA5A5", bgcolor: "rgba(239,68,68,0.12)" } }}
-                  >
-                    Suppressions
-                  </Button>
-                </Tooltip>
-              </Box>
-      </Box>
+      <PageHeader icon={<LocateFixed size={30} />} title="Localisations" subtitle="Historique des captures GPS des clients">
+        <div className="flex flex-wrap items-center gap-3">
+          <Tooltip title="Exporter les localisations en CSV">
+            <HeaderButton onClick={handleExportCsv} disabled={mapItems.length === 0}><Download size={16} /> CSV</HeaderButton>
+          </Tooltip>
+          <Tooltip title="Journal des suppressions de localisations">
+            <button
+              type="button"
+              onClick={openDeletionAudit}
+              className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-red-500/55 bg-transparent px-4 text-sm font-semibold text-red-300 transition-colors hover:border-red-300 hover:bg-red-500/10"
+            >
+              <Trash size={16} /> Suppressions
+            </button>
+          </Tooltip>
+        </div>
+      </PageHeader>
 
-      {(
-        <Box sx={{ display: "flex", flexDirection: "column", height: "calc(100vh / var(--ui-zoom) - 140px)", bgcolor: "var(--bg-page)" }}>
-          {/* KPIs */}
-          <Box sx={{ px: 3, pt: 2, pb: 1.5 }}>
-            <Grid container spacing={2}>
-              {[
-                { label: "Total points GPS", value: mapItems.length, accent: NAVY,      icon: <GpsFixedIcon sx={{ fontSize: 20 }} /> },
-                { label: "Domicile",         value: countDomicileMap, accent: "#7c3aed", icon: <HomeIcon sx={{ fontSize: 20 }} /> },
-                { label: "Activité",         value: countActiviteMap, accent: STEEL,     icon: <TimelineIcon sx={{ fontSize: 20 }} /> },
-                { label: "Garantie",         value: countGarantieMap, accent: "#059669", icon: <VerifiedIcon sx={{ fontSize: 20 }} /> },
-              ].map((kpi, i) => (
-                <Grid item xs={6} sm={3} key={i}>
-                  <Box sx={{
-                    borderRadius: 2.5, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
-                    px: 2, py: 1.5, display: "flex", alignItems: "center", gap: 1.5,
-                    position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
-                    "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 3, bgcolor: kpi.accent },
-                  }}>
-                    <Avatar sx={{ width: 36, height: 36, bgcolor: kpi.accent, color: "white", borderRadius: 2, flexShrink: 0 }}>{kpi.icon}</Avatar>
-                    <Box>
-                      <Typography variant="h6" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1 }}>{kpi.value}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500}>{kpi.label}</Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-
-          {/* Map area */}
-          <Box sx={{ display: "flex", flex: 1, minHeight: 0, px: 3, pb: 3, gap: 2 }}>
-            {/* Left panel — filters */}
-            <Paper elevation={0} sx={{ width: 270, flexShrink: 0, borderRadius: 2.5, border: "1px solid var(--border)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-              <Box sx={{ px: 2.5, py: 2, borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 1 }}>
-                <FilterListIcon sx={{ fontSize: 16, color: GOLD }} />
-                <Typography fontSize={13} fontWeight={700} color="var(--text-primary)">Filtres</Typography>
-              </Box>
-              <Box sx={{ flex: 1, overflowY: "auto", p: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                {/* Search with suggestions */}
-                <Box sx={{ position: "relative" }}>
-                  <TextField
-                    size="small" fullWidth
-                    placeholder="Client, opérateur, adresse…"
-                    value={search}
-                    onChange={(e) => { setSearch(e.target.value); setShowSuggestions(true); }}
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 16, color: "var(--text-muted)" }} /></InputAdornment>,
-                      endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onMouseDown={(e) => e.preventDefault()} onClick={() => { setSearch(""); setShowSuggestions(false); }}><ClearIcon sx={{ fontSize: 14 }} /></IconButton></InputAdornment> : null,
-                    }}
-                    sx={{ "& .MuiOutlinedInput-root": { bgcolor: "var(--bg-page)", "&:hover fieldset": { borderColor: STEEL }, "&.Mui-focused fieldset": { borderColor: STEEL } } }}
-                  />
-                  {showSuggestions && suggestions.length > 0 && (
-                    <Paper elevation={4} sx={{
-                      position: "absolute", top: "100%", left: 0, right: 0, zIndex: 9999,
-                      borderRadius: 2, mt: 0.5, overflow: "hidden",
-                      border: "1px solid var(--border)", boxShadow: "0 8px 24px rgba(15,59,92,0.12)",
-                    }}>
-                      {suggestions.map((s, idx) => (
-                        <Box
-                          key={idx}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => { setSearch(s.label); setShowSuggestions(false); }}
-                          sx={{
-                            px: 1.5, py: 1, cursor: "pointer", display: "flex", alignItems: "center", gap: 1.25,
-                            borderBottom: idx < suggestions.length - 1 ? "1px solid var(--border)" : "none",
-                            "&:hover": { bgcolor: "var(--bg-page)" },
-                          }}
-                        >
-                          <Box sx={{
-                            width: 26, height: 26, borderRadius: 1.25, flexShrink: 0,
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            bgcolor: s.type === "client" ? "#EFF6FF" : s.type === "operator" ? "#F0FDF4" : "#FAF5FF",
-                          }}>
-                            {s.type === "client"   && <PersonIcon sx={{ fontSize: 14, color: STEEL }} />}
-                            {s.type === "operator" && <PersonIcon sx={{ fontSize: 14, color: "#15803d" }} />}
-                            {s.type === "address"  && <PlaceIcon  sx={{ fontSize: 14, color: "#7c3aed" }} />}
-                          </Box>
-                          <Box minWidth={0}>
-                            <Typography fontSize={12} fontWeight={600} color="var(--text-primary)" noWrap>
-                              {s.label}
-                            </Typography>
-                            {s.sub && (
-                              <Typography fontSize={10} color="var(--text-muted)" noWrap>{s.sub}</Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      ))}
-                    </Paper>
-                  )}
-                </Box>
-                <Select
-                  size="small" fullWidth displayEmpty value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                  sx={{ bgcolor: "var(--bg-page)", "& fieldset": { borderColor: "var(--border)" }, "&:hover fieldset": { borderColor: STEEL } }}
-                >
-                  {LOCATION_TYPES.map((t) => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
-                </Select>
-                <TextField
-                  size="small" fullWidth label="Du" type="date" value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ "& .MuiOutlinedInput-root": { bgcolor: "var(--bg-page)" } }}
-                />
-                <TextField
-                  size="small" fullWidth label="Au" type="date" value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ "& .MuiOutlinedInput-root": { bgcolor: "var(--bg-page)" } }}
-                />
-                {hasFilters && (
-                  <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 14 }} />} onClick={resetFilters}
-                    sx={{ fontWeight: 600, color: "var(--text-secondary)", justifyContent: "flex-start", textTransform: "none", "&:hover": { bgcolor: "var(--bg-hover)" } }}>
-                    Effacer les filtres
-                  </Button>
-                )}
-
-                <Box sx={{ mt: 1, pt: 1.5, borderTop: "1px solid var(--border)" }}>
-                  <Typography fontSize={10} fontWeight={700} color="var(--text-muted)" textTransform="uppercase" letterSpacing={0.8} mb={1}>
-                    Points affichés
-                  </Typography>
-                  <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <Typography fontSize={12} color="var(--text-secondary)">Total</Typography>
-                    {mapQuery.isFetching
-                      ? <CircularProgress size={14} sx={{ color: STEEL }} />
-                      : <Chip label={mapItems.length.toLocaleString("fr-FR")} size="small" sx={{ fontWeight: 700, bgcolor: "var(--bg-hover)", color: "var(--text-primary)", fontSize: 11 }} />
-                    }
-                  </Box>
-                </Box>
-
-                {/* Légende types */}
-                <Box sx={{ pt: 1.5, borderTop: "1px solid var(--border)" }}>
-                  <Typography fontSize={10} fontWeight={700} color="var(--text-muted)" textTransform="uppercase" letterSpacing={0.8} mb={1}>
-                    Légende
-                  </Typography>
-                  {[
-                    { label: "Domicile", color: "#7c3aed" },
-                    { label: "Activité", color: "#1E6091" },
-                    { label: "Garantie", color: "#15803d" },
-                    { label: "Caution",  color: "#b45309" },
-                    { label: "Autre",    color: "var(--text-secondary)" },
-                  ].map((t) => (
-                    <Box key={t.label} display="flex" alignItems="center" gap={1} mb={0.75}>
-                      <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: t.color, border: "2px solid white", boxShadow: "0 1px 3px rgba(0,0,0,.3)", flexShrink: 0 }} />
-                      <Typography fontSize={12} color="var(--text-secondary)">{t.label}</Typography>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            </Paper>
-
-            {/* Leaflet map */}
-            <Box sx={{ flex: 1, borderRadius: 2.5, overflow: "hidden", border: "1px solid var(--border)", position: "relative", bgcolor: "#E8ECF0" }}>
-              {mapQuery.isFetching && (
-                <Box sx={{ position: "absolute", inset: 0, bgcolor: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10 }}>
-                  <CircularProgress sx={{ color: STEEL }} />
-                </Box>
-              )}
-              {mapItems.length === 0 && !mapQuery.isFetching && (
-                <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 5, gap: 1.5 }}>
-                  <GpsFixedIcon sx={{ fontSize: 48, color: "var(--border-strong)" }} />
-                  <Typography fontSize={14} color="var(--text-muted)">Aucune localisation GPS à afficher</Typography>
-                </Box>
-              )}
-              <iframe
-                key={`map-${typeFilter}-${search}-${dateFrom}-${dateTo}-${mapItems.length}`}
-                srcDoc={mapHtml}
-                style={{ width: "100%", height: "100%", border: "none", display: "block" }}
-                title="Carte GPS localisations"
-                sandbox="allow-scripts allow-same-origin"
-              />
-            </Box>
-          </Box>
-        </Box>
-      )}
-      {/* Drawers */}
-      <Drawer
-        anchor="right"
-        open={!!historyLocation}
-        onClose={() => setHistoryLocation(null)}
-        PaperProps={{ sx: { width: { xs: "100%", sm: 480 }, bgcolor: "var(--bg-page)" } }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <Box sx={{ px: 3, py: 2.5, bgcolor: NAVY, color: "white", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
-            <Box display="flex" alignItems="center" gap={1.5}>
-              <HistoryIcon sx={{ fontSize: 22, color: GOLD }} />
-              <Box>
-                <Typography fontWeight={700} fontSize={15}>Historique des modifications</Typography>
-                <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                  {historyLocation?.clientName ?? historyLocation?.clientCode ?? `#${historyLocation?.id}`}
-                </Typography>
-              </Box>
-            </Box>
-            <IconButton size="small" onClick={() => setHistoryLocation(null)} sx={{ color: "rgba(255,255,255,0.7)", "&:hover": { color: "white" } }}>
-              <CloseIcon sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Box>
-
-          <Box sx={{ flex: 1, overflowY: "auto", p: 2.5 }}>
-            {historyLoading && (
-              <Box display="flex" justifyContent="center" py={6}><CircularProgress size={28} sx={{ color: STEEL }} /></Box>
-            )}
-            {historyError && <Alert severity="error" sx={{ mb: 2 }}>{historyError}</Alert>}
-
-            {!historyLoading && !historyError && historyItems.length === 0 && (
-              <Box display="flex" flexDirection="column" alignItems="center" gap={2} py={8} color="text.secondary">
-                <HistoryIcon sx={{ fontSize: 48, opacity: 0.2 }} />
-                <Typography fontWeight={500} fontSize={14}>Aucune modification enregistree pour cette localisation.</Typography>
-              </Box>
-            )}
-
-            {!historyLoading && historyItems.map((h, idx) => (
-              <Box key={h.id} sx={{ mb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
-                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", pt: 0.5 }}>
-                    <Box sx={{ width: 28, height: 28, borderRadius: "50%", bgcolor: STEEL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <SwapVertIcon sx={{ fontSize: 15, color: "white" }} />
-                    </Box>
-                    {idx < historyItems.length - 1 && <Box sx={{ width: 2, flex: 1, minHeight: 20, bgcolor: "var(--border)", my: 0.5 }} />}
-                  </Box>
-                  <Box sx={{ flex: 1, bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2, mb: 0.5 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1} flexWrap="wrap" gap={0.5}>
-                      <Chip
-                        label={h.action ?? "Modification"}
-                        size="small"
-                        sx={{ bgcolor: "#EFF6FF", color: STEEL, fontWeight: 700, fontSize: 10, height: 20 }}
-                      />
-                      <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{fmt(h.modifiedAt)}</Typography>
-                    </Box>
-                    {h.modifiedByName && (
-                      <Typography variant="body2" fontSize={12} sx={{ color: "var(--text-secondary)", mb: 1 }}>
-                        par <strong>{h.modifiedByName}</strong>
-                      </Typography>
-                    )}
-                    {(h.oldLatitude != null || h.newLatitude != null) && (
-                      <Box sx={{ bgcolor: "var(--bg-page)", borderRadius: 1.5, p: 1.5, mt: 0.5 }}>
-                        <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                          Coordonnees
-                        </Typography>
-                        {h.oldLatitude != null && (
-                          <Box display="flex" alignItems="center" gap={1} mt={0.5}>
-                            <Typography variant="caption" sx={{ color: "var(--text-muted)", minWidth: 50 }}>Avant</Typography>
-                            <Typography variant="caption" sx={{ fontFamily: "monospace", color: "var(--text-secondary)" }}>
-                              {h.oldLatitude?.toFixed(5)}, {h.oldLongitude?.toFixed(5)}
-                            </Typography>
-                          </Box>
-                        )}
-                        {h.newLatitude != null && (
-                          <Box display="flex" alignItems="center" gap={1} mt={0.25}>
-                            <Typography variant="caption" sx={{ color: "#16a34a", minWidth: 50, fontWeight: 700 }}>Apres</Typography>
-                            <Typography variant="caption" sx={{ fontFamily: "monospace", color: "#16a34a", fontWeight: 600 }}>
-                              {h.newLatitude?.toFixed(5)}, {h.newLongitude?.toFixed(5)}
-                            </Typography>
-                            <Tooltip title="Voir sur Google Maps">
-                              <IconButton size="small" component="a"
-                                href={`https://www.google.com/maps?q=${h.newLatitude},${h.newLongitude}`}
-                                target="_blank" rel="noopener noreferrer"
-                                sx={{ p: 0.25, color: "var(--text-muted)", "&:hover": { color: "#1A73E8" } }}>
-                                <OpenInNewIcon sx={{ fontSize: 13 }} />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                        )}
-                      </Box>
-                    )}
-                  </Box>
-                </Box>
-              </Box>
+      <div className="flex flex-col bg-background" style={{ height: "calc(100vh / var(--ui-zoom) - 140px)" }}>
+        {/* KPIs */}
+        <div className="px-6 pb-3 pt-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {kpis.map((kpi) => (
+              <div key={kpi.label} className="relative flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-surface px-4 py-3 shadow-[0_1px_3px_rgba(15,59,92,0.05)]">
+                <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: kpi.accent }} />
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: kpi.accent }}>{kpi.icon}</span>
+                <div>
+                  <div className="text-xl font-extrabold leading-none" style={{ color: kpi.accent }}>{kpi.value}</div>
+                  <div className="text-xs font-medium text-muted-foreground">{kpi.label}</div>
+                </div>
+              </div>
             ))}
-          </Box>
-        </Box>
-      </Drawer>
+          </div>
+        </div>
+
+        {/* Map area */}
+        <div className="flex min-h-0 flex-1 gap-4 px-6 pb-6">
+          {/* Left panel — filters */}
+          <div className="flex w-[270px] shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-surface">
+            <div className="flex items-center gap-2 border-b border-border px-5 py-4">
+              <Filter size={16} className="text-[#3C8047]" />
+              <span className="text-[13px] font-bold text-foreground">Filtres</span>
+            </div>
+            <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+              {/* Search with suggestions */}
+              <div className="relative">
+                <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Client, opérateur, adresse…"
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setShowSuggestions(true); }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  className="pl-9 pr-8"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    aria-label="Effacer la recherche"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => { setSearch(""); setShowSuggestions(false); }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul className="absolute left-0 right-0 top-full z-[100] mt-1 overflow-hidden rounded-lg border border-border bg-surface shadow-[0_8px_24px_rgba(15,59,92,0.12)]">
+                    {suggestions.map((s, idx) => (
+                      <li
+                        key={idx}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => { setSearch(s.label); setShowSuggestions(false); }}
+                        className={`flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-background ${idx < suggestions.length - 1 ? "border-b border-border" : ""}`}
+                      >
+                        <span
+                          className="flex size-[26px] shrink-0 items-center justify-center rounded-md"
+                          style={chip(s.type === "client" ? "#EFF6FF" : s.type === "operator" ? "#F0FDF4" : "#FAF5FF", s.type === "client" ? STEEL : s.type === "operator" ? "#15803d" : "#7c3aed")}
+                        >
+                          {s.type === "address" ? <MapPin size={14} /> : <User size={14} />}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="truncate text-xs font-semibold text-foreground">{s.label}</div>
+                          {s.sub && <div className="truncate text-[10px] text-muted-foreground">{s.sub}</div>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <Select aria-label="Type de localisation" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+                {LOCATION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </Select>
+              <Field label="Du"><Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} /></Field>
+              <Field label="Au"><Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} /></Field>
+              {hasFilters && (
+                <Button size="sm" variant="ghost" className="justify-start font-semibold text-muted-foreground" onClick={resetFilters}>
+                  <X size={14} /> Effacer les filtres
+                </Button>
+              )}
+
+              <div className="mt-2 border-t border-border pt-3">
+                <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.8px] text-muted-foreground">Points affichés</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">Total</span>
+                  {mapQuery.isFetching
+                    ? <Spinner className="size-3.5 text-[#1E6091]" />
+                    : <span className="rounded-full bg-muted px-2 text-[11px] font-bold leading-5 text-foreground">{mapItems.length.toLocaleString("fr-FR")}</span>}
+                </div>
+              </div>
+
+              {/* Légende types */}
+              <div className="border-t border-border pt-3">
+                <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.8px] text-muted-foreground">Légende</div>
+                {legend.map((t) => (
+                  <div key={t.label} className="mb-1.5 flex items-center gap-2">
+                    <span className="size-2.5 shrink-0 rounded-full border-2 border-white shadow-[0_1px_3px_rgba(0,0,0,.3)]" style={{ background: t.color }} />
+                    <span className="text-xs text-muted-foreground">{t.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Leaflet map */}
+          <div className="relative flex-1 overflow-hidden rounded-xl border border-border bg-[#E8ECF0]">
+            {mapQuery.isFetching && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60"><Spinner className="size-8 text-[#1E6091]" /></div>
+            )}
+            {mapItems.length === 0 && !mapQuery.isFetching && (
+              <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center gap-3">
+                <LocateFixed size={48} className="text-border-strong" />
+                <span className="text-sm text-muted-foreground">Aucune localisation GPS à afficher</span>
+              </div>
+            )}
+            <iframe
+              key={`map-${typeFilter}-${search}-${dateFrom}-${dateTo}-${mapItems.length}`}
+              srcDoc={mapHtml}
+              style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+              title="Carte GPS localisations"
+              sandbox="allow-scripts allow-same-origin"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Drawer — historique des modifications */}
+      <Sheet open={!!historyLocation} onOpenChange={(o) => !o && setHistoryLocation(null)}>
+        <SheetContent width={480} className="bg-background">
+          <SheetHeader
+            bg={NAVY}
+            icon={<History size={22} className="text-[#3C8047]" />}
+            title="Historique des modifications"
+            subtitle={historyLocation?.clientName ?? historyLocation?.clientCode ?? `#${historyLocation?.id}`}
+            onClose={() => setHistoryLocation(null)}
+          />
+          <div className="flex-1 overflow-y-auto p-5">
+            {historyLoading && <div className="flex justify-center py-12"><Spinner className="size-7 text-[#1E6091]" /></div>}
+            {historyError && <Alert severity="error" className="mb-4">{historyError}</Alert>}
+            {!historyLoading && !historyError && historyItems.length === 0 && (
+              <div className="flex flex-col items-center gap-4 py-16 text-muted-foreground">
+                <History size={48} className="opacity-20" />
+                <span className="text-sm font-medium">Aucune modification enregistree pour cette localisation.</span>
+              </div>
+            )}
+            {!historyLoading && historyItems.map((h, idx) => (
+              <div key={h.id} className="mb-4 flex items-start gap-3">
+                <div className="flex flex-col items-center pt-1">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1E6091] text-white"><ArrowUpDown size={15} /></span>
+                  {idx < historyItems.length - 1 && <span className="my-1 min-h-5 w-0.5 flex-1 bg-border" />}
+                </div>
+                <div className="mb-1 flex-1 rounded-lg border border-border bg-surface p-4">
+                  <div className="mb-2 flex flex-wrap items-start justify-between gap-1">
+                    <span className="rounded-full bg-blue-50 px-2 text-[10px] font-bold leading-5 text-[#1E6091]">{h.action ?? "Modification"}</span>
+                    <span className="text-xs text-muted-foreground">{fmt(h.modifiedAt)}</span>
+                  </div>
+                  {h.modifiedByName && <div className="mb-2 text-xs text-muted-foreground">par <strong>{h.modifiedByName}</strong></div>}
+                  {(h.oldLatitude != null || h.newLatitude != null) && (
+                    <div className="mt-1 rounded-md bg-background p-3">
+                      <div className="text-xs font-bold uppercase tracking-[0.8px] text-muted-foreground">Coordonnees</div>
+                      {h.oldLatitude != null && (
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="min-w-[50px] text-xs text-muted-foreground">Avant</span>
+                          <span className="font-mono text-xs text-muted-foreground">{h.oldLatitude?.toFixed(5)}, {h.oldLongitude?.toFixed(5)}</span>
+                        </div>
+                      )}
+                      {h.newLatitude != null && (
+                        <div className="mt-0.5 flex items-center gap-2">
+                          <span className="min-w-[50px] text-xs font-bold text-green-600">Apres</span>
+                          <span className="font-mono text-xs font-semibold text-green-600">{h.newLatitude?.toFixed(5)}, {h.newLongitude?.toFixed(5)}</span>
+                          <Tooltip title="Voir sur Google Maps">
+                            <a href={`https://www.google.com/maps?q=${h.newLatitude},${h.newLongitude}`} target="_blank" rel="noopener noreferrer" aria-label="Voir sur Google Maps" className="p-0.5 text-muted-foreground hover:text-[#1A73E8]">
+                              <ExternalLink size={13} />
+                            </a>
+                          </Tooltip>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Drawer — détail localisation (metadata + photos) */}
-      <Drawer
-        anchor="right"
-        open={!!detailLocation}
-        onClose={() => setDetailLocation(null)}
-        PaperProps={{ sx: { width: { xs: "100%", sm: 540 }, bgcolor: "var(--bg-page)" } }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <Box sx={{ px: 3, py: 2.5, bgcolor: NAVY, color: "white", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
-            <Box display="flex" alignItems="center" gap={1.5}>
-              <InfoOutlinedIcon sx={{ fontSize: 22, color: GOLD }} />
-              <Box>
-                <Typography fontWeight={700} fontSize={15}>Détail de la localisation</Typography>
-                <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                  {detailLocation?.clientName ?? detailLocation?.clientCode ?? `#${detailLocation?.id}`}
-                </Typography>
-              </Box>
-            </Box>
-            <IconButton size="small" onClick={() => setDetailLocation(null)} sx={{ color: "rgba(255,255,255,0.7)", "&:hover": { color: "white" } }}>
-              <CloseIcon sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Box>
-
-          <Box sx={{ flex: 1, overflowY: "auto", p: 2.5 }}>
+      <Sheet open={!!detailLocation} onOpenChange={(o) => !o && setDetailLocation(null)}>
+        <SheetContent width={540} className="bg-background">
+          <SheetHeader
+            bg={NAVY}
+            icon={<Info size={22} className="text-[#3C8047]" />}
+            title="Détail de la localisation"
+            subtitle={detailLocation?.clientName ?? detailLocation?.clientCode ?? `#${detailLocation?.id}`}
+            onClose={() => setDetailLocation(null)}
+          />
+          <div className="flex-1 overflow-y-auto p-5">
             {/* ── Metadata formulaire terrain ── */}
-            <Typography fontWeight={700} fontSize={13} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, mb: 1.5 }}>
-              Données terrain
-            </Typography>
+            <div className={sectionLabel}>Données terrain</div>
             {(!detailLocation?.metadata || Object.keys(detailLocation.metadata).length === 0) ? (
-              <Box sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2.5, mb: 3, textAlign: "center" }}>
-                <Typography variant="body2" color="text.disabled" fontStyle="italic">Aucune donnée terrain enregistrée pour cette localisation.</Typography>
-              </Box>
+              <div className="mb-6 rounded-lg border border-border bg-surface p-5 text-center text-sm italic text-muted-foreground">
+                Aucune donnée terrain enregistrée pour cette localisation.
+              </div>
             ) : (
-              <Box sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2, mb: 3 }}>
+              <div className="mb-6 rounded-lg border border-border bg-surface p-4">
                 {Object.entries(detailLocation.metadata).map(([key, value]) => (
-                  <Box key={key} sx={{ display: "flex", gap: 1.5, py: 0.75, borderBottom: "1px solid var(--border)", "&:last-child": { borderBottom: "none" } }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: "var(--text-secondary)", minWidth: 140, flexShrink: 0, wordBreak: "break-word" }}>
-                      {key}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: "var(--text-primary)", wordBreak: "break-word", flex: 1 }}>
-                      {value === null || value === undefined ? <span style={{ color: "var(--border-strong)" }}>—</span>
+                  <div key={key} className="flex gap-3 border-b border-border py-1.5 last:border-b-0">
+                    <span className="min-w-[140px] shrink-0 break-words text-xs font-bold text-muted-foreground">{key}</span>
+                    <span className="flex-1 break-words text-sm text-foreground">
+                      {value === null || value === undefined ? <span className="text-border-strong">—</span>
                         : typeof value === "object" ? JSON.stringify(value)
                         : String(value)}
-                    </Typography>
-                  </Box>
+                    </span>
+                  </div>
                 ))}
-              </Box>
+              </div>
             )}
 
             {/* ── Photos de capture ── */}
-            <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-              <PhotoLibraryIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
-              <Typography fontWeight={700} fontSize={13} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                Photos de capture
-              </Typography>
-              {!detailPhotosLoading && (
-                <Chip label={detailPhotos.length} size="small" sx={{ height: 18, fontSize: 11, bgcolor: "var(--bg-hover)", color: "var(--text-primary)" }} />
-              )}
-            </Box>
+            <div className="mb-3 flex items-center gap-2">
+              <Images size={16} className="text-muted-foreground" />
+              <span className="text-[13px] font-bold uppercase tracking-[0.8px] text-muted-foreground">Photos de capture</span>
+              {!detailPhotosLoading && <span className="rounded-full bg-muted px-2 text-[11px] leading-[18px] text-foreground">{detailPhotos.length}</span>}
+            </div>
 
-            {detailPhotosLoading && (
-              <Box display="flex" justifyContent="center" py={4}><CircularProgress size={24} sx={{ color: STEEL }} /></Box>
-            )}
-            {detailPhotosError && <Alert severity="error" sx={{ mb: 2 }}>{detailPhotosError}</Alert>}
+            {detailPhotosLoading && <div className="flex justify-center py-8"><Spinner className="size-6 text-[#1E6091]" /></div>}
+            {detailPhotosError && <Alert severity="error" className="mb-4">{detailPhotosError}</Alert>}
 
             {!detailPhotosLoading && !detailPhotosError && detailPhotos.length === 0 && (
-              <Box sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 2, p: 2.5, textAlign: "center" }}>
-                <BrokenImageIcon sx={{ fontSize: 36, color: "var(--border)", mb: 0.5 }} />
-                <Typography variant="body2" color="text.disabled" fontStyle="italic">Aucune photo associée à cette localisation.</Typography>
-              </Box>
+              <div className="rounded-lg border border-border bg-surface p-5 text-center">
+                <ImageOff size={36} className="mx-auto mb-1 text-border" />
+                <span className="text-sm italic text-muted-foreground">Aucune photo associée à cette localisation.</span>
+              </div>
             )}
 
             {!detailPhotosLoading && detailPhotos.length > 0 && (
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5 }}>
+              <div className="grid grid-cols-2 gap-3">
                 {detailPhotos.map((photo) => {
                   // Nouveau format : file_name = chemin relatif à /uploads
                   // (cloisonné par tenant) ; ancien format : nom nu à plat.
@@ -678,7 +537,7 @@ export default function LocationsPage() {
                   const sizekb = (photo.size / 1024).toFixed(1);
                   const isDeleting = deletingPhotoId === photo.id;
                   return (
-                    <Box key={photo.id} sx={{ position: "relative", borderRadius: 2, overflow: "hidden", border: "1px solid var(--border)", bgcolor: "var(--bg-surface)" }}>
+                    <div key={photo.id} className="relative overflow-hidden rounded-lg border border-border bg-surface">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={photoUrl}
@@ -686,149 +545,93 @@ export default function LocationsPage() {
                         style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }}
                         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                       />
-                      <Box sx={{ px: 1.25, py: 1 }}>
-                        <Typography variant="caption" sx={{ color: "var(--text-secondary)", display: "block", fontWeight: 500 }} noWrap title={photo.original_name}>
-                          {photo.original_name}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{sizekb} Ko · {fmt(photo.uploaded_at)}</Typography>
-                      </Box>
-                      <Tooltip title="Supprimer cette photo">
-                        <IconButton
-                          size="small"
-                          disabled={isDeleting}
-                          onClick={() => handleDeletePhoto(photo.id)}
-                          sx={{ position: "absolute", top: 6, right: 6, bgcolor: "rgba(0,0,0,0.5)", color: "white", width: 26, height: 26, "&:hover": { bgcolor: "#DC2626" }, "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.3)" }, display: canDeletePhoto ? undefined : "none" }}
-                        >
-                          {isDeleting ? <CircularProgress size={12} sx={{ color: "white" }} /> : <DeleteOutlineIcon sx={{ fontSize: 14 }} />}
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
+                      <div className="px-3 py-2">
+                        <div className="truncate text-xs font-medium text-muted-foreground" title={photo.original_name}>{photo.original_name}</div>
+                        <span className="text-xs text-muted-foreground">{sizekb} Ko · {fmt(photo.uploaded_at)}</span>
+                      </div>
+                      {canDeletePhoto && (
+                        <Tooltip title="Supprimer cette photo">
+                          <button
+                            type="button"
+                            aria-label="Supprimer cette photo"
+                            disabled={isDeleting}
+                            onClick={() => handleDeletePhoto(photo.id)}
+                            className="absolute right-1.5 top-1.5 flex size-[26px] cursor-pointer items-center justify-center rounded-full border-0 bg-black/50 text-white hover:bg-red-600 disabled:bg-black/30"
+                          >
+                            {isDeleting ? <Spinner className="size-3" /> : <Trash2 size={14} />}
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
                   );
                 })}
-              </Box>
+              </div>
             )}
-          </Box>
-        </Box>
-      </Drawer>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Drawer — journal des suppressions */}
-      <Drawer
-        anchor="right"
-        open={deletionDrawerOpen}
-        onClose={() => setDeletionDrawerOpen(false)}
-        PaperProps={{ sx: { width: { xs: "100%", sm: 520 }, p: 0 } }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          {/* En-tête */}
-          <Box sx={{ px: 3, py: 2.5, background: `linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)`, color: "white", display: "flex", alignItems: "center", gap: 1.5 }}>
-            <DeleteForeverIcon sx={{ fontSize: 24 }} />
-            <Box flex={1}>
-              <Typography variant="h6" fontWeight={700} lineHeight={1.2}>Journal des suppressions</Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>Localisations supprimées avec justification</Typography>
-            </Box>
-            <IconButton onClick={() => setDeletionDrawerOpen(false)} sx={{ color: "white" }} size="small">
-              <CloseIcon />
-            </IconButton>
-          </Box>
-
-          {/* Corps */}
-          <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
-            {deletionLoading && (
-              <Box display="flex" justifyContent="center" pt={6}>
-                <CircularProgress size={36} sx={{ color: "#991b1b" }} />
-              </Box>
-            )}
-            {deletionError && (
-              <Alert severity="error" sx={{ mt: 2 }}>{deletionError}</Alert>
-            )}
+      <Sheet open={deletionDrawerOpen} onOpenChange={setDeletionDrawerOpen}>
+        <SheetContent width={520}>
+          <SheetHeader
+            bg="linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)"
+            icon={<Trash size={24} />}
+            title="Journal des suppressions"
+            subtitle="Localisations supprimées avec justification"
+            onClose={() => setDeletionDrawerOpen(false)}
+          />
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            {deletionLoading && <div className="flex justify-center pt-12"><Spinner className="size-9 text-red-800" /></div>}
+            {deletionError && <Alert severity="error" className="mt-4">{deletionError}</Alert>}
             {!deletionLoading && !deletionError && deletionLogs.length === 0 && (
-              <Box textAlign="center" pt={6}>
-                <DeleteForeverIcon sx={{ fontSize: 48, color: "var(--border)" }} />
-                <Typography color="text.secondary" mt={1}>Aucune suppression enregistrée.</Typography>
-              </Box>
+              <div className="pt-12 text-center">
+                <Trash size={48} className="mx-auto text-border" />
+                <p className="mt-2 text-muted-foreground">Aucune suppression enregistrée.</p>
+              </div>
             )}
             {!deletionLoading && deletionLogs.map((log, idx) => (
-              <Box key={log.id} sx={{ position: "relative", pl: 3, pb: 3, "&::before": idx < deletionLogs.length - 1 ? { content: '""', position: "absolute", left: 9, top: 24, bottom: 0, width: 2, bgcolor: "#FEE2E2" } : {} }}>
+              <div key={log.id} className="relative pb-6 pl-6">
+                {idx < deletionLogs.length - 1 && <span className="absolute bottom-0 left-[9px] top-6 w-0.5 bg-red-100" />}
                 {/* Pastille timeline */}
-                <Box sx={{ position: "absolute", left: 0, top: 4, width: 18, height: 18, borderRadius: "50%", bgcolor: "#991b1b", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <DeleteForeverIcon sx={{ fontSize: 10, color: "white" }} />
-                </Box>
+                <span className="absolute left-0 top-1 flex size-[18px] items-center justify-center rounded-full bg-red-800 text-white"><Trash size={10} /></span>
 
-                <Paper elevation={0} sx={{ border: "1px solid #FEE2E2", borderRadius: 2, p: 2, bgcolor: "#FFF5F5" }}>
-                  {/* Date */}
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                    {fmt(log.createdAt)}
-                  </Typography>
+                <div className="rounded-lg border border-red-100 bg-red-50/60 p-4 dark:border-red-900/50 dark:bg-red-950/20">
+                  <span className="text-xs font-semibold text-muted-foreground">{fmt(log.createdAt)}</span>
 
-                  <Box display="flex" gap={1} mt={0.75} flexWrap="wrap">
-                    {/* Agent */}
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {log.agentName && (
-                      <Chip
-                        icon={<PersonIcon sx={{ fontSize: 12 }} />}
-                        label={log.agentName}
-                        size="small"
-                        sx={{ bgcolor: "#EFF6FF", color: STEEL, fontWeight: 600, fontSize: 11 }}
-                      />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 text-[11px] font-semibold leading-5 text-[#1E6091]"><User size={12} /> {log.agentName}</span>
                     )}
-                    {/* Rôle */}
-                    {log.deletedByRole && (
-                      <Chip
-                        label={log.deletedByRole}
-                        size="small"
-                        sx={{ bgcolor: "var(--bg-hover)", color: "var(--text-secondary)", fontWeight: 600, fontSize: 11 }}
-                      />
-                    )}
-                    {/* Code client */}
-                    {log.clientCode && (
-                      <Chip
-                        label={`Client : ${log.clientCode}`}
-                        size="small"
-                        sx={{ bgcolor: "#ECFDF5", color: "#15803d", fontWeight: 600, fontSize: 11 }}
-                      />
-                    )}
-                    {/* ID localisation */}
-                    {log.locationId && (
-                      <Chip
-                        label={`#${log.locationId}`}
-                        size="small"
-                        sx={{ bgcolor: "#F5F3FF", color: "#7c3aed", fontWeight: 600, fontSize: 11 }}
-                      />
-                    )}
-                  </Box>
+                    {log.deletedByRole && <span className="rounded-full bg-muted px-2 text-[11px] font-semibold leading-5 text-muted-foreground">{log.deletedByRole}</span>}
+                    {log.clientCode && <span className="rounded-full bg-emerald-50 px-2 text-[11px] font-semibold leading-5 text-green-700">Client : {log.clientCode}</span>}
+                    {log.locationId && <span className="rounded-full bg-violet-50 px-2 text-[11px] font-semibold leading-5 text-violet-600">#{log.locationId}</span>}
+                  </div>
 
-                  {/* Justification */}
                   {log.justification ? (
-                    <Box mt={1.25} sx={{ bgcolor: "#FEE2E2", borderRadius: 1.5, px: 1.5, py: 1 }}>
-                      <Typography variant="caption" color="#991b1b" fontWeight={700} display="block">Justification</Typography>
-                      <Typography variant="body2" color="#7f1d1d" sx={{ mt: 0.25 }}>{log.justification}</Typography>
-                    </Box>
+                    <div className="mt-3 rounded-md bg-red-100 px-3 py-2 dark:bg-red-950/40">
+                      <div className="text-xs font-bold text-red-800 dark:text-red-300">Justification</div>
+                      <div className="mt-0.5 text-sm text-red-900 dark:text-red-200">{log.justification}</div>
+                    </div>
                   ) : (
-                    <Typography variant="caption" color="text.disabled" sx={{ display: "block", mt: 1, fontStyle: "italic" }}>
-                      Aucune justification fournie
-                    </Typography>
+                    <span className="mt-2 block text-xs italic text-muted-foreground">Aucune justification fournie</span>
                   )}
 
-                  {/* Description système */}
-                  {log.description && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }}>
-                      {log.description}
-                    </Typography>
-                  )}
-                </Paper>
-              </Box>
+                  {log.description && <span className="mt-2 block text-xs text-muted-foreground">{log.description}</span>}
+                </div>
+              </div>
             ))}
-          </Box>
+          </div>
 
-          {/* Pied */}
           {!deletionLoading && deletionLogs.length > 0 && (
-            <Box sx={{ px: 3, py: 1.5, borderTop: "1px solid #FEE2E2" }}>
-              <Typography variant="caption" color="text.secondary">
+            <div className="border-t border-red-100 px-6 py-3">
+              <span className="text-xs text-muted-foreground">
                 {deletionLogs.length} suppression{deletionLogs.length > 1 ? "s" : ""} enregistrée{deletionLogs.length > 1 ? "s" : ""}
-              </Typography>
-            </Box>
+              </span>
+            </div>
           )}
-        </Box>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

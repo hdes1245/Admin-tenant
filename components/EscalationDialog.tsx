@@ -2,36 +2,12 @@
 import { useLiveInterval } from "@/lib/realtime/RealtimeProvider";
 
 import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Collapse,
-  Dialog,
-  Divider,
-  IconButton,
-  Skeleton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import CloseIcon          from "@mui/icons-material/Close";
-import SendIcon           from "@mui/icons-material/Send";
-import AttachFileIcon     from "@mui/icons-material/AttachFile";
-import NorthIcon          from "@mui/icons-material/North";
-import ExpandMoreIcon     from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon     from "@mui/icons-material/ExpandLess";
-import BugReportIcon      from "@mui/icons-material/BugReport";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import CheckCircleIcon    from "@mui/icons-material/CheckCircle";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import DownloadIcon       from "@mui/icons-material/Download";
+  Bug, ChevronDown, ChevronUp, CircleCheck, Download, File as FileIcon, MoveUp, Paperclip, Send, ShieldCheck, X,
+} from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, useEffect } from "react";
 import {
   TicketDto,
-  TicketStatus,
   TicketCommentDto,
   TicketAttachmentDto,
   fetchTicketComments,
@@ -42,10 +18,14 @@ import {
   escalateTicket,
   updateTicketStatus,
 } from "@/lib/tickets";
+import { Alert } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
-const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
 const AMBER = "#92400E";
 
 const SEVERITY_CFG: Record<string, { label: string; color: string }> = {
@@ -81,31 +61,20 @@ function initials(name: string | null) {
 function RefCommentBubble({ comment }: { comment: TicketCommentDto }) {
   const isIt = isItRole(comment.authorRole);
   return (
-    <Box display="flex" flexDirection={isIt ? "row-reverse" : "row"} alignItems="flex-end" gap={1} mb={1.5}>
-      <Avatar sx={{ width: 26, height: 26, fontSize: 10, fontWeight: 700, flexShrink: 0, bgcolor: isIt ? NAVY : "#E2E8F0", color: isIt ? GOLD : "var(--text-secondary)" }}>
-        {isIt ? <AdminPanelSettingsIcon sx={{ fontSize: 14 }} /> : initials(comment.authorName)}
-      </Avatar>
-      <Box maxWidth="75%">
-        <Box display="flex" alignItems="center" gap={1} mb={0.3} justifyContent={isIt ? "flex-end" : "flex-start"}>
-          <Typography variant="caption" fontWeight={600} sx={{ color: "var(--text-secondary)", fontSize: 11 }}>
-            {comment.authorName ?? (isIt ? "Admin IT" : "Utilisateur")}
-          </Typography>
-          <Typography variant="caption" sx={{ color: "var(--border-strong)", fontSize: 10 }}>
-            {formatDate(comment.createdAt)}
-          </Typography>
-        </Box>
-        <Box sx={{
-          px: 1.5, py: 1,
-          borderRadius: isIt ? "10px 10px 3px 10px" : "10px 10px 10px 3px",
-          bgcolor: isIt ? "#E8EEF4" : "#F1F5F9",
-          color: "#334155",
-        }}>
-          <Typography variant="caption" sx={{ lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 12 }}>
-            {comment.content}
-          </Typography>
-        </Box>
-      </Box>
-    </Box>
+    <div className={`mb-3 flex items-end gap-2 ${isIt ? "flex-row-reverse" : "flex-row"}`}>
+      <span className={`flex size-[26px] shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${isIt ? "bg-[#0F3B5C] text-[#3C8047]" : "bg-slate-200 text-slate-600"}`}>
+        {isIt ? <ShieldCheck size={14} /> : initials(comment.authorName)}
+      </span>
+      <div className="max-w-[75%]">
+        <div className={`mb-0.5 flex items-center gap-2 ${isIt ? "justify-end" : "justify-start"}`}>
+          <span className="text-[11px] font-semibold text-muted-foreground">{comment.authorName ?? (isIt ? "Admin IT" : "Utilisateur")}</span>
+          <span className="text-[10px] text-border-strong">{formatDate(comment.createdAt)}</span>
+        </div>
+        <div className={`px-3 py-2 text-slate-700 ${isIt ? "rounded-[10px_10px_3px_10px] bg-[#E8EEF4]" : "rounded-[10px_10px_10px_3px] bg-slate-100"}`}>
+          <span className="whitespace-pre-wrap break-words text-xs leading-normal">{comment.content}</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -113,31 +82,23 @@ function RefCommentBubble({ comment }: { comment: TicketCommentDto }) {
 function EscCommentBubble({ comment }: { comment: TicketCommentDto }) {
   const isIt = isItRole(comment.authorRole);
   return (
-    <Box display="flex" flexDirection={isIt ? "row-reverse" : "row"} alignItems="flex-end" gap={1} mb={2}>
-      <Avatar sx={{ width: 32, height: 32, fontSize: 12, fontWeight: 700, flexShrink: 0, bgcolor: isIt ? AMBER : "#E2E8F0", color: isIt ? "white" : "var(--text-secondary)" }}>
-        {isIt ? <AdminPanelSettingsIcon sx={{ fontSize: 16 }} /> : initials(comment.authorName)}
-      </Avatar>
-      <Box maxWidth="72%">
-        <Box display="flex" alignItems="center" gap={1} mb={0.5} justifyContent={isIt ? "flex-end" : "flex-start"}>
-          <Typography variant="caption" fontWeight={600} sx={{ color: isIt ? AMBER : "#334155" }}>
+    <div className={`mb-4 flex items-end gap-2 ${isIt ? "flex-row-reverse" : "flex-row"}`}>
+      <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${isIt ? "bg-[#92400E] text-white" : "bg-slate-200 text-slate-600"}`}>
+        {isIt ? <ShieldCheck size={16} /> : initials(comment.authorName)}
+      </span>
+      <div className="max-w-[72%]">
+        <div className={`mb-1 flex items-center gap-2 ${isIt ? "justify-end" : "justify-start"}`}>
+          <span className={`text-xs font-semibold ${isIt ? "text-[#92400E]" : "text-foreground"}`}>
             {comment.authorName ?? (isIt ? "Admin GeoTrust" : "Admin tenant")}
-          </Typography>
-          {isIt && <Chip label="GeoTrust" size="small" sx={{ height: 15, fontSize: 10, bgcolor: AMBER + "18", color: AMBER, fontWeight: 700, px: 0.25 }} />}
-          <Typography variant="caption" sx={{ color: "var(--text-muted)", fontSize: 11 }}>{formatDate(comment.createdAt)}</Typography>
-        </Box>
-        <Box sx={{
-          px: 2, py: 1.25,
-          borderRadius: isIt ? "12px 12px 4px 12px" : "12px 12px 12px 4px",
-          bgcolor: isIt ? AMBER : NAVY,
-          color: "rgba(255,255,255,0.92)",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        }}>
-          <Typography variant="body2" sx={{ lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-            {comment.content}
-          </Typography>
-        </Box>
-      </Box>
-    </Box>
+          </span>
+          {isIt && <span className="rounded-full bg-[#92400E]/10 px-1.5 text-[10px] font-bold leading-[15px] text-[#92400E]">GeoTrust</span>}
+          <span className="text-[11px] text-muted-foreground">{formatDate(comment.createdAt)}</span>
+        </div>
+        <div className={`px-4 py-2.5 text-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.15)] ${isIt ? "rounded-[12px_12px_4px_12px] bg-[#92400E]" : "rounded-[12px_12px_12px_4px] bg-[#0F3B5C]"}`}>
+          <span className="whitespace-pre-wrap break-words text-sm leading-relaxed">{comment.content}</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -148,20 +109,18 @@ function AttachmentRow({ att, ticketId }: { att: TicketAttachmentDto; ticketId: 
   // (qui n'était de toute façon jamais lu côté backend).
   const downloadUrl = attachmentDownloadUrl(ticketId, att.id);
   return (
-    <Box display="flex" alignItems="center" gap={1.5} sx={{ px: 1.5, py: 1, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", mb: 1, "&:hover": { bgcolor: "var(--bg-hover)" } }}>
-      <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <InsertDriveFileIcon sx={{ fontSize: 16, color: "var(--text-secondary)" }} />
-      </Box>
-      <Box flex={1} minWidth={0}>
-        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)", fontSize: 12 }} noWrap>{att.originalName}</Typography>
-        <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{formatBytes(att.size)} · {att.uploaderName ?? "inconnu"}</Typography>
-      </Box>
+    <div className="mb-2 flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 hover:bg-muted">
+      <span className="flex size-[30px] shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600"><FileIcon size={16} /></span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-xs font-semibold text-foreground">{att.originalName}</div>
+        <div className="text-xs text-muted-foreground">{formatBytes(att.size)} · {att.uploaderName ?? "inconnu"}</div>
+      </div>
       <Tooltip title="Télécharger">
-        <IconButton size="small" component="a" href={downloadUrl} target="_blank" rel="noopener noreferrer" sx={{ color: "var(--text-muted)", "&:hover": { color: STEEL } }}>
-          <DownloadIcon sx={{ fontSize: 16 }} />
-        </IconButton>
+        <a href={downloadUrl} target="_blank" rel="noopener noreferrer" aria-label="Télécharger" className="rounded-full p-1.5 text-muted-foreground hover:text-[#1E6091]">
+          <Download size={16} />
+        </a>
       </Tooltip>
-    </Box>
+    </div>
   );
 }
 
@@ -298,266 +257,213 @@ export function EscalationDialog({ ticket, open, onClose }: Props) {
 
   const canSend = (replyText.trim().length > 0 || !!pendingFile) && !commentMutation.isPending && !uploadMutation.isPending;
   const sev = SEVERITY_CFG[ticket?.severity ?? "moyen"] ?? SEVERITY_CFG["moyen"];
+  const sending = commentMutation.isPending || uploadMutation.isPending;
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-      PaperProps={{
-        sx: {
-          borderRadius: 3,
-          overflow: "hidden",
-          height: { xs: "100dvh", sm: "calc(92vh / var(--ui-zoom))" },
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
-      {/* Gold accent */}
-      <Box sx={{ height: 4, bgcolor: GOLD, flexShrink: 0 }} />
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent size="md" aria-describedby={undefined} className="flex flex-col" style={{ height: "calc(92vh / var(--ui-zoom))" }}>
+        {/* Header */}
+        <div className="shrink-0 px-6 py-4 text-white" style={{ background: `linear-gradient(135deg, ${AMBER} 0%, #b45309 100%)` }}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-1 items-center gap-4">
+              <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-[#3C8047] text-[#0F3B5C]"><MoveUp size={22} /></span>
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-[15px] font-bold text-white">
+                  {phase === "form" ? "Escalader vers GeoTrust" : "Ticket GeoTrust — Discussion en cours"}
+                </DialogTitle>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-white/70">Réf. ticket #{ticket?.id} — {ticket?.title}</span>
+                  <span className="rounded-full bg-white/15 px-2 text-[10px] font-bold leading-[17px] text-white">{sev.label}</span>
+                  {ticket?.escalated && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-2 text-[10px] font-bold leading-[17px] text-white">
+                      <CircleCheck size={12} /> Escaladé
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <button type="button" aria-label="Fermer" onClick={onClose} className="cursor-pointer rounded-full border-0 bg-transparent p-1 text-white/70 hover:bg-white/10 hover:text-white">
+              <X size={20} />
+            </button>
+          </div>
+        </div>
 
-      {/* Header */}
-      <Box sx={{ px: 3, py: 2, flexShrink: 0, background: `linear-gradient(135deg, ${AMBER} 0%, #b45309 100%)`, color: "white" }}>
-        <Box display="flex" alignItems="flex-start" justifyContent="space-between" gap={2}>
-          <Box display="flex" alignItems="center" gap={2} flex={1} minWidth={0}>
-            <Avatar sx={{ bgcolor: GOLD, width: 42, height: 42, flexShrink: 0 }}>
-              <NorthIcon sx={{ color: NAVY, fontSize: 22 }} />
-            </Avatar>
-            <Box flex={1} minWidth={0}>
-              <Typography fontWeight={700} fontSize={15} sx={{ color: "white" }}>
-                {phase === "form" ? "Escalader vers GeoTrust" : "Ticket GeoTrust — Discussion en cours"}
-              </Typography>
-              <Box display="flex" gap={1} mt={0.5} alignItems="center" flexWrap="wrap">
-                <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)" }}>
-                  Réf. ticket #{ticket?.id} — {ticket?.title}
-                </Typography>
-                <Chip label={sev.label} size="small" sx={{ height: 17, fontSize: 10, fontWeight: 700, bgcolor: "rgba(255,255,255,0.15)", color: "white" }} />
-                {ticket?.escalated && (
-                  <Chip icon={<CheckCircleIcon sx={{ fontSize: 12, color: "white !important" }} />} label="Escaladé" size="small"
-                    sx={{ height: 17, fontSize: 10, fontWeight: 700, bgcolor: "rgba(255,255,255,0.2)", color: "white" }} />
-                )}
-              </Box>
-            </Box>
-          </Box>
-          <IconButton onClick={onClose} size="small" sx={{ color: "rgba(255,255,255,0.7)", "&:hover": { color: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-            <CloseIcon sx={{ fontSize: 20 }} />
-          </IconButton>
-        </Box>
-      </Box>
-
-      {/* ── Original ticket reference card ── */}
-      <Box sx={{ borderBottom: "1px solid var(--border)", flexShrink: 0, bgcolor: "#FFF9EC" }}>
-        <Box
-          display="flex" alignItems="center" gap={1.5} px={3} py={1.25}
-          sx={{ cursor: "pointer", "&:hover": { bgcolor: "#FFF3D0" }, transition: "background .15s" }}
-          onClick={() => setShowRef((v) => !v)}
-        >
-          <BugReportIcon sx={{ fontSize: 16, color: "#b45309", flexShrink: 0 }} />
-          <Box flex={1} minWidth={0}>
-            <Typography variant="caption" fontWeight={700} sx={{ color: "#92400E", textTransform: "uppercase", letterSpacing: 0.7 }}>
-              Ticket original joint en référence
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#78350F", display: "block" }} noWrap>
-              #{ticket?.id} — {ticket?.title} · {ticket?.requesterName ?? "Utilisateur inconnu"} · {ticket?.category ?? "Sans catégorie"}
-            </Typography>
-          </Box>
-          <Box sx={{ color: "#b45309", flexShrink: 0 }}>
-            {showRef ? <ExpandLessIcon sx={{ fontSize: 18 }} /> : <ExpandMoreIcon sx={{ fontSize: 18 }} />}
-          </Box>
-        </Box>
-
-        <Collapse in={showRef}>
-          <Box sx={{ px: 3, pb: 2, maxHeight: 320, overflowY: "auto" }}>
-            {/* Description */}
-            {ticket?.description && (
-              <Box sx={{ mb: 2, p: 1.5, borderRadius: 2, bgcolor: "#FFFBEB", border: "1px solid #FDE68A" }}>
-                <Typography variant="caption" fontWeight={700} sx={{ color: "#92400E", textTransform: "uppercase", letterSpacing: 0.7, display: "block", mb: 0.5 }}>
-                  Description
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#78350F", lineHeight: 1.6, fontSize: 13 }}>
-                  {ticket.description}
-                </Typography>
-              </Box>
-            )}
-
-            {/* Original thread */}
-            <Typography variant="caption" fontWeight={700} sx={{ color: "#92400E", textTransform: "uppercase", letterSpacing: 0.7, display: "block", mb: 1 }}>
-              Fil de discussion original
-            </Typography>
-            {refCommentsQuery.isLoading ? (
-              <Box>{[1,2].map(i => <Skeleton key={i} height={48} sx={{ mb: 1, borderRadius: 2 }} />)}</Box>
-            ) : (refCommentsQuery.data?.length ?? 0) === 0 ? (
-              <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>Aucun message dans la discussion originale.</Typography>
-            ) : (
-              refCommentsQuery.data?.map((c) => <RefCommentBubble key={c.id} comment={c} />)
-            )}
-          </Box>
-        </Collapse>
-      </Box>
-
-      {/* ── Phase 1 : Formulaire d'escalade ── */}
-      {phase === "form" && (
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", px: 3, py: 3, bgcolor: "#FAFBFC", overflowY: "auto" }}>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ color: "var(--text-primary)", mb: 0.5 }}>
-              Message d'escalade vers GeoTrust
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-              Décrivez le contexte, l'urgence et les éléments importants que l'équipe GeoTrust doit connaître. Le ticket original et sa discussion seront joints automatiquement en référence.
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              flex: 1, border: "1.5px solid var(--border)", borderRadius: 2.5,
-              bgcolor: "var(--bg-surface)", "&:focus-within": { borderColor: AMBER, bgcolor: "var(--bg-surface)" }, transition: "all .15s",
-            }}
+        {/* ── Original ticket reference card ── */}
+        <div className="shrink-0 border-b border-border bg-[#FFF9EC]">
+          <div
+            onClick={() => setShowRef((v) => !v)}
+            className="flex cursor-pointer items-center gap-3 px-6 py-2.5 transition-colors hover:bg-[#FFF3D0]"
           >
-            <textarea
-              value={escalateNote}
-              onChange={(e) => setEscalateNote(e.target.value)}
-              placeholder="Ex : Ce problème bloque 12 agents terrain depuis 2 jours. Malgré nos tentatives de résolution côté tenant, le bug semble lié à une synchronisation backend. Priorité haute..."
-              rows={8}
-              style={{
-                width: "100%", border: "none", outline: "none",
-                background: "transparent", resize: "none",
-                padding: "16px", fontFamily: "inherit",
-                fontSize: 14, color: "#1E293B", lineHeight: 1.7,
-                boxSizing: "border-box",
-              }}
-            />
-          </Box>
+            <Bug size={16} className="shrink-0 text-amber-700" />
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-bold uppercase tracking-[0.7px] text-amber-800">Ticket original joint en référence</div>
+              <div className="truncate text-xs text-amber-900">
+                #{ticket?.id} — {ticket?.title} · {ticket?.requesterName ?? "Utilisateur inconnu"} · {ticket?.category ?? "Sans catégorie"}
+              </div>
+            </div>
+            <span className="shrink-0 text-amber-700">{showRef ? <ChevronUp size={18} /> : <ChevronDown size={18} />}</span>
+          </div>
 
-          {escalateError && <Alert severity="error" sx={{ mt: 1.5, py: 0.5 }}>{escalateError}</Alert>}
+          {showRef && (
+            <div className="max-h-80 overflow-y-auto px-6 pb-4">
+              {/* Description */}
+              {ticket?.description && (
+                <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                  <div className="mb-1 text-xs font-bold uppercase tracking-[0.7px] text-amber-800">Description</div>
+                  <div className="text-[13px] leading-relaxed text-amber-900">{ticket.description}</div>
+                </div>
+              )}
 
-          <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
-            <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
-              Le demandeur sera notifié et le ticket passera en statut "En cours"
-            </Typography>
-            <Box display="flex" gap={1}>
-              <Button variant="outlined" color="inherit" onClick={onClose} disabled={escalating}>
-                Annuler
-              </Button>
-              <Button
-                variant="contained"
-                disabled={escalating || !escalateNote.trim()}
-                onClick={handleEscalate}
-                startIcon={escalating ? <CircularProgress size={14} sx={{ color: "rgba(255,255,255,0.8)" }} /> : <NorthIcon sx={{ fontSize: 16 }} />}
-                sx={{ bgcolor: AMBER, "&:hover": { bgcolor: "#78350F" }, fontWeight: 700, px: 3 }}
-              >
-                {escalating ? "Envoi en cours…" : "Envoyer l'escalade vers GeoTrust"}
-              </Button>
-            </Box>
-          </Box>
-        </Box>
-      )}
-
-      {/* ── Phase 2 : Thread de discussion ── */}
-      {phase === "thread" && (
-        <>
-          {/* Thread header */}
-          <Box sx={{ px: 3, py: 1.25, bgcolor: "#FFF9EC", borderBottom: "1px solid #FDE68A", flexShrink: 0 }}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <CheckCircleIcon sx={{ fontSize: 15, color: "#16a34a" }} />
-              <Typography variant="caption" fontWeight={700} sx={{ color: "#15803d" }}>
-                Ticket escaladé{ticket?.escalatedAt ? ` le ${formatDate(ticket.escalatedAt)}` : ""}
-                {ticket?.escalatedByName ? ` par ${ticket.escalatedByName}` : ""}
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Thread body */}
-          <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2, bgcolor: "#FAFBFC" }}>
-            {threadCommentsQuery.isLoading ? (
-              <Box>{[1,2,3].map(i => (
-                <Box key={i} display="flex" gap={1} mb={2} flexDirection={i % 2 === 0 ? "row-reverse" : "row"}>
-                  <Skeleton variant="circular" width={32} height={32} />
-                  <Skeleton width={200} height={56} sx={{ borderRadius: 2 }} />
-                </Box>
-              ))}</Box>
-            ) : (threadCommentsQuery.data?.length ?? 0) === 0 ? (
-              <Box textAlign="center" py={6}>
-                <NorthIcon sx={{ fontSize: 36, color: "var(--border-strong)", mb: 1 }} />
-                <Typography variant="body2" color="text.disabled">
-                  La discussion GeoTrust démarrera ici. Répondez ci-dessous.
-                </Typography>
-              </Box>
-            ) : (
-              threadCommentsQuery.data?.map((c) => <EscCommentBubble key={c.id} comment={c} />)
-            )}
-            <div ref={bottomRef} />
-          </Box>
-
-          {/* Attachments */}
-          {(attachmentsQuery.data?.length ?? 0) > 0 && (
-            <Box sx={{ px: 3, py: 1.5, borderTop: "1px solid var(--border)", bgcolor: "var(--bg-page)", flexShrink: 0, maxHeight: 140, overflowY: "auto" }}>
-              <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
-                Pièces jointes ({attachmentsQuery.data!.length})
-              </Typography>
-              {attachmentsQuery.data!.map((att) => (
-                <AttachmentRow key={att.id} att={att} ticketId={ticket!.id} />
-              ))}
-            </Box>
+              {/* Original thread */}
+              <div className="mb-2 text-xs font-bold uppercase tracking-[0.7px] text-amber-800">Fil de discussion original</div>
+              {refCommentsQuery.isLoading ? (
+                <div>{[1, 2].map((i) => <Skeleton key={i} className="mb-2 h-12 rounded-lg" />)}</div>
+              ) : (refCommentsQuery.data?.length ?? 0) === 0 ? (
+                <span className="text-xs text-border-strong">Aucun message dans la discussion originale.</span>
+              ) : (
+                refCommentsQuery.data?.map((c) => <RefCommentBubble key={c.id} comment={c} />)
+              )}
+            </div>
           )}
+        </div>
 
-          {/* Reply area */}
-          <Box sx={{ px: 3, pt: 1.5, pb: 2, borderTop: "1px solid var(--border)", bgcolor: "var(--bg-surface)", flexShrink: 0 }}>
-            {replyError && <Alert severity="error" sx={{ mb: 1.5, py: 0.5 }}>{replyError}</Alert>}
+        {/* ── Phase 1 : Formulaire d'escalade ── */}
+        {phase === "form" && (
+          <div className="flex flex-1 flex-col overflow-y-auto bg-background px-6 py-6">
+            <div className="mb-4">
+              <h3 className="mb-1 text-base font-bold text-foreground">Message d&apos;escalade vers GeoTrust</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Décrivez le contexte, l&apos;urgence et les éléments importants que l&apos;équipe GeoTrust doit connaître. Le ticket original et sa discussion seront joints automatiquement en référence.
+              </p>
+            </div>
 
-            {pendingFile && (
-              <Box display="flex" alignItems="center" gap={1} mb={1}>
-                <Chip
-                  icon={<AttachFileIcon sx={{ fontSize: 14 }} />}
-                  label={`${pendingFile.name} (${formatBytes(pendingFile.size)})`}
-                  size="small"
-                  onDelete={() => setPendingFile(null)}
-                  sx={{ bgcolor: "#FFF9EC", color: AMBER, fontWeight: 600, fontSize: 11 }}
-                />
-              </Box>
+            <div className="flex-1 rounded-xl border-[1.5px] border-border bg-surface transition-all focus-within:border-[#92400E]">
+              <textarea
+                value={escalateNote}
+                onChange={(e) => setEscalateNote(e.target.value)}
+                placeholder="Ex : Ce problème bloque 12 agents terrain depuis 2 jours. Malgré nos tentatives de résolution côté tenant, le bug semble lié à une synchronisation backend. Priorité haute..."
+                rows={8}
+                className="box-border w-full resize-none border-0 bg-transparent p-4 text-sm leading-[1.7] text-foreground outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+
+            {escalateError && <Alert severity="error" className="mt-3 py-1">{escalateError}</Alert>}
+
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <span className="text-xs text-muted-foreground">Le demandeur sera notifié et le ticket passera en statut &quot;En cours&quot;</span>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onClose} disabled={escalating}>Annuler</Button>
+                <Button
+                  disabled={escalating || !escalateNote.trim()}
+                  onClick={handleEscalate}
+                  className="bg-[#92400E] px-6 font-bold hover:bg-[#78350F] hover:opacity-100"
+                >
+                  {escalating ? <Spinner className="size-3.5" /> : <MoveUp size={16} />}
+                  {escalating ? "Envoi en cours…" : "Envoyer l'escalade vers GeoTrust"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Phase 2 : Thread de discussion ── */}
+        {phase === "thread" && (
+          <>
+            {/* Thread header */}
+            <div className="shrink-0 border-b border-amber-200 bg-[#FFF9EC] px-6 py-2.5">
+              <div className="flex items-center gap-2">
+                <CircleCheck size={15} className="text-green-600" />
+                <span className="text-xs font-bold text-green-700">
+                  Ticket escaladé{ticket?.escalatedAt ? ` le ${formatDate(ticket.escalatedAt)}` : ""}
+                  {ticket?.escalatedByName ? ` par ${ticket.escalatedByName}` : ""}
+                </span>
+              </div>
+            </div>
+
+            {/* Thread body */}
+            <div className="flex-1 overflow-y-auto bg-background px-6 py-4">
+              {threadCommentsQuery.isLoading ? (
+                <div>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className={`mb-4 flex gap-2 ${i % 2 === 0 ? "flex-row-reverse" : "flex-row"}`}>
+                      <Skeleton className="size-8 rounded-full" />
+                      <Skeleton className="h-14 w-[200px] rounded-lg" />
+                    </div>
+                  ))}
+                </div>
+              ) : (threadCommentsQuery.data?.length ?? 0) === 0 ? (
+                <div className="py-12 text-center">
+                  <MoveUp size={36} className="mx-auto mb-2 text-border-strong" />
+                  <p className="text-sm text-muted-foreground">La discussion GeoTrust démarrera ici. Répondez ci-dessous.</p>
+                </div>
+              ) : (
+                threadCommentsQuery.data?.map((c) => <EscCommentBubble key={c.id} comment={c} />)
+              )}
+              <div ref={bottomRef} />
+            </div>
+
+            {/* Attachments */}
+            {(attachmentsQuery.data?.length ?? 0) > 0 && (
+              <div className="max-h-36 shrink-0 overflow-y-auto border-t border-border bg-background px-6 py-3">
+                <div className="mb-2 block text-xs font-bold uppercase tracking-[0.8px] text-muted-foreground">
+                  Pièces jointes ({attachmentsQuery.data!.length})
+                </div>
+                {attachmentsQuery.data!.map((att) => (
+                  <AttachmentRow key={att.id} att={att} ticketId={ticket!.id} />
+                ))}
+              </div>
             )}
 
-            <Box sx={{ border: "1px solid var(--border)", borderRadius: 2.5, bgcolor: "#FAFBFC", "&:focus-within": { borderColor: AMBER, bgcolor: "var(--bg-surface)" }, transition: "all .15s" }}>
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Répondre dans la discussion GeoTrust…"
-                rows={3}
-                onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSend(); }}
-                style={{
-                  width: "100%", border: "none", outline: "none",
-                  background: "transparent", resize: "none",
-                  padding: "12px 14px 6px", fontFamily: "inherit",
-                  fontSize: 14, color: "#1E293B", lineHeight: 1.6, boxSizing: "border-box",
-                }}
-              />
-              <Box display="flex" alignItems="center" justifyContent="space-between" px={1.5} pb={1}>
-                <Box display="flex" gap={0.5}>
-                  <Tooltip title="Joindre un fichier (max 10 Mo)">
-                    <IconButton size="small" onClick={() => fileInputRef.current?.click()} sx={{ color: "var(--text-muted)", "&:hover": { color: AMBER, bgcolor: "#FFF9EC" } }}>
-                      <AttachFileIcon sx={{ fontSize: 18 }} />
-                    </IconButton>
-                  </Tooltip>
-                  <input type="file" ref={fileInputRef} onChange={(e) => { const f = e.target.files?.[0]; if (f) setPendingFile(f); e.target.value = ""; }} style={{ display: "none" }} accept="image/*,application/pdf,.doc,.docx,.txt" />
-                </Box>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>Ctrl+Entrée</Typography>
-                  <Button
-                    variant="contained" size="small"
-                    endIcon={(commentMutation.isPending || uploadMutation.isPending) ? <CircularProgress size={13} sx={{ color: "rgba(255,255,255,0.8)" }} /> : <SendIcon sx={{ fontSize: 15 }} />}
-                    disabled={!canSend}
-                    onClick={handleSend}
-                    sx={{ bgcolor: AMBER, fontWeight: 700, fontSize: 12, px: 2, borderRadius: 2, "&:hover": { bgcolor: "#78350F" }, "&.Mui-disabled": { bgcolor: "var(--border)", color: "var(--text-muted)" } }}
-                  >
-                    Envoyer
-                  </Button>
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        </>
-      )}
+            {/* Reply area */}
+            <div className="shrink-0 border-t border-border bg-surface px-6 pb-4 pt-3">
+              {replyError && <Alert severity="error" className="mb-3 py-1">{replyError}</Alert>}
+
+              {pendingFile && (
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF9EC] px-2.5 py-0.5 text-[11px] font-semibold text-[#92400E]">
+                    <Paperclip size={14} /> {pendingFile.name} ({formatBytes(pendingFile.size)})
+                    <button type="button" aria-label="Retirer le fichier" onClick={() => setPendingFile(null)} className="cursor-pointer border-0 bg-transparent p-0 text-[#92400E]/70 hover:text-[#92400E]">
+                      <X size={13} />
+                    </button>
+                  </span>
+                </div>
+              )}
+
+              <div className="rounded-xl border border-border bg-background transition-all focus-within:border-[#92400E] focus-within:bg-surface">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Répondre dans la discussion GeoTrust…"
+                  rows={3}
+                  onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSend(); }}
+                  className="box-border w-full resize-none border-0 bg-transparent px-3.5 pb-1.5 pt-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+                />
+                <div className="flex items-center justify-between px-3 pb-2">
+                  <div className="flex gap-1">
+                    <Tooltip title="Joindre un fichier (max 10 Mo)">
+                      <button type="button" aria-label="Joindre un fichier" onClick={() => fileInputRef.current?.click()} className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-muted-foreground hover:bg-[#FFF9EC] hover:text-[#92400E]">
+                        <Paperclip size={18} />
+                      </button>
+                    </Tooltip>
+                    <input type="file" ref={fileInputRef} onChange={(e) => { const f = e.target.files?.[0]; if (f) setPendingFile(f); e.target.value = ""; }} className="hidden" accept="image/*,application/pdf,.doc,.docx,.txt" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-border-strong">Ctrl+Entrée</span>
+                    <button
+                      type="button"
+                      disabled={!canSend}
+                      onClick={handleSend}
+                      className="inline-flex h-8 cursor-pointer items-center gap-2 rounded-lg border-0 bg-[#92400E] px-4 text-xs font-bold text-white transition-colors hover:bg-[#78350F] disabled:cursor-default disabled:bg-border disabled:text-muted-foreground"
+                    >
+                      Envoyer {sending ? <Spinner className="size-3.5" /> : <Send size={15} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </DialogContent>
     </Dialog>
   );
 }

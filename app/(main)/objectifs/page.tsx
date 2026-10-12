@@ -1,27 +1,22 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
-import {
-  Alert, Autocomplete, Avatar, Box, Button, Chip, CircularProgress, Container,
-  Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton,
-  MenuItem, Paper, Select, Stack, Switch, Table,
-  TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography,
-} from "@mui/material";
-import FlagIcon from "@mui/icons-material/Flag";
-import SaveIcon from "@mui/icons-material/Save";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import BlockIcon from "@mui/icons-material/Block";
-import GroupsIcon from "@mui/icons-material/Groups";
+import { Ban, Flag, Plus, Save, Trash2, Users } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { fetchAgences } from "@/lib/agences";
 import { fetchMe } from "@/lib/auth";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { Button } from "@/components/ui/button";
+import { Input, Field } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Alert } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Combobox, MultiCombobox } from "@/components/ui/combobox";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { HeaderButton, PageContainer, PageHeader, Panel, Th } from "@/components/ui/page-blocks";
 
-const NAVY  = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
 
 type ObjectiveType = {
   id: number; code: string; label: string; description: string | null;
@@ -194,89 +189,74 @@ export default function ObjectifsCafPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2 }}>
-        <FlagIcon sx={{ color: GOLD, fontSize: 30 }} />
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Fixation d'Objectifs</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
-            Attribution et suivi des objectifs mensuels des agents terrain
-          </Typography>
-        </Box>
+      <PageHeader icon={<Flag size={30} />} title="Fixation d'Objectifs" subtitle="Attribution et suivi des objectifs mensuels des agents terrain">
         {canEdit && (
-          <Button
-            variant="outlined"
-            startIcon={<GroupsIcon sx={{ fontSize: 18 }} />}
-            onClick={() => { setBulkResult(null); setBulkOpen(true); }}
-            sx={{ color: "white", borderColor: "rgba(255,255,255,0.4)", textTransform: "none", fontWeight: 600, "&:hover": { borderColor: GOLD, bgcolor: "rgba(255,255,255,0.06)" } }}
-          >
-            Fixation en masse
-          </Button>
+          <HeaderButton onClick={() => { setBulkResult(null); setBulkOpen(true); }}>
+            <Users size={18} /> Fixation en masse
+          </HeaderButton>
         )}
-      </Box>
+      </PageHeader>
 
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-        {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }} onClose={() => setError(null)}>{error}</Alert>}
-        {bulkResult && <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }} onClose={() => setBulkResult(null)}>{bulkResult}</Alert>}
+      <PageContainer>
+        {error && <Alert severity="error" className="mb-4" onClose={() => setError(null)}>{error}</Alert>}
+        {bulkResult && <Alert severity="success" className="mb-4" onClose={() => setBulkResult(null)}>{bulkResult}</Alert>}
         {me && !canEdit && (
-          <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2, borderRadius: 2 }}>
+          <Alert severity="info" className="mb-4">
             Vous consultez ce module en lecture seule. La fixation des objectifs est une décision métier réservée à la direction d&apos;exploitation.
           </Alert>
         )}
 
         {/* ── Sélection CAF + période ── */}
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5 }}>
-          <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-            <Autocomplete
-              size="small"
+        <Panel className="mb-5 p-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Combobox
+              className="min-w-80 flex-1"
               options={cafOptions}
               value={selectedCaf}
-              onChange={(_, v) => { setCafCode(v?.caf_code ?? ""); setTargets({}); }}
-              getOptionLabel={(o) => `${o.name} — ${o.caf_code}`}
-              isOptionEqualToValue={(o, v) => o.caf_code === v.caf_code}
+              onChange={(v) => { setCafCode(v?.caf_code ?? ""); setTargets({}); }}
+              getKey={(o) => o.caf_code}
+              getLabel={(o) => `${o.name} — ${o.caf_code}`}
               // Recherche sur nom, code CAF, agence ET zone.
-              filterOptions={(opts, { inputValue }) => {
-                const q = inputValue.trim().toLowerCase();
-                if (!q) return opts;
-                return opts.filter((o) =>
-                  o.name.toLowerCase().includes(q) ||
-                  o.caf_code.toLowerCase().includes(q) ||
-                  o.agence.toLowerCase().includes(q) ||
-                  o.zone.toLowerCase().includes(q),
-                );
-              }}
-              renderOption={(props, o) => (
-                <Box component="li" {...props} key={o.caf_code}>
-                  <Box>
-                    <Typography fontSize={13} fontWeight={600}>{o.name} <Typography component="span" fontSize={12} color="text.secondary">— {o.caf_code}</Typography></Typography>
-                    <Typography fontSize={11} color="text.secondary">
-                      {o.agence || "Sans agence"}{o.zone ? ` · ${o.zone}` : ""}
-                    </Typography>
-                  </Box>
-                </Box>
+              filter={(o, q) =>
+                o.name.toLowerCase().includes(q) ||
+                o.caf_code.toLowerCase().includes(q) ||
+                o.agence.toLowerCase().includes(q) ||
+                o.zone.toLowerCase().includes(q)
+              }
+              renderOption={(o) => (
+                <div>
+                  <div className="text-[13px] font-semibold">
+                    {o.name} <span className="text-xs font-normal text-muted-foreground">— {o.caf_code}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {o.agence || "Sans agence"}{o.zone ? ` · ${o.zone}` : ""}
+                  </div>
+                </div>
               )}
-              renderInput={(params) => (
-                <TextField {...params} placeholder="Rechercher par nom, code CAF, agence ou zone…" />
-              )}
-              sx={{ flex: 1, minWidth: 320 }}
+              placeholder="Rechercher par nom, code CAF, agence ou zone…"
             />
-            <TextField size="small" type="month" value={period}
-              onChange={(e) => { setPeriod(e.target.value); setTargets({}); }} sx={{ width: 180 }} />
-            {objsLoading && <CircularProgress size={18} sx={{ color: STEEL }} />}
-          </Stack>
-        </Paper>
+            <Input
+              type="month"
+              value={period}
+              onChange={(e) => { setPeriod(e.target.value); setTargets({}); }}
+              className="w-44"
+            />
+            {objsLoading && <Spinner className="text-[#1E6091]" />}
+          </div>
+        </Panel>
 
         {/* ── Attribution des objectifs ── */}
         {cafCode ? (
-          <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, overflow: "hidden", mb: 3 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  {["Assigné", "Objectif", "Unité", "Cible", "Réalisé", "Progression", ""].map((h) => (
-                    <TableCell key={h} sx={{ bgcolor: NAVY, color: "rgba(255,255,255,0.6)", fontWeight: 600, fontSize: 11, textTransform: "uppercase", borderBottom: "none" }}>{h}</TableCell>
+          <Panel className="mb-6 overflow-hidden">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-[#0F3B5C]">
+                  {["Assigné", "Objectif", "Unité", "Cible", "Réalisé", "Progression", ""].map((h, i) => (
+                    <Th key={i}>{h}</Th>
                   ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
+                </tr>
+              </thead>
+              <tbody>
                 {types.map((t) => {
                   const existing = objectiveByTypeId.get(t.id);
                   const target = targets[t.id] ?? (existing ? String(existing.targetValue) : "");
@@ -285,180 +265,211 @@ export default function ObjectifsCafPage() {
                     ? Math.min(100, Math.round((achieved / existing.targetValue) * 100)) : null;
                   const enabled = isTypeEnabled(t.id);
                   return (
-                    <TableRow key={t.id} hover sx={{ opacity: enabled ? 1 : 0.5 }}>
-                      <TableCell sx={{ width: 70 }}>
+                    <tr key={t.id} className={`border-b border-border hover:bg-muted ${enabled ? "" : "opacity-50"}`}>
+                      <td className="w-[70px] px-4 py-2.5">
                         <Tooltip title={enabled ? "Ce type s'applique à cette personne — désactiver pour le retirer de son application" : "Non applicable à cette personne — activer pour qu'il apparaisse dans son application"}>
                           <Switch
-                            size="small"
+                            aria-label={`Assigner ${t.label}`}
                             checked={enabled}
                             disabled={!canEdit || assignMut.isPending}
-                            onChange={(e) => assignMut.mutate({ objectiveTypeId: t.id, enabled: e.target.checked })}
+                            onCheckedChange={(v) => assignMut.mutate({ objectiveTypeId: t.id, enabled: v })}
                           />
                         </Tooltip>
-                      </TableCell>
-                      <TableCell>
-                        <Typography fontSize={13} fontWeight={600}>{t.label}</Typography>
-                        {t.description && <Typography fontSize={11} color="text.secondary">{t.description}</Typography>}
-                      </TableCell>
-                      <TableCell><Chip label={t.unit === "fcfa" ? "FCFA" : "Nombre"} size="small" sx={{ fontSize: 10, fontWeight: 700 }} /></TableCell>
-                      <TableCell sx={{ width: 170 }}>
-                        <TextField size="small" type="number" value={target} placeholder="Non fixé" disabled={!canEdit || !enabled}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <div className="text-[13px] font-semibold">{t.label}</div>
+                        {t.description && <div className="text-[11px] text-muted-foreground">{t.description}</div>}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold">{t.unit === "fcfa" ? "FCFA" : "Nombre"}</span>
+                      </td>
+                      <td className="w-[170px] px-4 py-2.5">
+                        <Input
+                          type="number"
+                          min={0}
+                          value={target}
+                          placeholder="Non fixé"
+                          disabled={!canEdit || !enabled}
                           onChange={(e) => setTargets((p) => ({ ...p, [t.id]: e.target.value }))}
-                          inputProps={{ min: 0 }} sx={{ "& input": { fontSize: 13, py: 0.6 } }} />
+                          className="h-8 text-[13px]"
+                        />
                         {existing?.setByName && (
-                          <Typography fontSize={10} color="text.disabled" mt={0.4} noWrap>
+                          <div className="mt-1 truncate text-[10px] text-muted-foreground/70">
                             Fixé par {existing.setByName}
                             {existing.updatedAt && ` · ${new Date(existing.updatedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}`}
-                          </Typography>
+                          </div>
                         )}
-                      </TableCell>
-                      <TableCell><Typography fontSize={13} fontWeight={600}>{existing ? fmt(achieved, t.unit) : "—"}</Typography></TableCell>
-                      <TableCell>
-                        {pct != null
-                          ? <Chip label={`${pct} %`} size="small" sx={{ fontWeight: 700, bgcolor: pct >= 100 ? "#dcfce7" : pct >= 50 ? "#FEF3C7" : "#fee2e2", color: pct >= 100 ? "#16a34a" : pct >= 50 ? "#92400E" : "#dc2626" }} />
-                          : <Typography fontSize={12} color="text.disabled">—</Typography>}
-                      </TableCell>
-                      <TableCell sx={{ width: 110 }}>
+                      </td>
+                      <td className="px-4 py-2.5 text-[13px] font-semibold">{existing ? fmt(achieved, t.unit) : "—"}</td>
+                      <td className="px-4 py-2.5">
+                        {pct != null ? (
+                          <span
+                            className="rounded-full px-2 py-0.5 text-xs font-bold"
+                            style={{
+                              background: pct >= 100 ? "#dcfce7" : pct >= 50 ? "#FEF3C7" : "#fee2e2",
+                              color: pct >= 100 ? "#16a34a" : pct >= 50 ? "#92400E" : "#dc2626",
+                            }}
+                          >
+                            {pct} %
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground/70">—</span>
+                        )}
+                      </td>
+                      <td className="w-[110px] px-4 py-2.5">
                         {canEdit && (
-                          <Stack direction="row" spacing={0.5}>
+                          <div className="flex gap-1">
                             <Tooltip title={saved === t.id ? "Enregistré !" : "Enregistrer la cible"}>
-                              <span>
-                                <IconButton size="small" disabled={!enabled || target === "" || saveMut.isPending}
-                                  onClick={() => saveMut.mutate({ objectiveTypeId: t.id, targetValue: Number(target) })}
-                                  sx={{ color: saved === t.id ? "#16a34a" : STEEL }}>
-                                  <SaveIcon sx={{ fontSize: 17 }} />
-                                </IconButton>
-                              </span>
+                              <button
+                                type="button"
+                                aria-label="Enregistrer la cible"
+                                disabled={!enabled || target === "" || saveMut.isPending}
+                                onClick={() => saveMut.mutate({ objectiveTypeId: t.id, targetValue: Number(target) })}
+                                className={`flex size-8 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent hover:bg-muted disabled:cursor-default disabled:opacity-40 ${saved === t.id ? "text-green-600" : "text-[#1E6091]"}`}
+                              >
+                                <Save size={17} />
+                              </button>
                             </Tooltip>
                             {existing && (
                               <Tooltip title="Retirer cet objectif">
-                                <IconButton size="small" onClick={() => deleteMut.mutate(existing.id)} sx={{ color: "#dc2626" }}>
-                                  <DeleteOutlineIcon sx={{ fontSize: 17 }} />
-                                </IconButton>
+                                <button
+                                  type="button"
+                                  aria-label="Retirer cet objectif"
+                                  onClick={() => deleteMut.mutate(existing.id)}
+                                  className="flex size-8 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-red-600 hover:bg-red-50"
+                                >
+                                  <Trash2 size={17} />
+                                </button>
                               </Tooltip>
                             )}
-                          </Stack>
+                          </div>
                         )}
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                    </tr>
                   );
                 })}
-              </TableBody>
-            </Table>
-          </Paper>
+              </tbody>
+            </table>
+          </Panel>
         ) : (
-          <Paper sx={{ p: 4, textAlign: "center", border: "2px dashed var(--border)", borderRadius: 3, bgcolor: "transparent", mb: 3 }}>
-            <FlagIcon sx={{ fontSize: 40, color: "var(--border-strong)", mb: 1 }} />
-            <Typography fontSize={13} color="text.secondary">Sélectionnez un CAF pour attribuer ou modifier ses objectifs.</Typography>
-          </Paper>
+          <div className="mb-6 rounded-2xl border-2 border-dashed border-border p-8 text-center">
+            <Flag size={40} className="mx-auto mb-2 text-border-strong" />
+            <p className="text-[13px] text-muted-foreground">Sélectionnez un CAF pour attribuer ou modifier ses objectifs.</p>
+          </div>
         )}
 
         {/* ── Gestion des types d'objectifs ── */}
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2.5 }}>
-          <Typography fontWeight={700} color="var(--text-primary)" mb={0.5}>Types d&apos;objectifs</Typography>
-          <Typography fontSize={12} color="text.secondary" mb={2}>
+        <Panel className="p-5">
+          <h2 className="mb-1 font-bold text-foreground">Types d&apos;objectifs</h2>
+          <p className="mb-4 text-xs text-muted-foreground">
             La liste des types est partagée avec l&apos;application mobile — désactiver un type le retire des
             écrans sans effacer l&apos;historique déjà attribué.
-          </Typography>
-          <Stack gap={1}>
+          </p>
+          <div className="flex flex-col gap-2">
             {types.map((t) => (
-              <Box key={t.id} display="flex" alignItems="center" gap={1.5}
-                sx={{ px: 1.5, py: 0.75, borderRadius: 2, bgcolor: "var(--bg-page)", border: "1px solid var(--border)" }}>
-                <Avatar sx={{ width: 28, height: 28, bgcolor: NAVY }}><FlagIcon sx={{ fontSize: 14, color: GOLD }} /></Avatar>
-                <Typography fontSize={13} fontWeight={600} flex={1}>{t.label}</Typography>
-                <Chip label={t.unit === "fcfa" ? "FCFA" : "Nombre"} size="small" sx={{ fontSize: 10 }} />
+              <div key={t.id} className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-1.5">
+                <span className="flex size-7 items-center justify-center rounded-full bg-[#0F3B5C] text-[#3C8047]"><Flag size={14} /></span>
+                <span className="flex-1 text-[13px] font-semibold">{t.label}</span>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold">{t.unit === "fcfa" ? "FCFA" : "Nombre"}</span>
                 {canEdit && (
                   <Tooltip title="Désactiver ce type (historique conservé)">
-                    <IconButton size="small" onClick={() => deactivateTypeMut.mutate(t.id)} sx={{ color: "#dc2626" }}>
-                      <BlockIcon sx={{ fontSize: 16 }} />
-                    </IconButton>
+                    <button
+                      type="button"
+                      aria-label="Désactiver ce type"
+                      onClick={() => deactivateTypeMut.mutate(t.id)}
+                      className="flex size-8 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-red-600 hover:bg-red-50"
+                    >
+                      <Ban size={16} />
+                    </button>
                   </Tooltip>
                 )}
-              </Box>
+              </div>
             ))}
-            {canEdit && <Divider sx={{ my: 1 }} />}
             {canEdit && (
-            <Stack direction="row" spacing={1} alignItems="center">
-              <TextField size="small" placeholder="Nouveau type d'objectif…" value={newTypeLabel}
-                onChange={(e) => setNewTypeLabel(e.target.value)} sx={{ flex: 1, maxWidth: 320 }} />
-              <Select size="small" value={newTypeUnit} onChange={(e) => setNewTypeUnit(e.target.value as any)} sx={{ width: 130 }}>
-                <MenuItem value="count">Nombre</MenuItem>
-                <MenuItem value="fcfa">FCFA</MenuItem>
-              </Select>
-              <Button size="small" variant="contained" startIcon={createTypeMut.isPending ? <CircularProgress size={13} sx={{ color: "white" }} /> : <AddIcon />}
-                disabled={!newTypeLabel.trim() || createTypeMut.isPending}
-                onClick={() => createTypeMut.mutate()}
-                sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL }, fontWeight: 600 }}>
-                Ajouter
-              </Button>
-            </Stack>
+              <div className="mt-2 flex items-center gap-2 border-t border-border pt-3">
+                <Input
+                  placeholder="Nouveau type d'objectif…"
+                  value={newTypeLabel}
+                  onChange={(e) => setNewTypeLabel(e.target.value)}
+                  className="h-8 max-w-80 flex-1"
+                />
+                <Select value={newTypeUnit} onChange={(e) => setNewTypeUnit(e.target.value as any)} className="h-8 w-32">
+                  <option value="count">Nombre</option>
+                  <option value="fcfa">FCFA</option>
+                </Select>
+                <Button
+                  size="sm"
+                  disabled={!newTypeLabel.trim() || createTypeMut.isPending}
+                  onClick={() => createTypeMut.mutate()}
+                  className="hover:bg-[#1E6091] hover:opacity-100"
+                >
+                  {createTypeMut.isPending ? <Spinner className="size-3.5" /> : <Plus size={15} />} Ajouter
+                </Button>
+              </div>
             )}
-          </Stack>
-        </Paper>
-      </Container>
+          </div>
+        </Panel>
+      </PageContainer>
 
       {/* ── Fixation en masse ── */}
-      <Dialog open={bulkOpen} onClose={() => setBulkOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>Fixation en masse</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2.5} sx={{ pt: 1 }}>
-            <Typography fontSize={13} color="text.secondary">
+      <Dialog open={bulkOpen} onOpenChange={(o) => !o && setBulkOpen(false)}>
+        <DialogContent size="sm" accent={false} aria-describedby={undefined}>
+          <DialogHeader>Fixation en masse</DialogHeader>
+          <DialogBody className="flex flex-col gap-5">
+            <p className="text-[13px] text-muted-foreground">
               Applique la même cible à un groupe entier en une seule fois, pour la période sélectionnée ({period}).
-            </Typography>
-            <Select size="small" value={bulkScope} onChange={(e) => { setBulkScope(e.target.value as any); setBulkCafCodes([]); }}>
-              <MenuItem value="all_caf">Tous les CAF du tenant</MenuItem>
-              <MenuItem value="all_recouvrement">Tous les agents recouvrement</MenuItem>
-              <MenuItem value="custom">Sélection personnalisée</MenuItem>
+            </p>
+            <Select value={bulkScope} onChange={(e) => { setBulkScope(e.target.value as any); setBulkCafCodes([]); }}>
+              <option value="all_caf">Tous les CAF du tenant</option>
+              <option value="all_recouvrement">Tous les agents recouvrement</option>
+              <option value="custom">Sélection personnalisée</option>
             </Select>
             {bulkScope === "custom" && (
-              <Autocomplete
-                multiple
-                size="small"
+              <MultiCombobox
+                inline
                 options={cafOptions}
-                value={cafOptions.filter((o) => bulkCafCodes.includes(o.caf_code))}
-                onChange={(_, v) => setBulkCafCodes(v.map((o) => o.caf_code))}
-                getOptionLabel={(o) => `${o.name} — ${o.caf_code}`}
-                isOptionEqualToValue={(o, v) => o.caf_code === v.caf_code}
-                renderInput={(params) => <TextField {...params} placeholder="Rechercher une ou plusieurs personnes…" />}
+                values={cafOptions.filter((o) => bulkCafCodes.includes(o.caf_code))}
+                onChange={(v) => setBulkCafCodes(v.map((o) => o.caf_code))}
+                getKey={(o) => o.caf_code}
+                getLabel={(o) => `${o.name} — ${o.caf_code}`}
+                placeholder="Rechercher une ou plusieurs personnes…"
               />
             )}
-            <Select size="small" value={bulkTypeId} displayEmpty
-              onChange={(e) => setBulkTypeId(e.target.value as number)}>
-              <MenuItem value="" disabled>Type d&apos;objectif…</MenuItem>
-              {types.map((t) => <MenuItem key={t.id} value={t.id}>{t.label} ({t.unit === "fcfa" ? "FCFA" : "Nombre"})</MenuItem>)}
+            <Select value={bulkTypeId} onChange={(e) => setBulkTypeId(e.target.value === "" ? "" : Number(e.target.value))}>
+              <option value="" disabled>Type d&apos;objectif…</option>
+              {types.map((t) => <option key={t.id} value={t.id}>{t.label} ({t.unit === "fcfa" ? "FCFA" : "Nombre"})</option>)}
             </Select>
-            <TextField size="small" type="number" label="Cible" value={bulkTarget}
-              onChange={(e) => setBulkTarget(e.target.value)} inputProps={{ min: 0 }} />
-          </Stack>
+            <Field label="Cible">
+              <Input type="number" min={0} value={bulkTarget} onChange={(e) => setBulkTarget(e.target.value)} />
+            </Field>
+          </DialogBody>
+          <DialogFooter className="border-t-0">
+            <Button variant="ghost" onClick={() => setBulkOpen(false)}>Annuler</Button>
+            <Button disabled={!bulkCanSubmit} onClick={() => setBulkConfirmOpen(true)} className="hover:bg-[#1E6091] hover:opacity-100">
+              Continuer
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setBulkOpen(false)}>Annuler</Button>
-          <Button variant="contained" disabled={!bulkCanSubmit}
-            onClick={() => setBulkConfirmOpen(true)}
-            sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            Continuer
-          </Button>
-        </DialogActions>
       </Dialog>
 
-      <Dialog open={bulkConfirmOpen} onClose={() => setBulkConfirmOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 700 }}>Confirmer la fixation en masse</DialogTitle>
-        <DialogContent>
-          <Typography fontSize={14}>
-            Fixer <strong>{bulkTypeLabel}</strong> à <strong>{bulkTarget}</strong> pour <strong>{bulkScopeLabel}</strong> sur la période <strong>{period}</strong> ?
-          </Typography>
-          <Typography fontSize={12.5} color="text.secondary" sx={{ mt: 1.5 }}>
-            Écrase la cible existante pour tous les destinataires concernés — le réalisé n&apos;est pas affecté.
-          </Typography>
+      <Dialog open={bulkConfirmOpen} onOpenChange={(o) => !o && setBulkConfirmOpen(false)}>
+        <DialogContent size="xs" accent={false} aria-describedby={undefined}>
+          <DialogHeader>Confirmer la fixation en masse</DialogHeader>
+          <DialogBody>
+            <p className="text-sm">
+              Fixer <strong>{bulkTypeLabel}</strong> à <strong>{bulkTarget}</strong> pour <strong>{bulkScopeLabel}</strong> sur la période <strong>{period}</strong> ?
+            </p>
+            <p className="mt-3 text-[12.5px] text-muted-foreground">
+              Écrase la cible existante pour tous les destinataires concernés — le réalisé n&apos;est pas affecté.
+            </p>
+          </DialogBody>
+          <DialogFooter className="border-t-0">
+            <Button variant="ghost" onClick={() => setBulkConfirmOpen(false)} disabled={bulkMut.isPending}>Annuler</Button>
+            <Button variant="destructive" disabled={bulkMut.isPending} onClick={() => bulkMut.mutate()}>
+              {bulkMut.isPending && <Spinner className="size-3.5" />} Confirmer
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setBulkConfirmOpen(false)} disabled={bulkMut.isPending}>Annuler</Button>
-          <Button variant="contained" color="error" disabled={bulkMut.isPending}
-            startIcon={bulkMut.isPending ? <CircularProgress size={14} sx={{ color: "white" }} /> : undefined}
-            onClick={() => bulkMut.mutate()}>
-            Confirmer
-          </Button>
-        </DialogActions>
       </Dialog>
     </>
   );

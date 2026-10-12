@@ -1,21 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Alert, Box, Button, CircularProgress, IconButton,
-  InputAdornment, TextField, Typography,
-} from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import LockResetIcon from "@mui/icons-material/LockReset";
-import DashboardIcon from "@mui/icons-material/Dashboard";
+import { Eye, EyeOff, KeyRound, LayoutDashboard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { apiClient } from "@/lib/apiClient";
-
-const NAVY = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD = "#3C8047";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
 
 // Changement de mot de passe OBLIGATOIRE à la première connexion — cette
 // page n'est jamais accessible par choix : SidebarLayout y redirige dès que
@@ -55,76 +48,74 @@ export default function ChangePasswordPage() {
     }
   };
 
-  return (
-    <Box sx={{ minHeight: "calc(100vh / var(--ui-zoom))", bgcolor: "var(--bg-page)", display: "flex", alignItems: "center", justifyContent: "center", p: 3 }}>
-      <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD }} />
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <Box sx={{ width: 420, maxWidth: "90vw", bgcolor: "var(--bg-surface)", borderRadius: 3, border: "1px solid var(--border)", boxShadow: "0 4px 24px rgba(15,59,92,0.06)", p: 4 }}>
-          <Box display="flex" alignItems="center" gap={1.5} mb={3}>
-            <Box sx={{ width: 42, height: 42, borderRadius: 2, bgcolor: NAVY, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <DashboardIcon sx={{ color: GOLD, fontSize: 22 }} />
-            </Box>
-            <Box>
-              <Typography sx={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)" }}>GeoTrust</Typography>
-              <Typography sx={{ fontSize: 11, color: GOLD, fontWeight: 600 }}>Administration Tenant</Typography>
-            </Box>
-          </Box>
+  const label = "mb-1.5 block text-[13px] font-semibold text-muted-foreground";
 
-          <Box display="flex" alignItems="center" gap={1.5} mb={1}>
-            <LockResetIcon sx={{ color: STEEL, fontSize: 22 }} />
-            <Typography variant="h6" fontWeight={800} sx={{ color: "var(--text-primary)" }}>
-              Changement de mot de passe requis
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: "var(--text-secondary)", lineHeight: 1.6, mb: 3 }}>
+  return (
+    <div className="relative flex items-center justify-center bg-background p-6" style={{ minHeight: "calc(100vh / var(--ui-zoom))" }}>
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-[#3C8047]" />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <div className="w-[420px] max-w-[90vw] rounded-2xl border border-border bg-surface p-8 shadow-[0_4px_24px_rgba(15,59,92,0.06)]">
+          <div className="mb-6 flex items-center gap-3">
+            <span className="flex size-[42px] items-center justify-center rounded-[10px] bg-[#0F3B5C] text-[#3C8047]">
+              <LayoutDashboard size={22} />
+            </span>
+            <div>
+              <div className="text-[17px] font-extrabold text-foreground">GeoTrust</div>
+              <div className="text-[11px] font-semibold text-[#3C8047]">Administration Tenant</div>
+            </div>
+          </div>
+
+          <div className="mb-2 flex items-center gap-3">
+            <KeyRound size={22} className="text-[#1E6091]" />
+            <h1 className="text-xl font-extrabold text-foreground">Changement de mot de passe requis</h1>
+          </div>
+          <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
             C&apos;est votre première connexion : vous devez définir un nouveau mot de passe avant de continuer.
-          </Typography>
+          </p>
 
           {done ? (
-            <Alert severity="success" sx={{ borderRadius: 2 }}>
-              Mot de passe changé avec succès. Redirection vers la page de connexion…
-            </Alert>
+            <Alert severity="success">Mot de passe changé avec succès. Redirection vers la page de connexion…</Alert>
           ) : (
-            <Box component="form" onSubmit={handleSubmit}>
-              {error && <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>{error}</Alert>}
-              <Box mb={2.5}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
-                  Nouveau mot de passe
-                </Typography>
-                <TextField
-                  fullWidth size="small" type={showPwd ? "text" : "password"}
-                  value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Minimum 8 caractères"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton size="small" onClick={() => setShowPwd((v) => !v)} tabIndex={-1}>
-                          {showPwd ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
+            <form onSubmit={handleSubmit}>
+              {error && <Alert severity="error" className="mb-5">{error}</Alert>}
+              <div className="mb-5">
+                <label className={label} htmlFor="new-password">Nouveau mot de passe</label>
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showPwd ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Minimum 8 caractères"
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    aria-label={showPwd ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    onClick={() => setShowPwd((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"
+                  >
+                    {showPwd ? <EyeOff size={17} /> : <Eye size={17} />}
+                  </button>
+                </div>
+              </div>
+              <div className="mb-6">
+                <label className={label} htmlFor="confirm-password">Confirmer le mot de passe</label>
+                <Input
+                  id="confirm-password"
+                  type={showPwd ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
-              </Box>
-              <Box mb={3}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
-                  Confirmer le mot de passe
-                </Typography>
-                <TextField
-                  fullWidth size="small" type={showPwd ? "text" : "password"}
-                  value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </Box>
-              <Button
-                type="submit" fullWidth variant="contained" disabled={loading}
-                sx={{ height: 46, bgcolor: NAVY, fontWeight: 700, textTransform: "none", borderRadius: 2, "&:hover": { bgcolor: STEEL } }}
-              >
-                {loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Changer le mot de passe"}
+              </div>
+              <Button type="submit" disabled={loading} className="h-11 w-full font-bold hover:bg-[#1E6091] hover:opacity-100">
+                {loading ? <Spinner className="size-5" /> : "Changer le mot de passe"}
               </Button>
-            </Box>
+            </form>
           )}
-        </Box>
+        </div>
       </motion.div>
-    </Box>
+    </div>
   );
 }

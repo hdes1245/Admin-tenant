@@ -2,28 +2,22 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import {
-  Box, Button, CircularProgress, Menu, MenuItem, ListItemIcon, ListItemText,
-  Tab, Tabs, Tooltip, Typography, Snackbar, Alert, Divider,
-} from "@mui/material";
-import InsightsIcon from "@mui/icons-material/Insights";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import DescriptionIcon from "@mui/icons-material/Description";
-import LayersIcon from "@mui/icons-material/Layers";
+import { ChevronDown, FileText, Layers, LineChart, FileDown } from "lucide-react";
 import ClientPortfolioPage from "../client-portfolio/page";
 import { AgentsTerrainView } from "@/components/AgentsTerrainView";
 import { fetchMe } from "@/lib/auth";
 import { generatePortfolioPdf, generateLocationsPdf, generateAgentsPdf, generateGlobalAnalyticsPdf } from "@/lib/analyticsPdf";
-
-const NAVY  = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Snackbar } from "@/components/ui/snackbar";
+import { TabBar } from "@/components/ui/tabs";
+import { HeaderButton, PageHeader } from "@/components/ui/page-blocks";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Analytics localisations : lourd (recharts) → chargé à la demande.
 const LocationAnalyticsPage = dynamic(() => import("../location-analytics/page"), {
   ssr: false,
-  loading: () => <Box sx={{ p: 4, textAlign: "center" }}><CircularProgress size={28} /></Box>,
+  loading: () => <div className="p-8 text-center"><Spinner className="size-7" /></div>,
 });
 
 const TAB_LABELS = ["Portefeuille & couverture", "Localisations", "Agents terrain"];
@@ -32,7 +26,7 @@ const TAB_LABELS = ["Portefeuille & couverture", "Localisations", "Agents terrai
 // (portefeuille & couverture clients, analyse des captures GPS terrain).
 export default function AnalyticsPage() {
   const [tab, setTab] = useState(0);
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +40,7 @@ export default function AnalyticsPage() {
   };
 
   const runExport = async (fn: () => Promise<void>) => {
-    setMenuAnchor(null);
+    setMenuOpen(false);
     setExporting(true);
     setError(null);
     try {
@@ -72,67 +66,44 @@ export default function AnalyticsPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <InsightsIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Analytics &amp; Rapports</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
-            Portefeuille clients, risque crédit et analyse des captures GPS terrain
-          </Typography>
-        </Box>
-
-        <Tooltip title={exporting ? "Génération en cours…" : "Exporter un rapport PDF détaillé"}>
-          <span>
-            <Button
-              variant="outlined"
-              disabled={exporting}
-              onClick={(e) => setMenuAnchor(e.currentTarget)}
-              startIcon={exporting ? <CircularProgress size={16} sx={{ color: "white" }} /> : <PictureAsPdfIcon />}
-              endIcon={!exporting && <ArrowDropDownIcon />}
-              sx={{
-                color: "white", borderColor: "rgba(255,255,255,0.4)", textTransform: "none", fontWeight: 600,
-                "&:hover": { borderColor: GOLD, background: "rgba(60,128,71,0.12)" },
-              }}
-            >
-              {exporting ? "Génération…" : "Exporter en PDF"}
-            </Button>
-          </span>
-        </Tooltip>
-        <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}>
-          <MenuItem onClick={exportCurrentTab}>
-            <ListItemIcon><DescriptionIcon fontSize="small" sx={{ color: STEEL }} /></ListItemIcon>
-            <ListItemText
-              primary={`Rapport — ${TAB_LABELS[tab]}`}
+      <PageHeader icon={<LineChart size={30} />} title="Analytics & Rapports" subtitle="Portefeuille clients, risque crédit et analyse des captures GPS terrain">
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <Tooltip title={exporting ? "Génération en cours…" : "Exporter un rapport PDF détaillé"}>
+            <DropdownMenuTrigger asChild disabled={exporting}>
+              <HeaderButton>
+                {exporting ? <Spinner className="size-4" /> : <FileDown size={16} />}
+                {exporting ? "Génération…" : "Exporter en PDF"}
+                {!exporting && <ChevronDown size={16} />}
+              </HeaderButton>
+            </DropdownMenuTrigger>
+          </Tooltip>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onSelect={exportCurrentTab}
+              icon={<FileText size={18} className="text-[#1E6091]" />}
+              title={`Rapport — ${TAB_LABELS[tab]}`}
               secondary="Uniquement la catégorie affichée"
             />
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={exportGlobal}>
-            <ListItemIcon><LayersIcon fontSize="small" sx={{ color: GOLD }} /></ListItemIcon>
-            <ListItemText
-              primary="Rapport global"
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={exportGlobal}
+              icon={<Layers size={18} className="text-[#3C8047]" />}
+              title="Rapport global"
               secondary="Portefeuille + Localisations + Agents terrain"
             />
-          </MenuItem>
-        </Menu>
-      </Box>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </PageHeader>
 
-      <Box sx={{ borderBottom: "1px solid var(--border)", background: "var(--bg-surface)", px: 3 }}>
-        <Tabs value={tab} onChange={(_, v) => setTab(v)}
-          sx={{ "& .MuiTab-root": { fontWeight: 600, fontSize: 13, textTransform: "none", minHeight: 48 }, "& .Mui-selected": { color: "var(--accent-text) !important" }, "& .MuiTabs-indicator": { background: "var(--accent-text)" } }}>
-          {TAB_LABELS.map((l) => <Tab key={l} label={l} />)}
-        </Tabs>
-      </Box>
+      <div className="border-b border-border bg-surface px-6">
+        <TabBar tabs={TAB_LABELS} value={tab} onChange={setTab} />
+      </div>
 
       {tab === 0 && <ClientPortfolioPage />}
       {tab === 1 && <LocationAnalyticsPage />}
       {tab === 2 && <AgentsTerrainView embedded />}
 
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert severity="error" onClose={() => setError(null)} sx={{ width: "100%" }}>{error}</Alert>
-      </Snackbar>
+      <Snackbar open={!!error} onClose={() => setError(null)}>{error}</Snackbar>
     </>
   );
 }

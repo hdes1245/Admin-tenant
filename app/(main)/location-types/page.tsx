@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   fetchLocationTypes,
@@ -9,49 +9,18 @@ import {
 import type { LocationTypeItem } from "@/lib/locationTypes";
 import { downloadCsv } from "@/lib/csvExport";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Container,
-  Dialog,
-  Grid,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  IconButton,
-  InputAdornment,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import PlaceIcon from "@mui/icons-material/Place";
-import AddIcon from "@mui/icons-material/Add";
-import DownloadIcon from "@mui/icons-material/Download";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import CodeIcon from "@mui/icons-material/Code";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import CategoryIcon from "@mui/icons-material/Category";
+import { Code, Download, FileUp, MapPin, Pencil, Plus, Search, Shapes, Trash2, X } from "lucide-react";
 import { ChangeEvent, useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input, Field } from "@/components/ui/input";
+import { Alert } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { HeaderButton, KpiTile, PageContainer, PageHeader, Panel, Th } from "@/components/ui/page-blocks";
 
 const NAVY  = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
 
 type FormState = { code: string; name: string; sort_order: string };
 const emptyForm = (): FormState => ({ code: "", name: "", sort_order: "" });
@@ -156,306 +125,225 @@ export default function LocationTypesPage() {
 
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <CategoryIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Types de lieux</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
-            Gérez les catégories de localisation disponibles dans l&apos;application mobile
-          </Typography>
-        </Box>
+      <PageHeader icon={<Shapes size={30} />} title="Types de lieux" subtitle="Gérez les catégories de localisation disponibles dans l'application mobile">
         <Tooltip title="Exporter les types de lieux en CSV">
-          <Button variant="outlined" startIcon={<DownloadIcon />}
-            onClick={() => downloadCsv(types, [{ key: "code", label: "code" }, { key: "name", label: "name" }, { key: "sort_order", label: "sort_order" }], "types-de-lieux.csv")}
-            sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-            Exporter CSV
-          </Button>
+          <HeaderButton onClick={() => downloadCsv(types, [{ key: "code", label: "code" }, { key: "name", label: "name" }, { key: "sort_order", label: "sort_order" }], "types-de-lieux.csv")}>
+            <Download size={16} /> Exporter CSV
+          </HeaderButton>
         </Tooltip>
-        <Button variant="outlined" startIcon={<UploadFileIcon />}
-          onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedImportRows([]); setImportFileName(null); }}
-          sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-          Importer CSV
+        <HeaderButton onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedImportRows([]); setImportFileName(null); }}>
+          <FileUp size={16} /> Importer CSV
+        </HeaderButton>
+        <Button className="bg-[#3C8047] hover:bg-[#2A5C34] hover:opacity-100" onClick={openCreate}>
+          <Plus size={16} /> Nouveau type
         </Button>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={openCreate}
-          sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" } }}
-        >
-          Nouveau type
-        </Button>
-      </Box>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+      </PageHeader>
 
-        {actionError && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setActionError(null)}>{actionError}</Alert>
-        )}
-
-        {isError && (
-          <Alert severity="error" sx={{ mb: 2 }}>Impossible de charger les types de lieux.</Alert>
-        )}
+      <PageContainer>
+        {actionError && !deleteTarget && <Alert severity="error" className="mb-4" onClose={() => setActionError(null)}>{actionError}</Alert>}
+        {isError && <Alert severity="error" className="mb-4">Impossible de charger les types de lieux.</Alert>}
 
         {/* KPIs */}
         {!isLoading && (
-          <Grid container spacing={2} mb={3}>
-            <Grid item xs={12} sm={4}>
-              <Box sx={{
-                borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
-                px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
-                position: "relative", overflow: "hidden",
-                boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
-                "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: NAVY, borderRadius: "3px 0 0 3px" },
-                transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
-              }}>
-                <Avatar sx={{ width: 44, height: 44, bgcolor: NAVY, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${NAVY}44`, flexShrink: 0 }}>
-                  <CategoryIcon sx={{ fontSize: 22 }} />
-                </Avatar>
-                <Box>
-                  <Typography variant="h5" fontWeight={800} sx={{ color: "var(--text-primary)", lineHeight: 1, letterSpacing: -0.5 }}>{types.length}</Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ lineHeight: 1.3 }}>Total types</Typography>
-                </Box>
-              </Box>
-            </Grid>
-          </Grid>
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <KpiTile label="Total types" value={types.length} accent={NAVY} icon={<Shapes size={22} />} />
+          </div>
         )}
 
         {/* Filter bar */}
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
-          <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
-            <TextField
-              size="small" placeholder="Rechercher par nom ou code..."
-              value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: NAVY }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: NAVY, borderWidth: 1.5 } } }}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
-                endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-              }}
-            />
+        <Panel className="mb-5 p-4 shadow-[0_1px_4px_rgba(15,59,92,0.04)]">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-60 flex-1">
+              <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Rechercher par nom ou code..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-9" />
+              {search && (
+                <button
+                  type="button"
+                  aria-label="Effacer la recherche"
+                  onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
             {!isLoading && (
-              <Typography variant="caption" color="text.secondary">
+              <span className="text-xs text-muted-foreground">
                 {filteredTypes.length} type{filteredTypes.length !== 1 ? "s" : ""}{search ? ` · ${types.length} au total` : ""}
-              </Typography>
+              </span>
             )}
-          </Box>
-        </Paper>
+          </div>
+        </Panel>
 
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, overflow: "hidden" }}>
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  {[
-                    { label: "#", width: 56 },
-                    { label: "Code" },
-                    { label: "Nom affiché" },
-                    { label: "Ordre", width: 100 },
-                    { label: "", width: 88 },
-                  ].map((col, i) => (
-                    <TableCell
-                      key={i}
-                      sx={{
-                        bgcolor: NAVY, color: "rgba(255,255,255,0.55)", fontWeight: 600,
-                        fontSize: 10.5, textTransform: "uppercase", letterSpacing: 1,
-                        borderBottom: "none", py: 1.75, width: col.width,
-                      }}
-                    >
-                      {col.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {isLoading && (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}>
-                      <Box display="flex" alignItems="center" justifyContent="center" gap={1.5}>
-                        <CircularProgress size={18} sx={{ color: STEEL }} />
-                        <Typography variant="body2" color="text.secondary">Chargement...</Typography>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                )}
-                {!isLoading && types.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}>
-                      <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
-                        <CategoryIcon sx={{ fontSize: 40, color: "var(--border-strong)" }} />
-                        <Typography variant="body2" color="text.disabled">
-                          Aucun type de lieu configuré. Créez-en un pour commencer.
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                )}
-                {filteredTypes.map((t, idx) => (
-                  <motion.tr
-                    key={t.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.15, delay: idx * 0.025 }}
-                    style={{ display: "table-row" }}
-                  >
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)", pl: 2.5 }}>
-                      <Typography variant="caption" sx={{ fontFamily: "monospace", fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
-                        #{t.id}
-                      </Typography>
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
-                      <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#F1F5F9", border: "1px solid var(--border)" }}>
-                        <Typography variant="caption" sx={{ fontFamily: "monospace", fontSize: 12, fontWeight: 700, color: STEEL }}>
-                          {t.code}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <PlaceIcon sx={{ fontSize: 15, color: GOLD }} />
-                        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>{t.name}</Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
-                      <Typography variant="caption" sx={{ color: "var(--text-secondary)", fontFamily: "monospace" }}>{t.sort_order}</Typography>
-                    </TableCell>
-                    <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)", pr: 1.5 }}>
-                      <Box display="flex" alignItems="center" gap={0.5}>
-                        <Tooltip title="Modifier" arrow>
-                          <IconButton size="small" onClick={() => openEdit(t)}
-                            sx={{ width: 30, height: 30, borderRadius: 1.5, color: "var(--text-muted)", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
-                            <EditIcon sx={{ fontSize: 15 }} />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Supprimer" arrow>
-                          <IconButton size="small" onClick={() => { setActionError(null); setDeleteTarget(t); }}
-                            sx={{ width: 30, height: 30, borderRadius: 1.5, color: "var(--text-muted)", "&:hover": { color: "#EF4444", bgcolor: "#FFF1F2" } }}>
-                            <DeleteOutlineIcon sx={{ fontSize: 15 }} />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </TableCell>
-                  </motion.tr>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+        <Panel className="overflow-hidden">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-[#0F3B5C]">
+                <Th className="w-14 pl-5">#</Th>
+                <Th>Code</Th>
+                <Th>Nom affiché</Th>
+                <Th className="w-[100px]">Ordre</Th>
+                <Th className="w-[88px]" />
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading && (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center">
+                    <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                      <Spinner className="text-[#1E6091]" /> Chargement...
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {!isLoading && types.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground">
+                      <Shapes size={40} className="text-border-strong" />
+                      Aucun type de lieu configuré. Créez-en un pour commencer.
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {filteredTypes.map((t, idx) => (
+                <motion.tr
+                  key={t.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.15, delay: idx * 0.025 }}
+                  style={{ display: "table-row" }}
+                  className="border-b border-border bg-surface"
+                >
+                  <td className="py-2.5 pl-5 pr-2 font-mono text-[11px] font-medium text-muted-foreground">#{t.id}</td>
+                  <td className="px-4 py-2.5">
+                    <span className="inline-flex rounded-[5px] border border-border bg-muted px-2.5 py-0.5 font-mono text-xs font-bold text-[#1E6091]">{t.code}</span>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                      <MapPin size={15} className="text-[#3C8047]" /> {t.name}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">{t.sort_order}</td>
+                  <td className="py-2.5 pl-4 pr-3">
+                    <div className="flex items-center gap-1">
+                      <Tooltip title="Modifier">
+                        <button type="button" aria-label="Modifier" onClick={() => openEdit(t)}
+                          className="flex size-[30px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground hover:bg-blue-50 hover:text-[#1E6091]">
+                          <Pencil size={15} />
+                        </button>
+                      </Tooltip>
+                      <Tooltip title="Supprimer">
+                        <button type="button" aria-label="Supprimer" onClick={() => { setActionError(null); setDeleteTarget(t); }}
+                          className="flex size-[30px] cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground hover:bg-red-50 hover:text-red-500">
+                          <Trash2 size={15} />
+                        </button>
+                      </Tooltip>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </Panel>
 
         {/* Dialog création / édition */}
-        <Dialog open={dialogOpen} onClose={() => !saveMutation.isPending && setDialogOpen(false)} fullWidth maxWidth="xs"
-          PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-          <Box sx={{ height: 4, bgcolor: GOLD }} />
-          <DialogTitle sx={{ pb: 1 }}>
-            <Box display="flex" alignItems="center" gap={1.5}>
-              <Avatar sx={{ width: 34, height: 34, bgcolor: NAVY }}>
-                <CategoryIcon sx={{ color: GOLD, fontSize: 18 }} />
-              </Avatar>
-              <Typography fontWeight={700}>{editTarget ? "Modifier le type" : "Nouveau type de lieu"}</Typography>
-            </Box>
-          </DialogTitle>
-          <Divider />
-          <DialogContent sx={{ pt: 2.5 }}>
-            <Box display="flex" flexDirection="column" gap={2}>
-              <TextField
-                label="Nom affiché *"
-                fullWidth size="small"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="ex: Domicile, Commerce, Bureau..."
-              />
-              <TextField
-                label="Code technique *"
-                fullWidth size="small"
-                value={form.code}
-                onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
-                placeholder="ex: domicile, commerce, bureau"
-                helperText="Identifiant unique, minuscules, sans espaces (utilisé par l'API)"
-                inputProps={{ style: { fontFamily: "monospace" } }}
-              />
-              <TextField
-                label="Ordre d'affichage"
-                fullWidth size="small" type="number"
-                value={form.sort_order}
-                onChange={(e) => setForm((f) => ({ ...f, sort_order: e.target.value }))}
-                placeholder="0"
-                inputProps={{ min: 0 }}
-                helperText="Les types sont triés par ordre croissant"
-              />
+        <Dialog open={dialogOpen} onOpenChange={(o) => !o && !saveMutation.isPending && setDialogOpen(false)}>
+          <DialogContent size="xs" aria-describedby={undefined}>
+            <DialogHeader icon={<Shapes size={18} />}>{editTarget ? "Modifier le type" : "Nouveau type de lieu"}</DialogHeader>
+            <DialogBody className="flex flex-col gap-4">
+              <Field label="Nom affiché *">
+                <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="ex: Domicile, Commerce, Bureau..." />
+              </Field>
+              <Field label="Code technique *" help="Identifiant unique, minuscules, sans espaces (utilisé par l'API)">
+                <Input className="font-mono" value={form.code} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))} placeholder="ex: domicile, commerce, bureau" />
+              </Field>
+              <Field label="Ordre d'affichage" help="Les types sont triés par ordre croissant">
+                <Input type="number" min={0} value={form.sort_order} onChange={(e) => setForm((f) => ({ ...f, sort_order: e.target.value }))} placeholder="0" />
+              </Field>
               {formError && <Alert severity="error">{formError}</Alert>}
-            </Box>
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saveMutation.isPending}>Annuler</Button>
+              <Button onClick={handleSave} disabled={saveMutation.isPending} className="hover:bg-[#1E6091] hover:opacity-100">
+                {saveMutation.isPending ? "Enregistrement..." : editTarget ? "Modifier" : "Créer"}
+              </Button>
+            </DialogFooter>
           </DialogContent>
-          <Divider />
-          <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-            <Button onClick={() => setDialogOpen(false)} variant="outlined" color="inherit" disabled={saveMutation.isPending}>
-              Annuler
-            </Button>
-            <Button onClick={handleSave} variant="contained" disabled={saveMutation.isPending}
-              sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-              {saveMutation.isPending ? "Enregistrement..." : editTarget ? "Modifier" : "Créer"}
-            </Button>
-          </DialogActions>
         </Dialog>
 
         {/* Dialog: Import CSV */}
-        <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-          <Box sx={{ height: 4, bgcolor: GOLD }} />
-          <DialogTitle sx={{ pb: 1 }}>
-            <Box display="flex" alignItems="center" gap={1.5}>
-              <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}><UploadFileIcon sx={{ color: GOLD, fontSize: 20 }} /></Avatar>
-              <Typography variant="h6" fontWeight={700}>Importer des types de lieux via CSV</Typography>
-            </Box>
-          </DialogTitle>
-          <Divider />
-          <DialogContent sx={{ pt: 2 }}>
-            <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
-              <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-              <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name,sort_order</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
-                <b>code</b> — obligatoire (ex: domicile)<br /><b>name</b> — obligatoire (ex: Domicile)<br /><b>sort_order</b> — optionnel, entier (ex: 1)
-              </Typography>
-            </Box>
-            <Button component="label" variant="outlined" startIcon={<UploadFileIcon />} sx={{ borderRadius: 2 }}>
-              Choisir un fichier CSV
-              <input type="file" accept=".csv,text/csv" hidden onChange={handleTypesCsvFile} />
-            </Button>
-            {importFileName && <Box mt={2}><Chip label={importFileName} size="small" icon={<UploadFileIcon />} color="warning" variant="outlined" /></Box>}
-            {parsedImportRows.length > 0 && <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }}><b>{parsedImportRows.length} type{parsedImportRows.length > 1 ? "s" : ""}</b> prêts à être importés.</Alert>}
-            {importError && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{importError}</Alert>}
+        <Dialog open={importDialogOpen} onOpenChange={(o) => !o && setImportDialogOpen(false)}>
+          <DialogContent size="sm" aria-describedby={undefined}>
+            <DialogHeader icon={<FileUp size={20} />}>Importer des types de lieux via CSV</DialogHeader>
+            <DialogBody>
+              <div className="mb-5 rounded-lg border border-border bg-muted/40 p-4">
+                <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  <Code size={16} /> Format attendu
+                </div>
+                <code className="mb-3 block rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs">code,name,sort_order</code>
+                <p className="text-xs leading-8 text-muted-foreground">
+                  <b>code</b> — obligatoire (ex: domicile)<br /><b>name</b> — obligatoire (ex: Domicile)<br /><b>sort_order</b> — optionnel, entier (ex: 1)
+                </p>
+              </div>
+              <label className="inline-flex">
+                <span className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border-strong bg-surface px-4 text-sm font-semibold hover:bg-muted">
+                  <FileUp size={15} /> Choisir un fichier CSV
+                </span>
+                <input type="file" accept=".csv,text/csv" hidden onChange={handleTypesCsvFile} />
+              </label>
+              {importFileName && (
+                <div className="mt-4">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 px-2.5 py-0.5 text-xs text-amber-700 dark:text-amber-300">
+                    <FileUp size={13} /> {importFileName}
+                  </span>
+                </div>
+              )}
+              {parsedImportRows.length > 0 && (
+                <Alert severity="success" className="mt-4"><b>{parsedImportRows.length} type{parsedImportRows.length > 1 ? "s" : ""}</b> prêts à être importés.</Alert>
+              )}
+              {importError && <Alert severity="error" className="mt-4">{importError}</Alert>}
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setImportDialogOpen(false)}>Annuler</Button>
+              <Button
+                disabled={!parsedImportRows.length || importMutation.isPending}
+                className="hover:bg-[#1E6091] hover:opacity-100"
+                onClick={async () => {
+                  if (!parsedImportRows.length) return;
+                  setImportError(null);
+                  try { await importMutation.mutateAsync(parsedImportRows); }
+                  catch (err: any) { setImportError(err?.message ?? "Import impossible."); }
+                }}
+              >
+                {importMutation.isPending ? <Spinner className="size-4" /> : <FileUp size={15} />}
+                Lancer l&apos;import ({parsedImportRows.length})
+              </Button>
+            </DialogFooter>
           </DialogContent>
-          <Divider />
-          <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-            <Button onClick={() => setImportDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-            <Button
-              onClick={async () => { if (!parsedImportRows.length) return; setImportError(null); try { await importMutation.mutateAsync(parsedImportRows); } catch (err: any) { setImportError(err?.message ?? "Import impossible."); } }}
-              variant="contained" disabled={!parsedImportRows.length || importMutation.isPending}
-              startIcon={importMutation.isPending ? <CircularProgress size={16} sx={{ color: "white" }} /> : <UploadFileIcon />}
-              sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-              Lancer l&apos;import ({parsedImportRows.length})
-            </Button>
-          </DialogActions>
         </Dialog>
 
         {/* Dialog confirmation suppression */}
-        <Dialog open={!!deleteTarget} onClose={() => !deleteMutation.isPending && setDeleteTarget(null)} maxWidth="xs" fullWidth
-          PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-          <Box sx={{ height: 4, bgcolor: "#EF4444" }} />
-          <DialogTitle fontWeight={700}>Supprimer ce type de lieu ?</DialogTitle>
-          <DialogContent>
-            <Typography variant="body2" color="text.secondary">
-              Le type <strong>{deleteTarget?.name}</strong> (code : <code>{deleteTarget?.code}</code>) sera supprimé définitivement.
-              Les localisations existantes utilisant ce type ne seront pas affectées.
-            </Typography>
-            {actionError && <Alert severity="error" sx={{ mt: 2 }}>{actionError}</Alert>}
+        <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && !deleteMutation.isPending && setDeleteTarget(null)}>
+          <DialogContent size="xs" accent={false} aria-describedby={undefined}>
+            <div className="h-1 bg-red-500" />
+            <DialogHeader>Supprimer ce type de lieu ?</DialogHeader>
+            <DialogBody>
+              <p className="text-sm text-muted-foreground">
+                Le type <strong className="text-foreground">{deleteTarget?.name}</strong> (code : <code>{deleteTarget?.code}</code>) sera supprimé définitivement.
+                Les localisations existantes utilisant ce type ne seront pas affectées.
+              </p>
+              {actionError && <Alert severity="error" className="mt-4">{actionError}</Alert>}
+            </DialogBody>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleteMutation.isPending}>Annuler</Button>
+              <Button variant="destructive" onClick={() => deleteMutation.mutate()} disabled={deleteMutation.isPending}>
+                {deleteMutation.isPending ? "Suppression..." : "Supprimer"}
+              </Button>
+            </DialogFooter>
           </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-            <Button onClick={() => setDeleteTarget(null)} variant="outlined" color="inherit" disabled={deleteMutation.isPending}>
-              Annuler
-            </Button>
-            <Button onClick={() => deleteMutation.mutate()} variant="contained" color="error" disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending ? "Suppression..." : "Supprimer"}
-            </Button>
-          </DialogActions>
         </Dialog>
-
-      </Container>
+      </PageContainer>
     </>
   );
 }

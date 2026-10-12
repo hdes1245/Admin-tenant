@@ -1,43 +1,42 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-} from "@mui/material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import BusinessIcon from "@mui/icons-material/Business";
+import { Building2, Eye, EyeOff, LayoutDashboard, Lock, User, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { apiClient } from "@/lib/apiClient";
+import { TurnstileWidget, TURNSTILE_SITE_KEY } from "@/components/TurnstileWidget";
 import { isMobileOnlyRole, isSupervisorRole, landingPathForRole } from "@/lib/roles";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
 
-const NAVY = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
+const GOLD = "#3C8047";
 
 function StatCard({ icon, title, desc, delay, top, left }: { icon: React.ReactNode; title: string; desc: string; delay: number; top?: number | string; left?: number | string }) {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay, ease: "easeOut" }} style={{ position: "absolute", top, left }}>
-      <Box sx={{ bgcolor: "rgba(255,255,255,0.07)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 2.5, px: 2, py: 1.5, display: "flex", alignItems: "center", gap: 1.5, minWidth: 210 }}>
-        <Box sx={{ color: GOLD, display: "flex" }}>{icon}</Box>
-        <Box>
-          <Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontSize: 13, lineHeight: 1.2 }}>{title}</Typography>
-          <Typography sx={{ color: "#7A8FA6", fontSize: 11, mt: 0.25 }}>{desc}</Typography>
-        </Box>
-      </Box>
+      <div className="flex min-w-[210px] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-4 py-3 backdrop-blur-[10px]">
+        <span className="flex text-[#3C8047]">{icon}</span>
+        <div>
+          <div className="text-[13px] font-semibold leading-tight text-white">{title}</div>
+          <div className="mt-0.5 text-[11px] text-[#7A8FA6]">{desc}</div>
+        </div>
+      </div>
     </motion.div>
+  );
+}
+
+function Logo({ url, size }: { url: string | null; size: "lg" | "sm" }) {
+  const lg = size === "lg";
+  return url ? (
+    <span className={`flex items-center justify-center overflow-hidden rounded-md bg-white p-1 ${lg ? "h-11 w-16" : "h-9 w-[52px] border border-border"}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%" }} />
+    </span>
+  ) : (
+    <span className={`flex items-center justify-center bg-[#3C8047] font-black text-[#0F3B5C] ${lg ? "size-11 rounded-[10px] text-[22px] tracking-tighter" : "size-9 rounded-lg text-lg"}`}>S</span>
   );
 }
 
@@ -47,6 +46,8 @@ export default function LoginPage() {
   const [showPassword, setShowPwd]    = useState(false);
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState<string | null>(null);
+  const [captcha, setCaptcha]         = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [tenantLogoUrl, setLogoUrl]   = useState<string | null>(null);
   const router = useRouter();
 
@@ -66,11 +67,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) { setError("Veuillez renseigner votre identifiant et votre mot de passe."); return; }
+    if (TURNSTILE_SITE_KEY && !captcha) { setError("Veuillez valider la vérification anti-robot."); return; }
     setLoading(true); setError(null);
     try {
       const tenantSlug = typeof window !== "undefined" ? localStorage.getItem("tenantSlug") || undefined : undefined;
       const body: Record<string, any> = { username: username.trim(), password };
       if (tenantSlug) body.tenantSlug = tenantSlug;
+      if (captcha) body.turnstileToken = captcha;
 
       const resp = await apiClient.post("/auth/login", body);
       const raw = resp.data as any;
@@ -105,210 +108,143 @@ export default function LoginPage() {
     } catch (err: any) {
       const msg = err?.response?.data?.message ?? err?.message ?? "Échec de la connexion.";
       setError(Array.isArray(msg) ? msg.join(" ") : msg.toString());
+      setCaptchaReset((n) => n + 1);
     } finally { setLoading(false); }
   };
 
+  const label = "mb-1.5 block text-[13px] font-semibold text-muted-foreground";
+  const iconCls = "pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground";
+
   return (
-    <Box sx={{ display: "flex", minHeight: "calc(100vh / var(--ui-zoom))", bgcolor: "var(--bg-page)" }}>
+    <div className="flex bg-background" style={{ minHeight: "calc(100vh / var(--ui-zoom))" }}>
 
       {/* Left panel — branding */}
-      <Box
-        sx={{
-          display: { xs: "none", md: "flex" },
-          flex: "0 0 460px",
-          flexDirection: "column",
-          justifyContent: "center",
-          position: "relative",
-          overflow: "hidden",
-          bgcolor: "var(--sidebar-bg)",
-          p: 6,
-        }}
-      >
+      <div className="relative hidden flex-[0_0_460px] flex-col justify-center overflow-hidden bg-[var(--sidebar-bg)] p-12 md:flex">
         {/* Formes « lampe à lave » — dérivent lentement en boucle (voir globals.css) */}
-        <Box className="login-blob login-blob-a" sx={{ top: -100, right: -100, width: 350, height: 350, background: `radial-gradient(circle, rgba(60,128,71,0.14) 0%, transparent 65%)` }} />
-        <Box className="login-blob login-blob-b" sx={{ bottom: -80, left: -80, width: 280, height: 280, background: `radial-gradient(circle, rgba(30,96,145,0.30) 0%, transparent 65%)` }} />
-        <Box className="login-blob login-blob-c" sx={{ top: "38%", left: "20%", width: 220, height: 220, background: `radial-gradient(circle, rgba(74,222,128,0.10) 0%, transparent 65%)` }} />
+        <div className="login-blob login-blob-a" style={{ top: -100, right: -100, width: 350, height: 350, background: "radial-gradient(circle, rgba(60,128,71,0.14) 0%, transparent 65%)" }} />
+        <div className="login-blob login-blob-b" style={{ bottom: -80, left: -80, width: 280, height: 280, background: "radial-gradient(circle, rgba(30,96,145,0.30) 0%, transparent 65%)" }} />
+        <div className="login-blob login-blob-c" style={{ top: "38%", left: "20%", width: 220, height: 220, background: "radial-gradient(circle, rgba(74,222,128,0.10) 0%, transparent 65%)" }} />
 
         {/* Gold top bar */}
-        <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD }} />
+        <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: GOLD }} />
 
         {/* Logo */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-          <Box display="flex" alignItems="center" gap={1.5} mb={6}>
-            {tenantLogoUrl ? (
-              <Box sx={{ width: 64, height: 44, borderRadius: 1.5, bgcolor: "white", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", p: 0.5 }}>
-                <img src={tenantLogoUrl} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%" }} />
-              </Box>
-            ) : (
-              <Box sx={{ width: 44, height: 44, borderRadius: 2.5, bgcolor: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Typography sx={{ color: NAVY, fontWeight: 900, fontSize: 22, letterSpacing: -1 }}>S</Typography>
-              </Box>
-            )}
-            <Box>
-              <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 22, letterSpacing: -0.5, lineHeight: 1 }}>GeoTrust</Typography>
-              <Typography sx={{ color: GOLD, fontSize: 12, fontWeight: 600 }}>Administration & Supervision</Typography>
-            </Box>
-          </Box>
+          <div className="mb-12 flex items-center gap-3">
+            <Logo url={tenantLogoUrl} size="lg" />
+            <div>
+              <div className="text-[22px] font-extrabold leading-none tracking-tight text-white">GeoTrust</div>
+              <div className="text-xs font-semibold text-[#3C8047]">Administration & Supervision</div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Headline */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-          <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 28, lineHeight: 1.25, mb: 2, letterSpacing: -0.5 }}>
-            Pilotez votre organisation en toute clarté
-          </Typography>
-          <Typography sx={{ color: "#7A8FA6", fontSize: 15, lineHeight: 1.7, mb: 5 }}>
+          <h2 className="mb-4 text-[28px] font-extrabold leading-tight tracking-tight text-white">Pilotez votre organisation en toute clarté</h2>
+          <p className="mb-10 text-[15px] leading-relaxed text-[#7A8FA6]">
             Gérez agences, utilisateurs, clients et localisations depuis une interface centralisée et sécurisée.
-          </Typography>
+          </p>
         </motion.div>
 
         {/* Feature cards */}
-        <Box sx={{ position: "relative", height: 220 }}>
-          <StatCard icon={<DashboardIcon sx={{ fontSize: 20 }} />} title="Tableau de bord" desc="Statistiques en temps réel" delay={0.25} top={0} left={0} />
-          <StatCard icon={<PeopleAltIcon sx={{ fontSize: 20 }} />} title="Supervision terrain" desc="Agents, objectifs et couverture" delay={0.35} top={72} left={40} />
-          <StatCard icon={<BusinessIcon sx={{ fontSize: 20 }} />} title="Agences & Zones" desc="Organisation géographique" delay={0.45} top={144} left={0} />
-        </Box>
+        <div className="relative h-[220px]">
+          <StatCard icon={<LayoutDashboard size={20} />} title="Tableau de bord" desc="Statistiques en temps réel" delay={0.25} top={0} left={0} />
+          <StatCard icon={<Users size={20} />} title="Supervision terrain" desc="Agents, objectifs et couverture" delay={0.35} top={72} left={40} />
+          <StatCard icon={<Building2 size={20} />} title="Agences & Zones" desc="Organisation géographique" delay={0.45} top={144} left={0} />
+        </div>
 
         {/* Footer */}
-        <Box mt="auto" pt={4}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#22c55e" }} />
-            <Typography sx={{ color: "#94A3B8", fontSize: 12 }}>Système opérationnel</Typography>
-          </Box>
-          <Typography sx={{ color: "#64748B", fontSize: 12 }}>© 2025 GeoTrust · Tous droits réservés</Typography>
-        </Box>
-      </Box>
+        <div className="mt-auto pt-8">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-green-500" />
+            <span className="text-xs text-slate-400">Système opérationnel</span>
+          </div>
+          <span className="text-xs text-slate-500">© 2025 GeoTrust · Tous droits réservés</span>
+        </div>
+      </div>
 
       {/* Right panel — form */}
-      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", p: { xs: 3, sm: 6 }, position: "relative", overflow: "hidden" }}>
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden p-6 sm:p-12">
 
         {/* Formes « lampe à lave » — même traitement que le panneau navy, en plus discret sur ce fond quasi-noir */}
-        <Box className="login-blob login-blob-b" sx={{ top: -120, right: -140, width: 380, height: 380, background: `radial-gradient(circle, rgba(30,96,145,0.16) 0%, transparent 65%)` }} />
-        <Box className="login-blob login-blob-a" sx={{ bottom: -100, right: "15%", width: 300, height: 300, background: `radial-gradient(circle, rgba(60,128,71,0.10) 0%, transparent 65%)` }} />
-        <Box className="login-blob login-blob-c" sx={{ bottom: "10%", left: -100, width: 260, height: 260, background: `radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 65%)` }} />
+        <div className="login-blob login-blob-b" style={{ top: -120, right: -140, width: 380, height: 380, background: "radial-gradient(circle, rgba(30,96,145,0.16) 0%, transparent 65%)" }} />
+        <div className="login-blob login-blob-a" style={{ bottom: -100, right: "15%", width: 300, height: 300, background: "radial-gradient(circle, rgba(60,128,71,0.10) 0%, transparent 65%)" }} />
+        <div className="login-blob login-blob-c" style={{ bottom: "10%", left: -100, width: 260, height: 260, background: "radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 65%)" }} />
 
         {/* Gold accent top line on mobile */}
-        <Box sx={{ display: { xs: "block", md: "none" }, position: "absolute", top: 0, left: 0, right: 0, height: 3, bgcolor: GOLD, zIndex: 1 }} />
+        <div className="absolute inset-x-0 top-0 z-[1] h-[3px] md:hidden" style={{ background: GOLD }} />
 
-        <Box sx={{ width: "100%", maxWidth: 400, position: "relative", zIndex: 1 }}>
+        <div className="relative z-[1] w-full max-w-[400px]">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
 
             {/* Mobile logo */}
-            <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", gap: 1.5, mb: 4, mt: 2 }}>
-              {tenantLogoUrl ? (
-                <Box sx={{ width: 52, height: 36, borderRadius: 1.5, bgcolor: "white", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", p: 0.5, border: "1px solid var(--border)" }}>
-                  <img src={tenantLogoUrl} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%" }} />
-                </Box>
-              ) : (
-                <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Typography sx={{ color: NAVY, fontWeight: 900, fontSize: 18 }}>S</Typography>
-                </Box>
-              )}
-              <Typography sx={{ fontWeight: 800, fontSize: 18, color: "var(--text-primary)" }}>GeoTrust</Typography>
-            </Box>
+            <div className="mb-8 mt-4 flex items-center gap-3 md:hidden">
+              <Logo url={tenantLogoUrl} size="sm" />
+              <span className="text-lg font-extrabold text-foreground">GeoTrust</span>
+            </div>
 
             {/* Heading */}
-            <Box mb={4}>
-              <Typography variant="h5" fontWeight={800} sx={{ color: "var(--text-primary)", mb: 0.75, letterSpacing: -0.3 }}>
-                Connexion
-              </Typography>
-              <Typography variant="body2" sx={{ color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            <div className="mb-8">
+              <h1 className="mb-1.5 text-2xl font-extrabold tracking-tight text-foreground">Connexion</h1>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 Connectez-vous : vous serez dirigé vers votre espace selon votre profil (administrateur ou superviseur).
-              </Typography>
-            </Box>
+              </p>
+            </div>
 
             {/* Form */}
-            <Box component="form" onSubmit={handleSubmit}>
-              <Box mb={2.5}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
-                  Identifiant
-                </Typography>
-                <TextField
-                  fullWidth size="small"
-                  placeholder="Votre identifiant"
-                  autoComplete="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonOutlineIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      bgcolor: "var(--bg-surface)",
-                      "&:hover fieldset": { borderColor: "var(--border-strong)" },
-                      "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
-                    },
-                  }}
-                />
-              </Box>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-5">
+                <label htmlFor="login-username" className={label}>Identifiant</label>
+                <div className="relative">
+                  <User size={18} className={iconCls} />
+                  <Input
+                    id="login-username"
+                    placeholder="Votre identifiant"
+                    autoComplete="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="bg-surface pl-10"
+                  />
+                </div>
+              </div>
 
-              <Box mb={3}>
-                <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-secondary)", mb: 0.75, fontSize: 13 }}>
-                  Mot de passe
-                </Typography>
-                <TextField
-                  fullWidth size="small"
-                  placeholder="Votre mot de passe"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlinedIcon sx={{ fontSize: 18, color: "var(--text-muted)" }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton size="small" onClick={() => setShowPwd((v) => !v)} edge="end" sx={{ color: "var(--text-muted)" }}>
-                          {showPassword ? <VisibilityOffIcon sx={{ fontSize: 18 }} /> : <VisibilityIcon sx={{ fontSize: 18 }} />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      bgcolor: "var(--bg-surface)",
-                      "&:hover fieldset": { borderColor: "var(--border-strong)" },
-                      "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
-                    },
-                  }}
-                />
-              </Box>
+              <div className="mb-6">
+                <label htmlFor="login-password" className={label}>Mot de passe</label>
+                <div className="relative">
+                  <Lock size={18} className={iconCls} />
+                  <Input
+                    id="login-password"
+                    placeholder="Votre mot de passe"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-surface pl-10 pr-10"
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    onClick={() => setShowPwd((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
 
-              {error && (
-                <Alert severity="error" sx={{ mb: 2.5, fontSize: 13 }}>{error}</Alert>
-              )}
+              <TurnstileWidget onToken={setCaptcha} resetKey={captchaReset} />
 
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                disabled={loading}
-                sx={{
-                  height: 46,
-                  bgcolor: NAVY,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  letterSpacing: 0,
-                  "&:hover": { bgcolor: STEEL },
-                  "&:disabled": { bgcolor: "#E2E8F0", color: "var(--text-muted)" },
-                  transition: "background .2s ease",
-                }}
-              >
-                {loading
-                  ? <Box display="flex" alignItems="center" gap={1.5}><CircularProgress size={18} sx={{ color: "white" }} /> Connexion…</Box>
-                  : "Se connecter"}
+              {error && <Alert severity="error" className="mb-5 text-[13px]">{error}</Alert>}
+
+              <Button type="submit" disabled={loading} className="h-[46px] w-full text-[15px] font-bold hover:bg-[#1E6091] hover:opacity-100">
+                {loading ? <span className="flex items-center gap-3"><Spinner className="size-[18px]" /> Connexion…</span> : "Se connecter"}
               </Button>
-            </Box>
+            </form>
 
           </motion.div>
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 }

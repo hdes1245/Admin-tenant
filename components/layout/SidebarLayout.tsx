@@ -1,62 +1,26 @@
 "use client";
 
 import { ReactNode, useCallback, useEffect, useState } from "react";
-import {
-  AppBar, Avatar, Badge, Box, Collapse, CssBaseline, Divider,
-  Drawer, IconButton, List, ListItemButton, ListItemIcon,
-  ListItemText, Toolbar, Tooltip, Typography,
-} from "@mui/material";
 import { useRouter, usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+  Bell, Building2, Bug, ChevronDown, ChevronUp, ClipboardList, Globe, Headset, LayoutDashboard, Layers,
+  LineChart, ListChecks, LogOut, Map as MapIcon, MapPin, MapPinned, Menu, Moon, Mountain, ShieldCheck, Sun, Users,
+} from "lucide-react";
 import { fetchMe, AuthUserProfile } from "@/lib/auth";
 import { apiClient } from "@/lib/apiClient";
 import { SessionExpiredDialog } from "@/components/SessionExpiredDialog";
 import { isSupervisorRole, isPathAllowedForSupervisor, landingPathForRole, normalizeRole } from "@/lib/roles";
 import { useThemeMode } from "@/components/ThemeModeContext";
-
-// Icons — nav items
-import MenuIcon              from "@mui/icons-material/Menu";
-import DashboardIcon         from "@mui/icons-material/Dashboard";
-import BusinessIcon          from "@mui/icons-material/Business";
-import PeopleAltIcon         from "@mui/icons-material/PeopleAlt";
-import PersonPinCircleIcon   from "@mui/icons-material/PersonPinCircle";
-import MapIcon               from "@mui/icons-material/Map";
-import PlaceIcon             from "@mui/icons-material/Place";
-import AssignmentIcon        from "@mui/icons-material/Assignment";
-import GroupsIcon            from "@mui/icons-material/Groups";
-import BugReportIcon         from "@mui/icons-material/BugReport";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import FactCheckIcon         from "@mui/icons-material/FactCheck";
-import InsightsIcon          from "@mui/icons-material/Insights";
-import SecurityIcon          from "@mui/icons-material/Security";
-import LogoutIcon            from "@mui/icons-material/Logout";
-import ExpandMoreIcon        from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon        from "@mui/icons-material/ExpandLess";
-import DarkModeIcon          from "@mui/icons-material/DarkMode";
-import LightModeIcon         from "@mui/icons-material/LightMode";
-
-// Icons — group headers
-import LayersIcon            from "@mui/icons-material/Layers";
-import TerrainIcon           from "@mui/icons-material/Terrain";
-import SupportAgentIcon      from "@mui/icons-material/SupportAgent";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import PublicIcon            from "@mui/icons-material/Public";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 // ── Design tokens (identiques GeoTrust) ───────────────────────────────────
-const DRAWER_WIDTH          = 264;
-const NAVY                  = "#0F3B5C";
-const STEEL                 = "#1E6091";
-const GOLD                  = "#3C8047";
-const SIDEBAR_TEXT          = "#7A8FA6";
-const SIDEBAR_TEXT_ACTIVE   = "#FFFFFF";
-const SIDEBAR_ACTIVE_BG     = "rgba(74,222,128,0.14)";
-const SIDEBAR_ACTIVE_BORDER = "#4ADE80";
-const SIDEBAR_HOVER_BG      = "rgba(255,255,255,0.04)";
+const DRAWER_WIDTH = 264;
 // GOLD (#3C8047) est un vert foncé lisible sur fond clair (boutons, badges
 // blancs) mais illisible en texte/icône directement sur le fond sidebar
-// navy — SIDEBAR_ACCENT est la variante claire réservée à cet usage.
-const SIDEBAR_ACCENT        = "#4ADE80";
-const SIDEBAR_ACCENT_SOFT   = "#86EFAC";
+// navy — #4ADE80 est la variante claire réservée à cet usage.
+const SIDEBAR_ACCENT_SOFT = "#86EFAC";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type NavItem  = { label: string; icon: React.ReactNode; href: string; badge?: number };
@@ -67,46 +31,46 @@ const NAV_GROUPS: NavGroup[] = [
   {
     id: "plateforme",
     label: "Plateforme",
-    icon: <LayersIcon sx={{ fontSize: 16 }} />,
+    icon: <Layers size={16} />,
     items: [
-      { label: "Tableau de bord", icon: <DashboardIcon sx={{ fontSize: 19 }} />,       href: "/" },
-      { label: "Agences",         icon: <BusinessIcon sx={{ fontSize: 19 }} />,        href: "/agences" },
-      { label: "Utilisateurs",    icon: <PeopleAltIcon sx={{ fontSize: 19 }} />,       href: "/users" },
-      { label: "Clients",         icon: <PersonPinCircleIcon sx={{ fontSize: 19 }} />, href: "/clients" },
+      { label: "Tableau de bord", icon: <LayoutDashboard size={19} />, href: "/" },
+      { label: "Agences",         icon: <Building2 size={19} />,       href: "/agences" },
+      { label: "Utilisateurs",    icon: <Users size={19} />,           href: "/users" },
+      { label: "Clients",         icon: <MapPinned size={19} />,       href: "/clients" },
     ],
   },
   {
     id: "terrain",
     label: "Terrain & Données",
-    icon: <TerrainIcon sx={{ fontSize: 16 }} />,
+    icon: <Mountain size={16} />,
     items: [
-      { label: "Référentiels",    icon: <MapIcon sx={{ fontSize: 19 }} />,        href: "/zones" },
-      { label: "Localisations",       icon: <PlaceIcon sx={{ fontSize: 19 }} />,      href: "/locations" },
-      { label: "Analytics & Rapports", icon: <InsightsIcon sx={{ fontSize: 19 }} />,  href: "/analytics" },
-      { label: "Formulaires",         icon: <AssignmentIcon sx={{ fontSize: 19 }} />, href: "/forms" },
-      { label: "Fixation d'Objectifs", icon: <FactCheckIcon sx={{ fontSize: 19 }} />,  href: "/objectifs" },
+      { label: "Référentiels",         icon: <MapIcon size={19} />,       href: "/zones" },
+      { label: "Localisations",        icon: <MapPin size={19} />,        href: "/locations" },
+      { label: "Analytics & Rapports", icon: <LineChart size={19} />,     href: "/analytics" },
+      { label: "Formulaires",          icon: <ClipboardList size={19} />, href: "/forms" },
+      { label: "Fixation d'Objectifs", icon: <ListChecks size={19} />,    href: "/objectifs" },
     ],
   },
   {
     id: "support",
     label: "Support & Incidents",
-    icon: <SupportAgentIcon sx={{ fontSize: 16 }} />,
+    icon: <Headset size={16} />,
     items: [
-      { label: "Tickets IT",       icon: <BugReportIcon sx={{ fontSize: 19 }} />,         href: "/tickets" },
+      { label: "Tickets IT",       icon: <Bug size={19} />,  href: "/tickets" },
       // Réservé aux superviseurs (filtré côté admin_tenant dans
       // navGroupsForRole, qui a déjà /tickets pour gérer tous les tickets du
       // tenant — pas besoin d'un doublon "mes tickets" pour ce rôle-là).
-      { label: "Mes signalements", icon: <BugReportIcon sx={{ fontSize: 19 }} />,         href: "/my-tickets" },
-      { label: "Notifications",    icon: <NotificationsNoneIcon sx={{ fontSize: 19 }} />, href: "/notifications" },
+      { label: "Mes signalements", icon: <Bug size={19} />,  href: "/my-tickets" },
+      { label: "Notifications",    icon: <Bell size={19} />, href: "/notifications" },
     ],
   },
   {
     id: "securite",
     label: "Sécurité & Audit",
-    icon: <AdminPanelSettingsIcon sx={{ fontSize: 16 }} />,
+    icon: <ShieldCheck size={16} />,
     items: [
-      { label: "Logs & Audit", icon: <FactCheckIcon sx={{ fontSize: 19 }} />, href: "/logs" },
-      { label: "Sécurité",     icon: <SecurityIcon sx={{ fontSize: 19 }} />,  href: "/security" },
+      { label: "Logs & Audit", icon: <ListChecks size={19} />, href: "/logs" },
+      { label: "Sécurité",     icon: <ShieldCheck size={19} />, href: "/security" },
     ],
   },
 ];
@@ -178,7 +142,10 @@ function navGroupsForRole(role: string): NavGroup[] {
   })).filter((g) => g.items.length > 0);
 }
 
-// ── NavGroupSection — copie exacte du composant GeoTrust ──────────────────
+const isActiveHref = (href: string, pathname: string | null) =>
+  href === "/" ? pathname === "/" : !!pathname?.startsWith(href);
+
+// ── NavGroupSection ────────────────────────────────────────────────────────
 function NavGroupSection({
   group, pathname, expanded, onToggle, onNavigate, onPrefetch,
 }: {
@@ -189,86 +156,57 @@ function NavGroupSection({
   onNavigate: (href: string) => void;
   onPrefetch: (href: string) => void;
 }) {
-  const hasActive = group.items.some((item) =>
-    item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href),
-  );
+  const hasActive = group.items.some((item) => isActiveHref(item.href, pathname));
 
   return (
-    <Box sx={{ mb: 0.5 }}>
+    <div className="mb-1">
       {/* Group header */}
-      <ListItemButton
+      <button
+        type="button"
         onClick={onToggle}
-        sx={{
-          borderRadius: 2,
-          px: 1.5,
-          py: 0.75,
-          color: hasActive ? SIDEBAR_ACCENT : SIDEBAR_TEXT,
-          "&:hover": { bgcolor: SIDEBAR_HOVER_BG, color: hasActive ? SIDEBAR_ACCENT : "#94a3b8" },
-          transition: "all .15s ease",
-        }}
+        aria-expanded={expanded}
+        className={`flex w-full cursor-pointer items-center gap-0 rounded-lg border-0 bg-transparent px-3 py-2.5 text-left transition-all duration-150 hover:bg-white/[0.04] ${
+          hasActive ? "text-[#4ADE80]" : "text-[#7A8FA6] hover:text-[#94a3b8]"
+        }`}
       >
-        <ListItemIcon sx={{ minWidth: 28, color: "inherit" }}>
-          {group.icon}
-        </ListItemIcon>
-        <ListItemText
-          primary={group.label}
-          primaryTypographyProps={{
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: 1.1,
-            textTransform: "uppercase",
-          }}
-        />
-        <Box sx={{ color: "inherit", display: "flex", alignItems: "center", opacity: 0.6 }}>
-          {expanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
-        </Box>
-      </ListItemButton>
+        <span className="flex min-w-7 items-center">{group.icon}</span>
+        <span className="flex-1 text-[10px] font-bold uppercase tracking-[1.1px]">{group.label}</span>
+        <span className="flex items-center opacity-60">{expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
+      </button>
 
       {/* Items */}
-      <Collapse in={expanded} timeout={180} unmountOnExit>
-        <List disablePadding sx={{ pl: 1 }}>
+      {expanded && (
+        <div className="pl-2">
           {group.items.map((item) => {
-            const selected = item.href === "/" ? pathname === "/" : !!pathname?.startsWith(item.href);
+            const selected = isActiveHref(item.href, pathname);
             return (
-              <ListItemButton
+              <button
                 key={item.href}
-                selected={selected}
+                type="button"
                 onMouseEnter={() => onPrefetch(item.href)}
                 onClick={() => onNavigate(item.href)}
-                sx={{
-                  borderRadius: 2,
-                  mb: 0.25,
-                  px: 1.5,
-                  py: 0.85,
-                  color: selected ? SIDEBAR_TEXT_ACTIVE : SIDEBAR_TEXT,
-                  bgcolor: selected ? SIDEBAR_ACTIVE_BG : "transparent",
-                  borderLeft: selected ? `3px solid ${SIDEBAR_ACTIVE_BORDER}` : "3px solid transparent",
-                  "&:hover": {
-                    bgcolor: selected ? SIDEBAR_ACTIVE_BG : SIDEBAR_HOVER_BG,
-                    color: selected ? SIDEBAR_TEXT_ACTIVE : "#CBD5E1",
-                  },
-                  transition: "all .15s ease",
-                  "& .MuiListItemIcon-root": { color: selected ? SIDEBAR_ACCENT : SIDEBAR_TEXT },
-                }}
+                className={`mb-px flex w-full cursor-pointer items-center rounded-lg border-0 border-l-[3px] px-3 py-[11px] text-left transition-all duration-150 ${
+                  selected
+                    ? "border-l-[#4ADE80] bg-[rgba(74,222,128,0.14)] text-white"
+                    : "border-l-transparent bg-transparent text-[#7A8FA6] hover:bg-white/[0.04] hover:text-[#CBD5E1]"
+                }`}
               >
-                <ListItemIcon sx={{ minWidth: 34 }}>
-                  {item.badge && item.badge > 0
-                    ? <Badge badgeContent={item.badge} color="error" max={99}>{item.icon}</Badge>
-                    : item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{ fontSize: 13.5, fontWeight: selected ? 600 : 400, lineHeight: 1.3 }}
-                />
-                {selected && (
-                  <Box sx={{ width: 4, height: 4, borderRadius: "50%", bgcolor: SIDEBAR_ACCENT, flexShrink: 0 }} />
-                )}
-              </ListItemButton>
+                <span className={`flex min-w-[34px] items-center ${selected ? "text-[#4ADE80]" : "text-[#7A8FA6]"}`}>
+                  {item.badge && item.badge > 0 ? (
+                    <span className="relative">
+                      {item.icon}
+                      <span className="absolute -right-2 -top-2 flex size-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">{item.badge > 99 ? "99+" : item.badge}</span>
+                    </span>
+                  ) : item.icon}
+                </span>
+                <span className={`flex-1 text-[13.5px] leading-snug ${selected ? "font-semibold" : "font-normal"}`}>{item.label}</span>
+                {selected && <span className="size-1 shrink-0 rounded-full bg-[#4ADE80]" />}
+              </button>
             );
           })}
-        </List>
-      </Collapse>
-    </Box>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -290,9 +228,7 @@ function SidebarContent({
   const getDefaultExpanded = useCallback(() => {
     const state: Record<string, boolean> = {};
     for (const g of groups) {
-      state[g.id] = g.items.some((item) =>
-        item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href),
-      );
+      state[g.id] = g.items.some((item) => isActiveHref(item.href, pathname));
     }
     if (!Object.values(state).some(Boolean)) state[groups[0]?.id ?? "plateforme"] = true;
     return state;
@@ -304,11 +240,7 @@ function SidebarContent({
     setExpanded((prev) => {
       const next = { ...prev };
       for (const g of groups) {
-        if (g.items.some((item) =>
-          item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href),
-        )) {
-          next[g.id] = true;
-        }
+        if (g.items.some((item) => isActiveHref(item.href, pathname))) next[g.id] = true;
       }
       return next;
     });
@@ -316,44 +248,35 @@ function SidebarContent({
 
   const toggle = (id: string) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const footerBtn = "flex shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-1.5 text-[#7A8FA6] transition-all duration-150";
+
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: "var(--sidebar-bg)", overflow: "hidden" }}>
+    <div className="flex h-full flex-col overflow-hidden bg-[var(--sidebar-bg)]">
 
       {/* Accent top bar */}
-      <Box sx={{ height: 3, background: `linear-gradient(90deg, ${GOLD}, ${SIDEBAR_ACCENT_SOFT})`, flexShrink: 0 }} />
+      <div className="h-[3px] shrink-0" style={{ background: `linear-gradient(90deg, #3C8047, ${SIDEBAR_ACCENT_SOFT})` }} />
 
       {/* Logo */}
-      <Box sx={{ px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 1.5 }}>
-        <Box sx={{
-          width: 40, height: 40, borderRadius: 2,
-          background: `linear-gradient(135deg, ${GOLD}, ${SIDEBAR_ACCENT_SOFT})`,
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-          boxShadow: `0 4px 12px rgba(60,128,71,0.35)`,
-        }}>
-          <PublicIcon sx={{ color: NAVY, fontSize: 22 }} />
-        </Box>
-        <Box>
-          <Typography sx={{ color: "#FFFFFF", fontWeight: 800, fontSize: 17, letterSpacing: -0.5, lineHeight: 1 }}>
-            GeoTrust
-          </Typography>
-          <Typography sx={{ color: SIDEBAR_ACCENT, fontSize: 11, mt: 0.3, fontWeight: 600, letterSpacing: 0.5 }}>
-            {user?.tenantName ?? "Administration"}
-          </Typography>
-        </Box>
-      </Box>
+      <div className="flex items-center gap-3 px-5 py-5">
+        <span
+          className="flex size-10 shrink-0 items-center justify-center rounded-lg text-[#0F3B5C] shadow-[0_4px_12px_rgba(60,128,71,0.35)]"
+          style={{ background: `linear-gradient(135deg, #3C8047, ${SIDEBAR_ACCENT_SOFT})` }}
+        >
+          <Globe size={22} />
+        </span>
+        <div>
+          <div className="text-[17px] font-extrabold leading-none tracking-tight text-white">GeoTrust</div>
+          <div className="mt-[3px] text-[11px] font-semibold tracking-[0.5px] text-[#4ADE80]">{user?.tenantName ?? "Administration"}</div>
+        </div>
+      </div>
 
-      <Divider sx={{ borderColor: "rgba(255,255,255,0.05)", mx: 2, mb: 1 }} />
+      <div className="mx-4 mb-2 h-px bg-white/5" />
 
       {/* Nav groups */}
-      <List disablePadding sx={{
-        px: 1, flex: 1, overflowY: "auto", pb: 1,
-        "&::-webkit-scrollbar": { width: 4 },
-        "&::-webkit-scrollbar-track": { background: "transparent" },
-        "&::-webkit-scrollbar-thumb": { background: "rgba(255,255,255,0.08)", borderRadius: 2 },
-      }}>
+      <nav className="flex-1 overflow-y-auto px-2 pb-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-sm [&::-webkit-scrollbar-thumb]:bg-white/10">
         {groups.map((group, i) => (
-          <Box key={group.id}>
-            {i > 0 && <Divider sx={{ borderColor: "rgba(255,255,255,0.04)", my: 0.5, mx: 1 }} />}
+          <div key={group.id}>
+            {i > 0 && <div className="mx-2 my-1 h-px bg-white/[0.04]" />}
             <NavGroupSection
               group={group}
               pathname={pathname}
@@ -362,76 +285,49 @@ function SidebarContent({
               onNavigate={onNavigate}
               onPrefetch={onPrefetch}
             />
-          </Box>
+          </div>
         ))}
-      </List>
+      </nav>
 
       {/* System status badge */}
-      <Box sx={{ px: 2, pb: 1.5 }}>
-        <Box sx={{
-          borderRadius: 2,
-          background: "rgba(60,128,71,0.06)",
-          border: "1px solid rgba(60,128,71,0.15)",
-          px: 2, py: 1.2,
-          display: "flex", alignItems: "center", gap: 1,
-        }}>
-          <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: "#22c55e", flexShrink: 0 }} />
-          <Box>
-            <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: SIDEBAR_TEXT, textTransform: "uppercase" }}>
-              Système
-            </Typography>
-            <Typography sx={{ fontSize: 12, fontWeight: 600, color: SIDEBAR_ACCENT, lineHeight: 1 }}>
-              Opérationnel
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+      <div className="px-4 pb-3">
+        <div className="flex items-center gap-2 rounded-lg border border-[#3C8047]/15 bg-[#3C8047]/[0.06] px-4 py-2.5">
+          <span className="size-[7px] shrink-0 rounded-full bg-green-500" />
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.8px] text-[#7A8FA6]">Système</div>
+            <div className="text-xs font-semibold leading-none text-[#4ADE80]">Opérationnel</div>
+          </div>
+        </div>
+      </div>
 
-      <Divider sx={{ borderColor: "rgba(255,255,255,0.05)", mx: 2 }} />
+      <div className="mx-4 h-px bg-white/5" />
 
       {/* User profile footer */}
-      <Box sx={{ px: 2, py: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
-        <Avatar sx={{ width: 34, height: 34, fontSize: 12, fontWeight: 700, bgcolor: STEEL, flexShrink: 0 }}>
+      <div className="flex items-center gap-3 px-4 py-4">
+        <span className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[#1E6091] text-xs font-bold text-white">
           {user ? userInitials(user.name) : "?"}
-        </Avatar>
-        <Box flex={1} minWidth={0}>
-          <Typography sx={{ color: "#E2E8F0", fontWeight: 600, fontSize: 13, lineHeight: 1.2 }} noWrap>
-            {user?.name ?? "Chargement…"}
-          </Typography>
-          <Typography sx={{ color: SIDEBAR_TEXT, fontSize: 11, mt: 0.25 }} noWrap>
-            {user ? roleLabel(user.role) : ""}
-          </Typography>
-        </Box>
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[13px] font-semibold leading-tight text-slate-200">{user?.name ?? "Chargement…"}</div>
+          <div className="mt-0.5 truncate text-[11px] text-[#7A8FA6]">{user ? roleLabel(user.role) : ""}</div>
+        </div>
         <Tooltip title={mode === "dark" ? "Mode clair" : "Mode nuit"}>
-          <IconButton
-            size="small"
+          <button
+            type="button"
+            aria-label={mode === "dark" ? "Passer en mode clair" : "Passer en mode nuit"}
             onClick={(e) => toggleMode({ x: e.clientX, y: e.clientY })}
-            sx={{
-              color: SIDEBAR_TEXT,
-              "&:hover": { color: SIDEBAR_ACCENT, bgcolor: SIDEBAR_HOVER_BG },
-              transition: "all .15s",
-              flexShrink: 0,
-            }}
+            className={`${footerBtn} hover:bg-white/[0.04] hover:text-[#4ADE80]`}
           >
-            {mode === "dark" ? <LightModeIcon sx={{ fontSize: 17 }} /> : <DarkModeIcon sx={{ fontSize: 17 }} />}
-          </IconButton>
+            {mode === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
         </Tooltip>
         <Tooltip title="Déconnexion">
-          <IconButton
-            size="small"
-            onClick={onLogout}
-            sx={{
-              color: SIDEBAR_TEXT,
-              "&:hover": { color: "#EF4444", bgcolor: "rgba(239,68,68,0.08)" },
-              transition: "all .15s",
-              flexShrink: 0,
-            }}
-          >
-            <LogoutIcon sx={{ fontSize: 17 }} />
-          </IconButton>
+          <button type="button" aria-label="Déconnexion" onClick={onLogout} className={`${footerBtn} hover:bg-red-500/10 hover:text-red-500`}>
+            <LogOut size={17} />
+          </button>
         </Tooltip>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -509,89 +405,57 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
     !isPathAllowedForSupervisor(pathname, normalizeRole(user.role));
 
   return (
-    <Box sx={{ display: "flex", minHeight: "calc(100vh / var(--ui-zoom))" }}>
-      <CssBaseline />
+    <div className="flex" style={{ minHeight: "calc(100vh / var(--ui-zoom))" }}>
       {/* Modale globale de reconnexion en cas de session expirée (401). */}
       <SessionExpiredDialog />
 
       {/* Mobile TopBar */}
-      <AppBar position="fixed" elevation={0} sx={{
-        display: { sm: "none" },
-        zIndex: (t) => t.zIndex.drawer + 1,
-        bgcolor: "var(--bg-surface)",
-        borderBottom: "1px solid var(--border)",
-        color: "var(--text-primary)",
-      }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <IconButton edge="start" onClick={() => setMobileOpen(true)} sx={{ color: "var(--text-primary)" }}>
-              <MenuIcon />
-            </IconButton>
-            <Box sx={{ width: 28, height: 28, borderRadius: 1.5, bgcolor: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <PublicIcon sx={{ color: NAVY, fontSize: 16 }} />
-            </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)" }}>GeoTrust</Typography>
-          </Box>
-          {user && (
-            <Avatar sx={{ width: 32, height: 32, fontSize: 12, fontWeight: 700, bgcolor: STEEL }}>
-              {userInitials(user.name)}
-            </Avatar>
-          )}
-        </Toolbar>
-      </AppBar>
+      <header className="fixed inset-x-0 top-0 z-[1100] flex h-14 items-center justify-between border-b border-border bg-surface px-4 text-foreground sm:hidden">
+        <div className="flex items-center gap-3">
+          <button type="button" aria-label="Ouvrir le menu" onClick={() => setMobileOpen(true)} className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-foreground">
+            <Menu size={24} />
+          </button>
+          <span className="flex size-7 items-center justify-center rounded-md bg-[#3C8047] text-[#0F3B5C]"><Globe size={16} /></span>
+          <span className="text-[15px] font-bold text-foreground">GeoTrust</span>
+        </div>
+        {user && (
+          <span className="flex size-8 items-center justify-center rounded-full bg-[#1E6091] text-xs font-bold text-white">{userInitials(user.name)}</span>
+        )}
+      </header>
 
       {/* Desktop TopBar */}
-      <AppBar position="fixed" elevation={0} sx={{
-        display: { xs: "none", sm: "flex" },
-        zIndex: (t) => t.zIndex.drawer + 1,
-        left: DRAWER_WIDTH,
-        width: `calc(100% - ${DRAWER_WIDTH}px)`,
-        bgcolor: "var(--bg-surface)",
-        borderBottom: "1px solid var(--border)",
-        color: "var(--text-primary)",
-      }}>
-        <Toolbar>
-          <Typography fontWeight={700} fontSize={16} color="var(--text-primary)">{pageTitle}</Typography>
-          <Box flex={1} />
-          <Box sx={{
-            display: "flex", alignItems: "center", gap: 0.75,
-            px: 1.5, py: 0.6, borderRadius: 2,
-            bgcolor: "rgba(34,197,94,0.08)",
-            border: "1px solid rgba(34,197,94,0.2)",
-          }}>
-            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#22c55e" }} />
-            <Typography sx={{ fontSize: 12, color: "#16a34a", fontWeight: 600 }}>Système opérationnel</Typography>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <header
+        className="fixed top-0 z-[1100] hidden h-16 items-center border-b border-border bg-surface px-6 text-foreground sm:flex"
+        style={{ left: DRAWER_WIDTH, width: `calc(100% - ${DRAWER_WIDTH}px)` }}
+      >
+        <span className="text-base font-bold text-foreground">{pageTitle}</span>
+        <div className="flex-1" />
+        <div className="flex items-center gap-1.5 rounded-lg border border-green-500/20 bg-green-500/[0.08] px-3 py-1.5">
+          <span className="size-1.5 rounded-full bg-green-500" />
+          <span className="text-xs font-semibold text-green-600">Système opérationnel</span>
+        </div>
+      </header>
 
-      {/* Sidebar */}
-      <Box component="nav" sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}>
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{ display: { xs: "block", sm: "none" }, "& .MuiDrawer-paper": { width: DRAWER_WIDTH, bgcolor: "var(--sidebar-bg)", border: "none" } }}
-        >
+      {/* Sidebar (bureau) */}
+      <aside className="fixed left-0 top-0 z-[1000] hidden h-full shadow-[4px_0_24px_rgba(0,0,0,0.2)] sm:block" style={{ width: DRAWER_WIDTH }}>
+        <SidebarContent {...sidebarProps} />
+      </aside>
+
+      {/* Sidebar (mobile) */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" width={DRAWER_WIDTH} className="bg-[var(--sidebar-bg)] sm:hidden">
+          <SheetTitle className="sr-only">Navigation</SheetTitle>
           <SidebarContent {...sidebarProps} />
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{ display: { xs: "none", sm: "block" }, "& .MuiDrawer-paper": { width: DRAWER_WIDTH, bgcolor: "var(--sidebar-bg)", border: "none", boxShadow: "4px 0 24px rgba(0,0,0,0.2)" } }}
-          open
-        >
-          <SidebarContent {...sidebarProps} />
-        </Drawer>
-      </Box>
+        </SheetContent>
+      </Sheet>
 
       {/* Main content */}
-      <Box component="main" sx={{ flexGrow: 1, width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` }, minHeight: "calc(100vh / var(--ui-zoom))", bgcolor: "var(--bg-page)" }}>
-        <Toolbar />
+      <main className="min-w-0 flex-1 bg-background sm:ml-[264px]" style={{ minHeight: "calc(100vh / var(--ui-zoom))" }}>
+        <div className="h-14 sm:h-16" />
         {supervisorBlocked ? (
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "calc(60vh / var(--ui-zoom))" }}>
-            <Typography color="text.secondary" fontSize={14}>Redirection…</Typography>
-          </Box>
+          <div className="flex items-center justify-center" style={{ minHeight: "calc(60vh / var(--ui-zoom))" }}>
+            <span className="text-sm text-muted-foreground">Redirection…</span>
+          </div>
         ) : (
           <AnimatePresence mode="wait">
             <motion.div
@@ -605,7 +469,7 @@ export function SidebarLayout({ children }: { children: ReactNode }) {
             </motion.div>
           </AnimatePresence>
         )}
-      </Box>
-    </Box>
+      </main>
+    </div>
   );
 }

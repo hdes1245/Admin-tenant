@@ -11,15 +11,10 @@
 // de "0" partout, qui faisait croire à une perte de données).
 
 import { useEffect, useState } from "react";
-import {
-  Dialog, DialogContent, Box, Typography, Button,
-} from "@mui/material";
-import LockClockIcon from "@mui/icons-material/LockClock";
-import LogoutIcon from "@mui/icons-material/Logout";
+import { LogOut, LockKeyhole } from "lucide-react";
 import { apiClient } from "@/lib/apiClient";
-
-const NAVY = "#0F3B5C";
-const GOLD = "#3C8047";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 export function SessionExpiredDialog() {
   const [open, setOpen] = useState(false);
@@ -48,47 +43,28 @@ export function SessionExpiredDialog() {
   };
 
   return (
-    <Dialog
-      open={open}
-      // Non-dismissable : l'utilisateur DOIT se reconnecter, pas de fermeture
-      // au clic extérieur ni à Échap.
-      disableEscapeKeyDown
-      maxWidth="xs"
-      fullWidth
-      PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}
-    >
-      <Box sx={{ height: 4, bgcolor: GOLD }} />
-      <DialogContent sx={{ px: 4, py: 4, textAlign: "center" }}>
-        <Box
-          sx={{
-            width: 64, height: 64, borderRadius: "50%", mx: "auto", mb: 2.5,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            bgcolor: `${GOLD}1A`,
-          }}
-        >
-          <LockClockIcon sx={{ fontSize: 34, color: GOLD }} />
-        </Box>
-        <Typography sx={{ fontWeight: 800, fontSize: 19, color: "var(--text-primary)", mb: 1 }}>
-          Session expirée
-        </Typography>
-        <Typography sx={{ color: "var(--text-secondary)", fontSize: 14, lineHeight: 1.6, mb: 3.5 }}>
-          Votre session a expiré pour des raisons de sécurité. Reconnectez-vous
-          pour continuer à accéder à votre espace.
-        </Typography>
-        <Button
-          fullWidth
-          variant="contained"
-          startIcon={<LogoutIcon sx={{ fontSize: 18 }} />}
-          disabled={loggingOut}
-          onClick={handleReconnect}
-          sx={{
-            height: 46, bgcolor: NAVY, fontWeight: 700, fontSize: 15,
-            textTransform: "none", borderRadius: 2,
-            "&:hover": { bgcolor: "#1E6091" },
-          }}
-        >
-          {loggingOut ? "Déconnexion…" : "Se reconnecter"}
-        </Button>
+    // Non-dismissable : l'utilisateur DOIT se reconnecter, pas de fermeture au clic extérieur ni à Échap.
+    <Dialog open={open}>
+      <DialogContent
+        size="xs"
+        aria-describedby={undefined}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
+        <div className="px-8 py-8 text-center">
+          <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-[#3C8047]/10 text-[#3C8047]">
+            <LockKeyhole size={34} />
+          </div>
+          <DialogTitle className="mb-2 text-[19px] font-extrabold text-foreground">Session expirée</DialogTitle>
+          <p className="mb-7 text-sm leading-relaxed text-muted-foreground">
+            Votre session a expiré pour des raisons de sécurité. Reconnectez-vous
+            pour continuer à accéder à votre espace.
+          </p>
+          <Button className="h-11 w-full text-[15px] font-bold hover:bg-[#1E6091] hover:opacity-100" disabled={loggingOut} onClick={handleReconnect}>
+            <LogOut size={18} /> {loggingOut ? "Déconnexion…" : "Se reconnecter"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

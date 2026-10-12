@@ -1,39 +1,14 @@
-﻿"use client";
+"use client";
 
 import { UserDto } from "@/lib/users";
-import {
-  Avatar,
-  Box,
-  Checkbox,
-  Chip,
-  CircularProgress,
-  IconButton,
-  InputAdornment,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import LockResetIcon from "@mui/icons-material/LockReset";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import ToggleOffIcon from "@mui/icons-material/ToggleOff";
-import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import { KeyRound, Pencil, Search, ToggleLeft, ToggleRight, Trash2, Users } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { PaginationBar } from "./PaginationBar";
-
-const NAVY  = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { IconAction, Panel, Th } from "@/components/ui/page-blocks";
 
 interface UsersTableProps {
   users: UserDto[];
@@ -67,7 +42,6 @@ export function UsersTable({
   selectedIds = [],
   onToggleSelect,
   onToggleSelectAll,
-  currentUserId,
 }: UsersTableProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -96,127 +70,66 @@ export function UsersTable({
   const someVisibleSelected = visibleIds.some((id) => selectedSet.has(id));
 
   return (
-    <Box>
-      <Box mb={2.5} display="flex" alignItems="center" gap={2}>
-        <TextField
-          size="small"
-          placeholder="Rechercher par nom, login, role, agence, code CAF..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{
-            maxWidth: 460,
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-              bgcolor: "var(--bg-surface)",
-              "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border-strong)" },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 },
-            },
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+    <div>
+      <div className="mb-5 flex items-center gap-4">
+        <div className="relative w-full max-w-[460px]">
+          <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par nom, login, role, agence, code CAF..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-surface pl-10"
+          />
+        </div>
         {search && (
-          <Typography variant="caption" sx={{ color: "var(--text-secondary)", fontWeight: 500 }}>
+          <span className="text-xs font-medium text-muted-foreground">
             {filtered.length} resultat{filtered.length !== 1 ? "s" : ""}
-          </Typography>
+          </span>
         )}
-      </Box>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-      >
-        <TableContainer
-          component={Paper}
-          elevation={0}
-          sx={{
-            borderRadius: 2.5,
-            border: "1px solid var(--border)",
-            overflow: "hidden",
-          }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  padding="checkbox"
-                  sx={{ bgcolor: NAVY, pl: 2, borderBottom: "none", width: 48 }}
-                >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+        <Panel className="overflow-hidden">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-[#0F3B5C]">
+                <Th className="w-12">
                   <Checkbox
-                    size="small"
+                    aria-label="Tout sélectionner"
                     checked={allVisibleSelected}
                     indeterminate={!allVisibleSelected && someVisibleSelected}
                     onChange={(e) => onToggleSelectAll?.(e.target.checked, visibleIds)}
-                    sx={{
-                      color: "rgba(255,255,255,0.35)",
-                      "&.Mui-checked, &.MuiCheckbox-indeterminate": { color: GOLD },
-                      padding: "4px",
-                    }}
                   />
-                </TableCell>
-                {[
-                  { label: "Utilisateur" },
-                  { label: "Login" },
-                  { label: "Role" },
-                  { label: "Agence" },
-                  { label: "Zone" },
-                  { label: "Code CAF" },
-                  { label: "Statut" },
-                  { label: "", align: "right" as const },
-                ].map((col, i) => (
-                  <TableCell
-                    key={i}
-                    align={col.align}
-                    sx={{
-                      bgcolor: NAVY,
-                      color: "rgba(255,255,255,0.55)",
-                      fontWeight: 600,
-                      fontSize: 10.5,
-                      textTransform: "uppercase",
-                      letterSpacing: 1,
-                      borderBottom: "none",
-                      py: 1.75,
-                      pr: i === 7 ? 2.5 : undefined,
-                    }}
-                  >
-                    {col.label}
-                  </TableCell>
+                </Th>
+                {["Utilisateur", "Login", "Role", "Agence", "Zone", "Code CAF", "Statut", ""].map((label, i) => (
+                  <Th key={i} className={i === 7 ? "pr-5 text-right" : ""}>{label}</Th>
                 ))}
-              </TableRow>
-            </TableHead>
+              </tr>
+            </thead>
 
-            <TableBody>
+            <tbody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 8, border: "none" }}>
-                    <Box display="flex" alignItems="center" justifyContent="center" gap={1.5}>
-                      <CircularProgress size={18} sx={{ color: STEEL }} />
-                      <Typography variant="body2" color="text.secondary">Chargement...</Typography>
-                    </Box>
-                  </TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={9} className="py-16 text-center">
+                    <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                      <Spinner className="text-[#1E6091]" /> Chargement...
+                    </div>
+                  </td>
+                </tr>
               ) : filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 8, border: "none" }}>
-                    <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
-                      <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <PeopleAltIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
-                      </Box>
-                      <Typography variant="body2" color="text.disabled">
-                        {search ? "Aucun utilisateur ne correspond." : "Aucun utilisateur enregistre."}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={9} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <span className="flex size-[52px] items-center justify-center rounded-full bg-muted text-border-strong"><Users size={24} /></span>
+                      <span className="text-sm text-muted-foreground">{search ? "Aucun utilisateur ne correspond." : "Aucun utilisateur enregistre."}</span>
+                    </div>
+                  </td>
+                </tr>
               ) : (
                 paginated.map((user, idx) => {
                   const isSelected = selectedSet.has(user.id);
+                  const cell = `border-b border-border pl-4 ${isSelected ? "bg-[rgba(30,96,145,0.10)]" : "bg-surface"}`;
+                  const isAdminTenant = (user.roleCode || user.roleName || "").toLowerCase() === "admin_tenant";
                   return (
                     <motion.tr
                       key={user.id}
@@ -224,228 +137,88 @@ export function UsersTable({
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.15, delay: idx * 0.015 }}
                       style={{ display: "table-row" }}
+                      className="group"
                     >
-                      {/* Checkbox */}
-                      <TableCell
-                        padding="checkbox"
-                        sx={{
-                          pl: 2,
-                          bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)",
-                          borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent",
-                          borderBottom: "1px solid var(--border)",
-                          transition: "all 0.12s",
-                        }}
-                      >
-                        <Checkbox
-                          size="small"
-                          checked={isSelected}
-                          onChange={() => onToggleSelect?.(user.id)}
-                          sx={{ "&.Mui-checked": { color: STEEL }, padding: "4px" }}
-                        />
-                      </TableCell>
+                      <td className={`py-2 transition-colors ${cell} border-l-[3px] ${isSelected ? "border-l-[#1E6091]" : "border-l-transparent"}`}>
+                        <Checkbox aria-label={`Sélectionner ${user.name}`} checked={isSelected} onChange={() => onToggleSelect?.(user.id)} />
+                      </td>
 
                       {/* Utilisateur */}
-                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", py: 1.5 }}>
-                        <Box display="flex" alignItems="center" gap={1.5}>
-                          <Avatar
-                            sx={{
-                              width: 34, height: 34,
-                              bgcolor: NAVY,
-                              fontSize: 12, fontWeight: 700,
-                              letterSpacing: 0.3,
-                              flexShrink: 0,
-                            }}
-                          >
+                      <td className={`py-3 ${cell}`}>
+                        <div className="flex items-center gap-3">
+                          <span className="flex size-[34px] shrink-0 items-center justify-center rounded-full bg-[#0F3B5C] text-xs font-bold tracking-wide text-white">
                             {userInitials(user.name)}
-                          </Avatar>
-                          <Box sx={{ minWidth: 0 }}>
-                            <Typography
-                              variant="body2"
-                              fontWeight={600}
-                              sx={{ color: "var(--text-primary)", lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                            >
-                              {user.name}
-                            </Typography>
-                            {user.email && (
-                              <Typography variant="caption" sx={{ color: "var(--text-muted)", fontSize: 11 }}>
-                                {user.email}
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      </TableCell>
+                          </span>
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-semibold leading-tight text-foreground">{user.name}</div>
+                            {user.email && <div className="text-[11px] text-muted-foreground">{user.email}</div>}
+                          </div>
+                        </div>
+                      </td>
 
                       {/* Login */}
-                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontFamily: "monospace", fontSize: 12.5, color: "var(--text-secondary)", fontWeight: 500 }}
-                        >
-                          {user.username}
-                        </Typography>
-                      </TableCell>
+                      <td className={`py-2 font-mono text-[12.5px] font-medium text-muted-foreground ${cell}`}>{user.username}</td>
 
                       {/* Role */}
-                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                        <Box
-                          sx={{
-                            display: "inline-flex",
-                            px: 1.25, py: 0.4,
-                            borderRadius: 1.25,
-                            bgcolor: "#F1F5F9",
-                            border: "1px solid var(--border)",
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{ fontWeight: 600, fontSize: 11, color: "var(--text-primary)", letterSpacing: 0.2, whiteSpace: "nowrap" }}
-                          >
-                            {roleLabel(user)}
-                          </Typography>
-                        </Box>
-                      </TableCell>
+                      <td className={`py-2 ${cell}`}>
+                        <span className="inline-flex whitespace-nowrap rounded-[5px] border border-border bg-muted px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-foreground">
+                          {roleLabel(user)}
+                        </span>
+                      </td>
 
                       {/* Agence */}
-                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                        <Typography variant="body2" sx={{ color: user.agenceName ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
-                          {user.agenceName ?? "—"}
-                        </Typography>
-                      </TableCell>
+                      <td className={`py-2 text-[13px] ${cell} ${user.agenceName ? "text-foreground" : "text-border-strong"}`}>{user.agenceName ?? "—"}</td>
 
                       {/* Zone */}
-                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                        <Typography variant="body2" sx={{ color: user.zoneName ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
-                          {user.zoneName ?? "—"}
-                        </Typography>
-                      </TableCell>
+                      <td className={`py-2 text-[13px] ${cell} ${user.zoneName ? "text-foreground" : "text-border-strong"}`}>{user.zoneName ?? "—"}</td>
 
                       {/* Code CAF */}
-                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
+                      <td className={`py-2 ${cell}`}>
                         {user.cafCode ? (
-                          <Box
-                            sx={{
-                              display: "inline-flex",
-                              px: 1.25, py: 0.4,
-                              borderRadius: 1.25,
-                              bgcolor: "#EFF6FF",
-                              border: "1px solid #DBEAFE",
-                            }}
-                          >
-                            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: STEEL, letterSpacing: 0.3 }}>
-                              {user.cafCode}
-                            </Typography>
-                          </Box>
+                          <span className="inline-flex rounded-[5px] border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#1E6091]">{user.cafCode}</span>
                         ) : (
-                          <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
+                          <span className="text-sm text-border-strong">—</span>
                         )}
-                      </TableCell>
+                      </td>
 
                       {/* Statut */}
-                      <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                        <Box display="flex" alignItems="center" gap={0.75}>
-                          <Box sx={{
-                            width: 6, height: 6, borderRadius: "50%",
-                            bgcolor: user.isActive ? "#22c55e" : "var(--border)",
-                          }} />
-                          <Typography variant="caption" fontWeight={600} sx={{ color: user.isActive ? "#15803d" : "var(--text-muted)", fontSize: 11.5 }}>
-                            {user.isActive ? "Actif" : "Inactif"}
-                          </Typography>
-                        </Box>
-                      </TableCell>
+                      <td className={`py-2 ${cell}`}>
+                        <span className="flex items-center gap-1.5">
+                          <span className={`size-1.5 rounded-full ${user.isActive ? "bg-green-500" : "bg-border"}`} />
+                          <span className={`text-[11.5px] font-semibold ${user.isActive ? "text-green-700" : "text-muted-foreground"}`}>{user.isActive ? "Actif" : "Inactif"}</span>
+                        </span>
+                      </td>
 
                       {/* Actions */}
-                      <TableCell
-                        align="right"
-                        sx={{
-                          bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)",
-                          borderBottom: "1px solid var(--border)",
-                          pr: 2,
-                        }}
-                      >
-                        <Box
-                          display="flex"
-                          justifyContent="flex-end"
-                          gap={0.5}
-                          sx={{
-                            opacity: 0.4,
-                            transition: "opacity 0.15s",
-                            "tr:hover &": { opacity: 1 },
-                          }}
-                        >
-                          <Tooltip title={user.isActive ? "Desactiver" : "Activer"}>
-                            <IconButton
-                              size="small"
-                              onClick={() => onToggleActive?.(user)}
-                              sx={{
-                                color: user.isActive ? "#EF4444" : "#22c55e",
-                                width: 28, height: 28, borderRadius: 1.25,
-                                "&:hover": { bgcolor: user.isActive ? "#FEF2F2" : "#F0FDF4" },
-                              }}
-                            >
-                              {user.isActive ? <ToggleOffIcon sx={{ fontSize: 16 }} /> : <ToggleOnIcon sx={{ fontSize: 16 }} />}
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Reinitialiser le mot de passe">
-                            <IconButton
-                              size="small"
-                              onClick={() => onResetPassword?.(user)}
-                              sx={{
-                                color: "var(--text-muted)",
-                                width: 28, height: 28, borderRadius: 1.25,
-                                "&:hover": { color: "#b45309", bgcolor: "#FFFBEB" },
-                              }}
-                            >
-                              <LockResetIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
-                          </Tooltip>
-                          {(() => {
-                            const isAdminTenant = (user.roleCode || user.roleName || "").toLowerCase() === "admin_tenant";
-                            return isAdminTenant ? (
-                              <Tooltip title="Modification reservee aux admins GeoTrust">
-                                <span>
-                                  <IconButton size="small" disabled sx={{ width: 28, height: 28, borderRadius: 1.25 }}>
-                                    <EditOutlinedIcon sx={{ fontSize: 16 }} />
-                                  </IconButton>
-                                </span>
-                              </Tooltip>
-                            ) : (
-                              <Tooltip title="Modifier">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => onEdit?.(user)}
-                                  sx={{
-                                    color: "var(--text-muted)",
-                                    width: 28, height: 28, borderRadius: 1.25,
-                                    "&:hover": { color: STEEL, bgcolor: "#EFF6FF" },
-                                  }}
-                                >
-                                  <EditOutlinedIcon sx={{ fontSize: 16 }} />
-                                </IconButton>
-                              </Tooltip>
-                            );
-                          })()}
-                          <Tooltip title="Supprimer">
-                            <IconButton
-                              size="small"
-                              onClick={() => onDelete?.(user)}
-                              sx={{
-                                color: "var(--text-muted)",
-                                width: 28, height: 28, borderRadius: 1.25,
-                                "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" },
-                              }}
-                            >
-                              <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
-                      </TableCell>
+                      <td className={`py-2 pr-4 ${cell}`}>
+                        <div className="flex justify-end gap-1 opacity-40 transition-opacity group-hover:opacity-100">
+                          <IconAction label={user.isActive ? "Desactiver" : "Activer"} tone={user.isActive ? "dangerStrong" : "success"} onClick={() => onToggleActive?.(user)}>
+                            {user.isActive ? <ToggleLeft size={16} /> : <ToggleRight size={16} />}
+                          </IconAction>
+                          <IconAction label="Reinitialiser le mot de passe" tone="warn" onClick={() => onResetPassword?.(user)}>
+                            <KeyRound size={16} />
+                          </IconAction>
+                          {isAdminTenant ? (
+                            <IconAction label="Modification reservee aux admins GeoTrust" disabled>
+                              <Pencil size={16} />
+                            </IconAction>
+                          ) : (
+                            <IconAction label="Modifier" onClick={() => onEdit?.(user)}>
+                              <Pencil size={16} />
+                            </IconAction>
+                          )}
+                          <IconAction label="Supprimer" tone="danger" onClick={() => onDelete?.(user)}>
+                            <Trash2 size={16} />
+                          </IconAction>
+                        </div>
+                      </td>
                     </motion.tr>
                   );
                 })
               )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </tbody>
+          </table>
+        </Panel>
 
         {!loading && filtered.length > 0 && (
           <PaginationBar
@@ -458,6 +231,6 @@ export function UsersTable({
           />
         )}
       </motion.div>
-    </Box>
+    </div>
   );
 }

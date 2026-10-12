@@ -1,41 +1,21 @@
-﻿"use client";
+"use client";
 
-import { useEffect, useState, useCallback, useRef, useMemo, memo } from "react";
+import { useEffect, useState, useCallback, useMemo, memo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Box, Container, Grid, Typography, Card, CardContent, Chip,
-  Avatar, Divider, IconButton, Tooltip, Stack, Paper, ToggleButton,
-  ToggleButtonGroup, Badge, LinearProgress, Snackbar, Collapse, Alert,
-} from "@mui/material";
-import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
-  LineChart, Line, ComposedChart,
+  Line, ComposedChart,
 } from "recharts";
-import BusinessIcon           from "@mui/icons-material/Business";
-import PeopleAltIcon          from "@mui/icons-material/PeopleAlt";
-import PersonPinCircleIcon    from "@mui/icons-material/PersonPinCircle";
-import LocationOnIcon         from "@mui/icons-material/LocationOn";
-import TrendingUpIcon         from "@mui/icons-material/TrendingUp";
-import TrendingDownIcon       from "@mui/icons-material/TrendingDown";
-import AccessTimeIcon         from "@mui/icons-material/AccessTime";
-import RefreshIcon            from "@mui/icons-material/Refresh";
-import PictureAsPdfIcon       from "@mui/icons-material/PictureAsPdf";
-import FilterAltIcon          from "@mui/icons-material/FilterAlt";
-import FilterAltOffIcon       from "@mui/icons-material/FilterAltOff";
-import AutorenewIcon          from "@mui/icons-material/Autorenew";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import GroupsIcon             from "@mui/icons-material/Groups";
-import WarningAmberIcon       from "@mui/icons-material/WarningAmber";
-import ManageAccountsIcon     from "@mui/icons-material/ManageAccounts";
-import MapIcon                from "@mui/icons-material/Map";
-import NotificationsIcon      from "@mui/icons-material/Notifications";
-import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
-import { motion }          from "framer-motion";
+import {
+  Bell, BellRing, Building2, CircleAlert, CircleCheck, Clock, FileDown, Filter, FilterX, Map as MapIcon,
+  MapPin, MapPinned, RefreshCw, TrendingDown, TrendingUp, TriangleAlert, UserCog, Users, X,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import {
   fetchTenantDashboardStats, fetchDashboardCharts, fetchRecentActivityLogs,
-  TenantDashboardStats, DashboardCharts, ActivityLogItem,
+  TenantDashboardStats, DashboardCharts,
 } from "@/lib/dashboard";
 import { fetchAgences }      from "@/lib/agences";
 import { fetchAgencesStats } from "@/lib/agences";
@@ -47,6 +27,10 @@ import {
   loadThresholds, computeTriggeredAlerts,
   AlertThreshold,
 } from "@/lib/alertsConfig";
+import { Snackbar } from "@/components/ui/snackbar";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { PageContainer } from "@/components/ui/page-blocks";
 
 // ─── Palette ────────────────────────────────────────────────────────────────
 const NAVY  = "#0F3B5C";
@@ -116,19 +100,19 @@ function statusLabel(s: string) {
 const KPI_CARDS = [
   { key: "agences",   label: "Agences",   subtitle: "Agences actives",
     info: "Nombre total d'agences actives dans ce tenant.",
-    icon: <BusinessIcon sx={{ fontSize: 24 }} />,
+    icon: <Building2 size={24} />,
     accent: NAVY },
   { key: "cafs",      label: "CAFs",      subtitle: "Agents de terrain",
     info: "Nombre total de chargés d'affaires (agents de terrain) rattachés à ce tenant.",
-    icon: <PeopleAltIcon sx={{ fontSize: 24 }} />,
+    icon: <Users size={24} />,
     accent: STEEL },
   { key: "clients",   label: "Clients",   subtitle: "Portefeuille clients",
     info: "Nombre total de clients dans le portefeuille de ce tenant.",
-    icon: <PersonPinCircleIcon sx={{ fontSize: 24 }} />,
+    icon: <MapPinned size={24} />,
     accent: GOLD },
   { key: "locations", label: "Localisations", subtitle: "GPS capturées",
     info: "Nombre total de positions GPS capturées lors des visites terrain.",
-    icon: <LocationOnIcon sx={{ fontSize: 24 }} />,
+    icon: <MapPin size={24} />,
     accent: "#2F8F52" },
 ];
 
@@ -365,640 +349,489 @@ export default function DashboardPage() {
   const visibleAlerts = triggeredAlerts.filter((a) => !dismissedAlerts.has(a.id));
 
   // ─── Render ───────────────────────────────────────────────────────────────
+  const glass = "bg-white/[0.14] border border-white/20 backdrop-blur-[20px] backdrop-saturate-[180%] shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_14px_rgba(0,0,0,0.15)]";
+  const seg = (active: boolean, small = false) =>
+    `cursor-pointer rounded-full border-0 font-semibold transition-all duration-200 ${small ? "px-[11px] py-1 text-[0.72rem]" : "px-[1.6rem] py-1 text-[0.78rem]"} ${
+      active
+        ? "bg-gradient-to-b from-[#3C8047] to-[#1F5C30] font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_8px_rgba(60,128,71,0.4)]"
+        : "bg-transparent text-white/70 hover:bg-white/10"
+    }`;
+  const circleBtn = "relative flex cursor-pointer items-center justify-center rounded-full p-2 transition-all duration-200 hover:-translate-y-px disabled:cursor-default";
+  const card = "relative overflow-hidden rounded-lg border border-border bg-surface shadow-[0_1px_4px_rgba(15,59,92,0.05)]";
+  const paper = "rounded-lg bg-surface p-5 shadow-[0_2px_12px_rgba(0,0,0,0.07)]";
+  const labelCls = "text-[0.67rem] font-semibold uppercase tracking-[1px] text-muted-foreground";
+
   return (
     <>
-      {/* Linear progress on fetch */}
-      {isLoading && (
-        <LinearProgress sx={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 2000,
-          "& .MuiLinearProgress-bar": { background: GOLD } }} />
-      )}
+      {/* Barre de progression pendant les requêtes */}
+      {isLoading && <div className="fixed inset-x-0 top-0 z-[2000] h-[3px] animate-pulse bg-[#3C8047]" />}
 
       {/* HEADER — liquid glass sur le fond navy d'origine : capsules dépolies
           claires posées sur le dégradé navy/steel, plutôt qu'un bandeau plat. */}
-      <Box sx={{
-        position: "relative",
-        overflow: "hidden",
-        background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
-        px: 4, py: 2.75, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap",
-        borderBottom: `1px solid rgba(60,128,71,0.4)`,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
-      }}>
+      <div
+        className="relative flex flex-wrap items-center gap-3 overflow-hidden border-b border-[#3C8047]/40 px-8 py-[22px] shadow-[0_4px_24px_rgba(0,0,0,0.25)]"
+        style={{ background: "linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)" }}
+      >
         {/* Taches de couleur douces, floutées — donnent la profondeur du verre */}
-        <Box sx={{ position: "absolute", top: -60, left: "8%", width: 220, height: 220, borderRadius: "50%",
-          background: `radial-gradient(circle, ${GOLD}33 0%, transparent 70%)`, filter: "blur(30px)", pointerEvents: "none" }} />
-        <Box sx={{ position: "absolute", bottom: -80, right: "12%", width: 260, height: 260, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)", filter: "blur(35px)", pointerEvents: "none" }} />
+        <div className="pointer-events-none absolute -top-[60px] left-[8%] size-[220px] rounded-full blur-[30px]" style={{ background: `radial-gradient(circle, ${GOLD}33 0%, transparent 70%)` }} />
+        <div className="pointer-events-none absolute -bottom-20 right-[12%] size-[260px] rounded-full blur-[35px]" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)" }} />
 
-        <Box sx={{
-          position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
-          width: 44, height: 44, borderRadius: "14px",
-          background: `linear-gradient(135deg,  0%, #1F5C30 100%)`,
-          boxShadow: "0 4px 14px rgba(60,128,71,0.35)",
-        }}>
-          <TrendingUpIcon sx={{ color: "white", fontSize: 24 }} />
-        </Box>
-        <Box sx={{ position: "relative", flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={800} color="white" letterSpacing="-0.02em">Tableau de bord</Typography>
-          <Typography variant="caption" color="rgba(255,255,255,0.6)">
+        <div className="relative flex size-11 items-center justify-center rounded-[14px] bg-gradient-to-br from-[#3C8047] to-[#1F5C30] shadow-[0_4px_14px_rgba(60,128,71,0.35)]">
+          <TrendingUp size={24} className="text-white" />
+        </div>
+        <div className="relative min-w-[200px] flex-1">
+          <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-white">Tableau de bord</h1>
+          <span className="text-xs text-white/60">
             Dernière actualisation : {lastRefresh ? lastRefresh.toLocaleTimeString("fr-FR") : "—"}
             <RefreshCountdown interval={refreshInterval} onTick={handleAutoRefreshTick} />
-          </Typography>
-        </Box>
+          </span>
+        </div>
 
         {/* Period selector — capsule verre clair */}
-        <ToggleButtonGroup
-          value={days} exclusive size="small"
-          onChange={(_, v) => { if (v) setDays(v); }}
-          sx={{
-            position: "relative", p: 0.4, borderRadius: 999,
-            background: "rgba(255,255,255,0.14)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 14px rgba(0,0,0,0.15)",
-            "& .MuiToggleButton-root": {
-              color: "rgba(255,255,255,0.75)", border: "none", borderRadius: "999px !important",
-              px: 1.6, py: 0.5, fontWeight: 600, fontSize: "0.78rem",
-              transition: "all .2s ease",
-              "&:hover": { background: "rgba(255,255,255,0.1)" },
-              "&.Mui-selected": {
-                background: `linear-gradient(180deg,  0%, #1F5C30 100%)`,
-                color: "white", fontWeight: 700,
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(60,128,71,0.4)",
-                "&:hover": { background: `linear-gradient(180deg,  0%, #1F5C30 100%)` },
-              },
-            },
-          }}>
+        <div role="group" aria-label="Période" className={`relative flex rounded-full p-[3px] ${glass}`}>
           {PERIOD_OPTIONS.map((o) => (
-            <ToggleButton key={o.value} value={o.value}>{o.label}</ToggleButton>
+            <button key={o.value} type="button" aria-pressed={days === o.value} onClick={() => setDays(o.value)} className={seg(days === o.value)}>{o.label}</button>
           ))}
-        </ToggleButtonGroup>
+        </div>
 
         {/* Auto-refresh toggle — capsule verre sur navy */}
-        <Box display="flex" alignItems="center" gap={0.5}
-          sx={{
-            position: "relative", borderRadius: 999, pl: 1.1, pr: 0.4, py: 0.4,
-            background: "rgba(255,255,255,0.14)",
-            backdropFilter: "blur(20px) saturate(180%)",
-            WebkitBackdropFilter: "blur(20px) saturate(180%)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 14px rgba(0,0,0,0.15)",
-          }}>
-          <AutorenewIcon sx={{ fontSize: 14, color: GOLD, mr: 0.4 }} />
-          <ToggleButtonGroup
-            value={refreshInterval} exclusive size="small"
-            onChange={(_, v) => { if (v !== null) setRefreshInterval(v); }}
-            sx={{ "& .MuiToggleButton-root": {
-              color: "rgba(255,255,255,0.65)", border: "none", borderRadius: "999px !important",
-              px: 1.1, py: 0.35, fontSize: "0.72rem", lineHeight: 1.4, fontWeight: 600,
-              transition: "all .2s ease",
-              "&:hover": { background: "rgba(255,255,255,0.1)" },
-              "&.Mui-selected": {
-                background: `linear-gradient(180deg,  0%, #1F5C30 100%)`,
-                color: "white", fontWeight: 700,
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 2px 8px rgba(60,128,71,0.4)",
-              },
-            }}}>
+        <div className={`relative flex items-center gap-1 rounded-full py-[3px] pl-3 pr-[3px] ${glass}`}>
+          <RefreshCw size={14} className="mr-1 text-[#3C8047]" />
+          <div role="group" aria-label="Actualisation automatique" className="flex">
             {REFRESH_OPTIONS.map((o) => (
-              <ToggleButton key={o.value} value={o.value}>{o.label}</ToggleButton>
+              <button key={o.value} type="button" aria-pressed={refreshInterval === o.value} onClick={() => setRefreshInterval(o.value)} className={seg(refreshInterval === o.value, true)}>{o.label}</button>
             ))}
-          </ToggleButtonGroup>
-        </Box>
+          </div>
+        </div>
 
         {/* Alerts bell — always visible, bouton verre circulaire sur navy */}
         <Tooltip title={triggeredAlerts.length > 0 ? `${triggeredAlerts.length} alerte(s) active(s) — cliquer pour configurer` : "Alertes & seuils KPI"}>
-          <IconButton onClick={() => setAlertsPanelOpen(true)}
-            sx={{
-              position: "relative",
-              color: triggeredAlerts.length > 0 ? "#FCA5A5" : "rgba(255,255,255,0.85)",
-              background: triggeredAlerts.length > 0 ? "rgba(252,165,165,0.12)" : "rgba(255,255,255,0.14)",
-              backdropFilter: "blur(20px) saturate(180%)",
-              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              border: `1px solid ${triggeredAlerts.length > 0 ? "rgba(252,165,165,0.5)" : "rgba(255,255,255,0.2)"}`,
-              borderRadius: "999px", p: 1,
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 4px 14px rgba(0,0,0,0.15)",
-              transition: "all .2s ease",
-              "&:hover": { background: "rgba(255,255,255,0.2)", transform: "translateY(-1px)" },
-              animation: triggeredAlerts.length > 0 ? "kpiBell 1.8s infinite" : "none",
-              "@keyframes kpiBell": {
-                "0%, 100%": { boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 0 0 0 rgba(252,165,165,0)" },
-                "50%":      { boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25), 0 0 0 6px rgba(252,165,165,0.22)" },
-              },
-            }}>
-            <Badge badgeContent={triggeredAlerts.length || null} color="error" max={9}>
-              {triggeredAlerts.length > 0
-                ? <NotificationsActiveIcon sx={{ fontSize: 20 }} />
-                : <NotificationsIcon sx={{ fontSize: 20 }} />}
-            </Badge>
-          </IconButton>
+          <button
+            type="button"
+            aria-label="Alertes & seuils KPI"
+            onClick={() => setAlertsPanelOpen(true)}
+            className={`${circleBtn} ${glass} ${triggeredAlerts.length > 0 ? "animate-[kpiBell_1.8s_infinite] border-[rgba(252,165,165,0.5)] bg-[rgba(252,165,165,0.12)] text-[#FCA5A5]" : "text-white/85 hover:bg-white/20"}`}
+          >
+            {triggeredAlerts.length > 0 ? <BellRing size={20} /> : <Bell size={20} />}
+            {triggeredAlerts.length > 0 && (
+              <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">{triggeredAlerts.length > 9 ? "9+" : triggeredAlerts.length}</span>
+            )}
+          </button>
         </Tooltip>
 
-        {/* Manual refresh — bouton verre circulaire sur navy, accent or */}
+        {/* Manual refresh — bouton verre circulaire sur navy, accent vert */}
         <Tooltip title="Actualiser maintenant">
-          <span>
-            <IconButton onClick={doRefresh} disabled={isLoading}
-              sx={{
-                position: "relative",
-                color: GOLD,
-                background: "rgba(60,128,71,0.14)",
-                backdropFilter: "blur(20px) saturate(180%)",
-                WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                border: `1px solid rgba(60,128,71,0.4)`,
-                borderRadius: "999px", p: 1,
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px rgba(0,0,0,0.18)",
-                transition: "all .2s ease",
-                "&:hover": { background: "rgba(60,128,71,0.24)", transform: "translateY(-1px) rotate(90deg)" },
-                "&.Mui-disabled": { color: "rgba(60,128,71,0.4)", borderColor: "rgba(60,128,71,0.2)" },
-              }}>
-              <Badge color="warning" variant="dot" invisible={!refreshInterval}>
-                <RefreshIcon sx={{ fontSize: 20 }} />
-              </Badge>
-            </IconButton>
-          </span>
+          <button
+            type="button"
+            aria-label="Actualiser maintenant"
+            onClick={doRefresh}
+            disabled={isLoading}
+            className={`${circleBtn} border border-[#3C8047]/40 bg-[#3C8047]/[0.14] text-[#3C8047] shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_14px_rgba(0,0,0,0.18)] backdrop-blur-[20px] hover:bg-[#3C8047]/25 hover:rotate-90 disabled:text-[#3C8047]/40 disabled:border-[#3C8047]/20`}
+          >
+            <RefreshCw size={20} />
+            {!!refreshInterval && <span className="absolute right-1 top-1 size-2 rounded-full bg-amber-500" />}
+          </button>
         </Tooltip>
 
-        {/* Export PDF — bouton verre circulaire sur navy, plein or au survol */}
+        {/* Export PDF — bouton verre circulaire sur navy */}
         <Tooltip title="Exporter le rapport PDF">
-          <span>
-            <IconButton onClick={handleExportPdf} disabled={pdfLoading || isLoading}
-              sx={{
-                position: "relative",
-                color: "white",
-                background: "rgba(60,128,71,0.16)",
-                backdropFilter: "blur(20px) saturate(180%)",
-                WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                border: `1px solid rgba(60,128,71,0.45)`,
-                borderRadius: "999px", p: 1,
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px rgba(0,0,0,0.18)",
-                transition: "all .2s ease",
-                "&:hover": {
-                  background: `linear-gradient(180deg,  0%, #1F5C30 100%)`,
-                  color: NAVY, transform: "translateY(-1px)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5), 0 4px 16px rgba(60,128,71,0.5)",
-                },
-                "&.Mui-disabled": { color: "rgba(255,255,255,0.35)", borderColor: "rgba(60,128,71,0.2)" },
-              }}>
-              <PictureAsPdfIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-          </span>
+          <button
+            type="button"
+            aria-label="Exporter le rapport PDF"
+            onClick={handleExportPdf}
+            disabled={pdfLoading || isLoading}
+            className={`${circleBtn} border border-[#3C8047]/45 bg-[#3C8047]/[0.16] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_14px_rgba(0,0,0,0.18)] backdrop-blur-[20px] hover:bg-gradient-to-b hover:from-[#3C8047] hover:to-[#1F5C30] disabled:text-white/35 disabled:border-[#3C8047]/20`}
+          >
+            {pdfLoading ? <Spinner className="size-5" /> : <FileDown size={20} />}
+          </button>
         </Tooltip>
-      </Box>
+      </div>
 
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-
+      <PageContainer>
         {/* ─── ALERT BANNERS ─────────────────────────────────────────── */}
         {visibleAlerts.length > 0 && (
-          <Box mb={2.5}>
-            <Stack gap={1}>
-              {visibleAlerts.map((alert) => (
-                <Collapse key={alert.id} in={!dismissedAlerts.has(alert.id)}>
-                  <Alert
-                    severity={alert.severity === "critical" ? "error" : "warning"}
-                    onClose={() => setDismissedAlerts((prev) => new Set([...prev, alert.id]))}
-                    action={
-                      <Chip
-                        label="Configurer"
-                        size="small"
-                        onClick={() => setAlertsPanelOpen(true)}
-                        sx={{ fontSize: 11, cursor: "pointer", mr: 1,
-                          bgcolor: alert.severity === "critical" ? "rgba(220,38,38,0.12)" : "rgba(217,119,6,0.12)",
-                          color: alert.severity === "critical" ? "#991B1B" : "#92400E",
-                          border: `0.5px solid ${alert.severity === "critical" ? "#FECACA" : "#FDE68A"}`,
-                        }}
-                      />
-                    }
-                    sx={{ borderRadius: 2, alignItems: "center",
-                      bgcolor: alert.severity === "critical" ? "#FEF2F2" : "#FFFBEB",
-                      border: `1px solid ${alert.severity === "critical" ? "#FECACA" : "#FDE68A"}`,
-                      "& .MuiAlert-icon": { color: alert.severity === "critical" ? "#DC2626" : "#D97706" },
-                    }}
+          <div className="mb-5 flex flex-col gap-2">
+            {visibleAlerts.map((alert) => {
+              const critical = alert.severity === "critical";
+              return (
+                <div
+                  key={alert.id}
+                  className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 ${critical ? "border-red-200 bg-red-50" : "border-amber-200 bg-amber-50"}`}
+                >
+                  {critical ? <CircleAlert size={20} className="shrink-0 text-red-600" /> : <TriangleAlert size={20} className="shrink-0 text-amber-600" />}
+                  <span className={`flex-1 text-[13px] font-medium ${critical ? "text-red-800" : "text-amber-800"}`}>{alert.message}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAlertsPanelOpen(true)}
+                    className={`mr-1 cursor-pointer rounded-full border px-2.5 text-[11px] leading-6 ${critical ? "border-red-200 bg-red-600/10 text-red-800" : "border-amber-200 bg-amber-600/10 text-amber-800"}`}
                   >
-                    <Typography fontSize={13} fontWeight={500}
-                      color={alert.severity === "critical" ? "#991B1B" : "#92400E"}>
-                      {alert.message}
-                    </Typography>
-                  </Alert>
-                </Collapse>
-              ))}
-            </Stack>
-          </Box>
+                    Configurer
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Fermer l'alerte"
+                    onClick={() => setDismissedAlerts((prev) => new Set([...prev, alert.id]))}
+                    className="cursor-pointer border-0 bg-transparent p-0.5 text-slate-500 hover:text-slate-800"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         )}
 
         {/* ─── KPI TILES ─────────────────────────────────────────────── */}
-        <Grid container spacing={2.5} mb={3}>
-          {KPI_CARDS.map((card, i) => (
-            <Grid item xs={12} sm={6} lg={3} key={card.key}>
-              <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                <Card sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderLeft: `3px solid ${card.accent}`,
-                  borderRadius: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 4px rgba(15,59,92,0.05)" }}>
-                  {card.info && <KpiInfoIcon text={card.info} color="var(--text-muted)" />}
-                  <CardContent sx={{ p: 2.5 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                      <Box>
-                        <Typography variant="caption" sx={{ color: "var(--text-secondary)", textTransform: "uppercase",
-                          letterSpacing: 1, fontSize: "0.68rem", fontWeight: 600 }}>{card.subtitle}</Typography>
-                        <Typography variant="h4" fontWeight={800} sx={{ color: "var(--text-primary)" }} lineHeight={1.1} mt={0.3}>
-                          {(stats as any)[card.key]?.toLocaleString() ?? "—"}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontWeight: 400 }} mt={0.5}>{card.label}</Typography>
-                      </Box>
-                      <Avatar sx={{ bgcolor: `${card.accent}18`, width: 44, height: 44, color: card.accent }}>
-                        {card.icon}
-                      </Avatar>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Grid>
+        <div className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {KPI_CARDS.map((c, i) => (
+            <motion.div key={c.key} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
+              <div className={card} style={{ borderLeft: `3px solid ${c.accent}` }}>
+                {c.info && <KpiInfoIcon text={c.info} color="var(--text-muted)" />}
+                <div className="flex items-start justify-between p-5">
+                  <div>
+                    <div className="text-[0.68rem] font-semibold uppercase tracking-[1px] text-muted-foreground">{c.subtitle}</div>
+                    <div className="mt-1 text-[2.125rem] font-extrabold leading-[1.1] text-foreground">{(stats as any)[c.key]?.toLocaleString() ?? "—"}</div>
+                    <div className="mt-1 text-sm text-muted-foreground">{c.label}</div>
+                  </div>
+                  <span className="flex size-11 items-center justify-center rounded-full" style={{ background: `${c.accent}18`, color: c.accent }}>{c.icon}</span>
+                </div>
+              </div>
+            </motion.div>
           ))}
-        </Grid>
+        </div>
 
         {/* ─── KPI ROW 2: Métriques dérivées ─────────────────────────── */}
-        <Grid container spacing={2} mb={3}>
+        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
             { label: "Taux de résolution",  value: `${derived.tauxResolution}%`,
               sub: "tickets résolus + fermés",
               info: "Pourcentage de tickets au statut Résolu ou Fermé sur l'ensemble des tickets de la période.",
-              icon: <CheckCircleOutlineIcon sx={{ fontSize: 24 }} />,
+              icon: <CircleCheck size={24} />,
               accent: derived.tauxResolution >= 70 ? "#059669" : derived.tauxResolution >= 40 ? "#D97706" : "#DC2626" },
             { label: "Moy. clients/agence", value: derived.moyenneClients.toLocaleString(),
               sub: "clients par agence en moyenne",
               info: "Nombre moyen de clients par agence (total clients divisé par nombre d'agences).",
-              icon: <PersonPinCircleIcon sx={{ fontSize: 24 }} />,
+              icon: <MapPinned size={24} />,
               accent: STEEL },
             { label: "Agences sans CAF",    value: String(derived.agencesSansCaf),
               sub: "agences sans agent terrain",
               info: "Nombre d'agences ne disposant d'aucun chargé d'affaires (CAF) rattaché.",
-              icon: <WarningAmberIcon sx={{ fontSize: 24 }} />,
+              icon: <TriangleAlert size={24} />,
               accent: derived.agencesSansCaf > 0 ? "#D97706" : "#059669" },
             { label: "Utilisateurs terrain", value: derived.totalUsers.toLocaleString(),
               sub: "rattachés à une agence",
               info: "Nombre distinct d'utilisateurs rattachés à au moins une agence (un même agent rattaché à plusieurs agences n'est compté qu'une fois).",
-              icon: <ManageAccountsIcon sx={{ fontSize: 24 }} />,
+              icon: <UserCog size={24} />,
               accent: "#2F8F52" },
           ].map((k, i) => (
-            <Grid item xs={6} md={3} key={k.label}>
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.06 }}>
-                <Card sx={{ bgcolor: "var(--bg-surface)", border: "1px solid var(--border)", borderLeft: `3px solid ${k.accent}`,
-                  borderRadius: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 4px rgba(15,59,92,0.05)" }}>
-                  {k.info && <KpiInfoIcon text={k.info} color="var(--text-muted)" />}
-                  <CardContent sx={{ p: 2.5 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                      <Box>
-                        <Typography sx={{ color: "var(--text-secondary)", textTransform: "uppercase",
-                          letterSpacing: 1, fontSize: "0.67rem", fontWeight: 600 }}>{k.label}</Typography>
-                        <Typography variant="h4" fontWeight={800} sx={{ color: "var(--text-primary)", lineHeight: 1.1, mt: 0.3 }}>
-                          {k.value}
-                        </Typography>
-                        <Typography sx={{ color: "var(--text-secondary)", fontSize: "0.78rem", mt: 0.5, display: "block" }}>
-                          {k.sub}
-                        </Typography>
-                      </Box>
-                      <Avatar sx={{ bgcolor: `${k.accent}18`, width: 42, height: 42, color: k.accent }}>
-                        {k.icon}
-                      </Avatar>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Grid>
+            <motion.div key={k.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.06 }}>
+              <div className={card} style={{ borderLeft: `3px solid ${k.accent}` }}>
+                {k.info && <KpiInfoIcon text={k.info} color="var(--text-muted)" />}
+                <div className="flex items-start justify-between p-5">
+                  <div>
+                    <div className={labelCls}>{k.label}</div>
+                    <div className="mt-1 text-[2.125rem] font-extrabold leading-[1.1] text-foreground">{k.value}</div>
+                    <div className="mt-1 block text-[0.78rem] text-muted-foreground">{k.sub}</div>
+                  </div>
+                  <span className="flex size-[42px] items-center justify-center rounded-full" style={{ background: `${k.accent}18`, color: k.accent }}>{k.icon}</span>
+                </div>
+              </div>
+            </motion.div>
           ))}
-        </Grid>
+        </div>
 
         {/* ─── TENDANCE BANNER ─────────────────────────────────────────── */}
         {derived.tendance !== 0 && (
-          <Paper sx={{ p: 1.5, mb: 2.5, borderRadius: 2, display: "flex", alignItems: "center", gap: 1.5,
-            background: derived.tendance > 0 ? "rgba(5,150,105,0.06)" : "rgba(220,38,38,0.06)",
-            border: `1px solid ${derived.tendance > 0 ? "#059669" : "#DC2626"}30` }}>
-            {derived.tendance > 0
-              ? <TrendingUpIcon sx={{ color: "#059669" }} />
-              : <TrendingDownIcon sx={{ color: "#DC2626" }} />}
-            <Typography variant="body2" fontWeight={600}
-              sx={{ color: derived.tendance > 0 ? "#059669" : "#DC2626" }}>
+          <div
+            className="mb-5 flex items-center gap-3 rounded-lg p-3"
+            style={{
+              background: derived.tendance > 0 ? "rgba(5,150,105,0.06)" : "rgba(220,38,38,0.06)",
+              border: `1px solid ${derived.tendance > 0 ? "#059669" : "#DC2626"}30`,
+            }}
+          >
+            {derived.tendance > 0 ? <TrendingUp size={20} className="text-emerald-600" /> : <TrendingDown size={20} className="text-red-600" />}
+            <span className={`text-sm font-semibold ${derived.tendance > 0 ? "text-emerald-600" : "text-red-600"}`}>
               Tendance activité {derived.tendance > 0 ? "+" : ""}{derived.tendance}% sur la 2ème moitié de la période
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              (comparaison première vs seconde moitié des {days} jours)
-            </Typography>
-          </Paper>
+            </span>
+            <span className="text-xs text-muted-foreground">(comparaison première vs seconde moitié des {days} jours)</span>
+          </div>
         )}
 
         {/* ─── CHARTS ROW 1: Activity by day + Tickets by status ─── */}
-        <Grid container spacing={2.5} mb={2.5}>
+        <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-12">
           {/* Area chart: activité par jour */}
-          <Grid item xs={12} md={7}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography fontWeight={700} color="var(--text-primary)">Activité / jour — {days} derniers jours</Typography>
-                {drillAction && (
-                  <Chip size="small" icon={<FilterAltIcon />} label={`Action: ${drillAction}`}
-                    onDelete={() => setDrillAction(null)} color="warning" variant="outlined" />
-                )}
-              </Box>
-              <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={cData.activityByDay}
-                  onClick={(e) => { /* clear drill on background click */ }}>
-                  <defs>
-                    <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor={STEEL} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={STEEL} stopOpacity={0}   />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} tickFormatter={(v) => v.slice(5)} />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
-                  <RechartsTooltip
-                    contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
-                    formatter={(v: any) => [v, "Événements"]}
-                    labelFormatter={(l) => `Date : ${l}`}
-                  />
-                  <Area type="monotone" dataKey="count" name="Événements"
-                    stroke={STEEL} fill="url(#grad)" strokeWidth={2} dot={false} activeDot={{ r: 5, fill: GOLD }} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
+          <div className={`${paper} md:col-span-7`}>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-bold text-foreground">Activité / jour — {days} derniers jours</h3>
+              {drillAction && (
+                <button type="button" onClick={() => setDrillAction(null)} className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-amber-500 bg-transparent px-2.5 text-xs leading-6 text-amber-600">
+                  <Filter size={13} /> Action: {drillAction} <X size={13} />
+                </button>
+              )}
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={cData.activityByDay}>
+                <defs>
+                  <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor={STEEL} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={STEEL} stopOpacity={0}   />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} tickFormatter={(v) => v.slice(5)} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                <RechartsTooltip
+                  contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
+                  formatter={(v: any) => [v, "Événements"]}
+                  labelFormatter={(l) => `Date : ${l}`}
+                />
+                <Area type="monotone" dataKey="count" name="Événements"
+                  stroke={STEEL} fill="url(#grad)" strokeWidth={2} dot={false} activeDot={{ r: 5, fill: GOLD }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
 
           {/* Pie chart: tickets par statut */}
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", height: "100%" }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography fontWeight={700} color="var(--text-primary)">Tickets par statut</Typography>
-                {drillStatus && (
-                  <Chip size="small" icon={<FilterAltIcon />} label={`Statut: ${statusLabel(drillStatus)}`}
-                    onDelete={() => setDrillStatus(null)} color="warning" variant="outlined" />
-                )}
-              </Box>
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie data={cData.ticketsByStatus} dataKey="count" nameKey="status"
-                    cx="50%" cy="50%" outerRadius={80} innerRadius={40}
-                    onClick={(entry: any) => setDrillStatus((s) => s === entry.status ? null : entry.status)}
-                    cursor="pointer">
-                    {cData.ticketsByStatus.map((_, idx) => (
-                      // stroke="none" : le trait blanc par défaut entre slices crée une
-                      // fine encoche visible (façon "C") quand il n'y a qu'un seul statut
-                      // — un cercle à 100% se retrouve avec un unique liseré au niveau
-                      // de la jointure de départ/fin au lieu d'un anneau plein.
-                      <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} stroke="none"
-                        opacity={drillStatus && drillStatus !== cData.ticketsByStatus[idx]?.status ? 0.35 : 1} />
-                    ))}
-                  </Pie>
-                  <Legend formatter={(v) => statusLabel(v)} wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }} />
-                  <RechartsTooltip formatter={(v, n) => [v, statusLabel(String(n))]} />
-                </PieChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-        </Grid>
+          <div className={`${paper} h-full md:col-span-5`}>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-bold text-foreground">Tickets par statut</h3>
+              {drillStatus && (
+                <button type="button" onClick={() => setDrillStatus(null)} className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-amber-500 bg-transparent px-2.5 text-xs leading-6 text-amber-600">
+                  <Filter size={13} /> Statut: {statusLabel(drillStatus)} <X size={13} />
+                </button>
+              )}
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie data={cData.ticketsByStatus} dataKey="count" nameKey="status"
+                  cx="50%" cy="50%" outerRadius={80} innerRadius={40}
+                  onClick={(entry: any) => setDrillStatus((s) => s === entry.status ? null : entry.status)}
+                  cursor="pointer">
+                  {cData.ticketsByStatus.map((_, idx) => (
+                    // stroke="none" : le trait blanc par défaut entre slices crée une
+                    // fine encoche visible (façon "C") quand il n'y a qu'un seul statut
+                    // — un cercle à 100% se retrouve avec un unique liseré au niveau
+                    // de la jointure de départ/fin au lieu d'un anneau plein.
+                    <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} stroke="none"
+                      opacity={drillStatus && drillStatus !== cData.ticketsByStatus[idx]?.status ? 0.35 : 1} />
+                  ))}
+                </Pie>
+                <Legend formatter={(v) => statusLabel(v)} wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }} />
+                <RechartsTooltip formatter={(v, n) => [v, statusLabel(String(n))]} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
         {/* ─── CHARTS ROW 2: Clients by agency + Logs by action ─── */}
-        <Grid container spacing={2.5} mb={2.5}>
+        <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
           {/* Bar chart: clients par agence */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color="var(--text-primary)" mb={2}>Clients par agence (top 8)</Typography>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={cData.clientsByAgency.slice(0, 8)} layout="vertical"
-                  onClick={(e) => { if (e?.activeLabel) setDrillAction(null); }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
-                  <YAxis type="category" dataKey="agence" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} width={90}
-                    tickFormatter={(v) => String(v).slice(0, 14)} />
-                  <RechartsTooltip
-                    contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
-                    formatter={(v) => [v, "Clients"]}
-                  />
-                  <Bar dataKey="total_clients" name="Clients" radius={[0, 4, 4, 0]}>
-                    {cData.clientsByAgency.slice(0, 8).map((_, idx) => (
-                      <Cell key={idx} fill={idx % 2 === 0 ? NAVY : STEEL} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
+          <div className={paper}>
+            <h3 className="mb-4 font-bold text-foreground">Clients par agence (top 8)</h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={cData.clientsByAgency.slice(0, 8)} layout="vertical"
+                onClick={(e) => { if (e?.activeLabel) setDrillAction(null); }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                <YAxis type="category" dataKey="agence" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} width={90}
+                  tickFormatter={(v) => String(v).slice(0, 14)} />
+                <RechartsTooltip
+                  contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
+                  formatter={(v) => [v, "Clients"]}
+                />
+                <Bar dataKey="total_clients" name="Clients" radius={[0, 4, 4, 0]}>
+                  {cData.clientsByAgency.slice(0, 8).map((_, idx) => (
+                    <Cell key={idx} fill={idx % 2 === 0 ? NAVY : STEEL} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
           {/* Bar chart: logs par action */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color="var(--text-primary)" mb={2}>Événements par type d'action</Typography>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={cData.activityByAction}
-                  onClick={(e: any) => {
-                    const act = e?.activePayload?.[0]?.payload?.action;
-                    if (act) setDrillAction((d) => d === act ? null : act);
-                  }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="action" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
-                  <RechartsTooltip
-                    contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
-                    formatter={(v) => [v, "Logs"]}
-                  />
-                  <Bar dataKey="count" name="Logs" radius={[4, 4, 0, 0]} cursor="pointer">
-                    {cData.activityByAction.map((entry, idx) => (
-                      <Cell key={idx}
-                        fill={drillAction === entry.action ? GOLD : actionColor(entry.action)}
-                        opacity={drillAction && drillAction !== entry.action ? 0.35 : 1}
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              {drillAction && (
-                <Box mt={1} display="flex" justifyContent="flex-end">
-                  <Chip size="small" icon={<FilterAltOffIcon />} label="Effacer filtre"
-                    onClick={() => setDrillAction(null)} variant="outlined"
-                    sx={{ borderColor: GOLD, color: GOLD, cursor: "pointer" }} />
-                </Box>
-              )}
-            </Paper>
-          </Grid>
-        </Grid>
+          <div className={paper}>
+            <h3 className="mb-4 font-bold text-foreground">Événements par type d&apos;action</h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={cData.activityByAction}
+                onClick={(e: any) => {
+                  const act = e?.activePayload?.[0]?.payload?.action;
+                  if (act) setDrillAction((d) => d === act ? null : act);
+                }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="action" tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                <RechartsTooltip
+                  contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
+                  formatter={(v) => [v, "Logs"]}
+                />
+                <Bar dataKey="count" name="Logs" radius={[4, 4, 0, 0]} cursor="pointer">
+                  {cData.activityByAction.map((entry, idx) => (
+                    <Cell key={idx}
+                      fill={drillAction === entry.action ? GOLD : actionColor(entry.action)}
+                      opacity={drillAction && drillAction !== entry.action ? 0.35 : 1}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            {drillAction && (
+              <div className="mt-2 flex justify-end">
+                <button type="button" onClick={() => setDrillAction(null)} className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#3C8047] bg-transparent px-2.5 text-xs leading-6 text-[#3C8047]">
+                  <FilterX size={13} /> Effacer filtre
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* ─── CHARTS ROW 3: CAFs/Utilisateurs par agence + Zones ─── */}
-        <Grid container spacing={2.5} mb={2.5}>
+        <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-12">
           {/* Grouped bar: CAFs + utilisateurs par agence */}
-          <Grid item xs={12} md={7}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color="var(--text-primary)" mb={0.5}>CAFs & Utilisateurs par agence</Typography>
-              <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
-                Répartition des ressources humaines par agence
-              </Typography>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={derived.cafsByAgence} barGap={4}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="agence" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} />
-                  {/* Échelle unique : les barres CAFs et Utilisateurs sont
-                      directement comparables entre elles. Le nombre de clients
-                      (échelle très différente) a son propre graphique dédié
-                      « Clients par agence » ci-dessus. */}
-                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} allowDecimals={false} label={{ value: "CAFs / Utilisateurs", angle: -90, position: "insideLeft", fontSize: 10 }} />
-                  <RechartsTooltip contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }} />
-                  <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }} />
-                  <Bar dataKey="CAFs" fill={STEEL} radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="Utilisateurs" fill={GOLD} radius={[3, 3, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
+          <div className={`${paper} md:col-span-7`}>
+            <h3 className="mb-1 font-bold text-foreground">CAFs &amp; Utilisateurs par agence</h3>
+            <span className="mb-3 block text-xs text-muted-foreground">Répartition des ressources humaines par agence</span>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={derived.cafsByAgence} barGap={4}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="agence" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} />
+                {/* Échelle unique : les barres CAFs et Utilisateurs sont
+                    directement comparables entre elles. Le nombre de clients
+                    (échelle très différente) a son propre graphique dédié
+                    « Clients par agence » ci-dessus. */}
+                <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} allowDecimals={false} label={{ value: "CAFs / Utilisateurs", angle: -90, position: "insideLeft", fontSize: 10 }} />
+                <RechartsTooltip contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }} />
+                <Bar dataKey="CAFs" fill={STEEL} radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Utilisateurs" fill={GOLD} radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
           {/* Pie: agences par zone */}
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", height: "100%" }}>
-              <Box display="flex" alignItems="center" gap={1} mb={0.5}>
-                <MapIcon sx={{ color: STEEL, fontSize: 18 }} />
-                <Typography fontWeight={700} color="var(--text-primary)">Agences par zone</Typography>
-              </Box>
-              <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
-                {(() => {
-                  const realZones = derived.agencesByZone.filter((z) => z.zone !== "Sans zone").length;
-                  return realZones > 0
-                    ? `${realZones} zone${realZones !== 1 ? "s" : ""} identifiée${realZones !== 1 ? "s" : ""}`
-                    : "Aucune zone créée";
-                })()}
-              </Typography>
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie data={derived.agencesByZone} dataKey="count" nameKey="zone"
-                    cx="50%" cy="50%" outerRadius={78} innerRadius={35} paddingAngle={2}>
-                    {derived.agencesByZone.map((_, idx) => (
-                      <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Legend formatter={(v) => String(v).slice(0, 18)} wrapperStyle={{ fontSize: 10, color: "var(--text-secondary)" }} />
-                  <RechartsTooltip formatter={(v, n) => [v, String(n)]} />
-                </PieChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-        </Grid>
+          <div className={`${paper} h-full md:col-span-5`}>
+            <div className="mb-1 flex items-center gap-2">
+              <MapIcon size={18} className="text-[#1E6091]" />
+              <h3 className="font-bold text-foreground">Agences par zone</h3>
+            </div>
+            <span className="mb-3 block text-xs text-muted-foreground">
+              {(() => {
+                const realZones = derived.agencesByZone.filter((z) => z.zone !== "Sans zone").length;
+                return realZones > 0
+                  ? `${realZones} zone${realZones !== 1 ? "s" : ""} identifiée${realZones !== 1 ? "s" : ""}`
+                  : "Aucune zone créée";
+              })()}
+            </span>
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie data={derived.agencesByZone} dataKey="count" nameKey="zone"
+                  cx="50%" cy="50%" outerRadius={78} innerRadius={35} paddingAngle={2}>
+                  {derived.agencesByZone.map((_, idx) => (
+                    <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Legend formatter={(v) => String(v).slice(0, 18)} wrapperStyle={{ fontSize: 10, color: "var(--text-secondary)" }} />
+                <RechartsTooltip formatter={(v, n) => [v, String(n)]} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
         {/* ─── CHARTS ROW 4: Résolution tickets + Tendance activité ─── */}
-        <Grid container spacing={2.5} mb={2.5}>
+        <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-12">
           {/* Ticket resolution breakdown */}
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", height: "100%" }}>
-              <Box display="flex" alignItems="center" gap={1} mb={0.5}>
-                <CheckCircleOutlineIcon sx={{ color: "#059669", fontSize: 18 }} />
-                <Typography fontWeight={700} color="var(--text-primary)">Résolution tickets détail</Typography>
-              </Box>
-              <Typography variant="caption" color="text.secondary" display="block" mb={2}>
-                {derived.totalTickets} tickets au total — taux {derived.tauxResolution}%
-              </Typography>
-              <Stack spacing={1.5}>
-                {derived.ticketBreakdown.map((t) => {
-                  const tColor: Record<string, string> = { open: "#DC2626", "En cours": "#D97706", "Résolu": "#059669", "Fermé": NAVY };
-                  const c = tColor[t.status] ?? STEEL;
-                  return (
-                    <Box key={t.status}>
-                      <Box display="flex" justifyContent="space-between" mb={0.4}>
-                        <Typography variant="caption" fontWeight={600} color={c}>{t.status}</Typography>
-                        <Typography variant="caption" color="text.secondary">{t.count} ({t.pct}%)</Typography>
-                      </Box>
-                      <Box sx={{ height: 8, borderRadius: 4, background: "#F0F4F8", overflow: "hidden" }}>
-                        <Box sx={{ height: "100%", borderRadius: 4, background: c, width: `${t.pct}%`,
-                          transition: "width 0.8s ease" }} />
-                      </Box>
-                    </Box>
-                  );
-                })}
-                {derived.ticketBreakdown.length === 0 && (
-                  <Typography variant="body2" color="text.secondary" textAlign="center" py={2}>
-                    Aucun ticket enregistré
-                  </Typography>
-                )}
-              </Stack>
-            </Paper>
-          </Grid>
+          <div className={`${paper} h-full md:col-span-5`}>
+            <div className="mb-1 flex items-center gap-2">
+              <CircleCheck size={18} className="text-emerald-600" />
+              <h3 className="font-bold text-foreground">Résolution tickets détail</h3>
+            </div>
+            <span className="mb-4 block text-xs text-muted-foreground">{derived.totalTickets} tickets au total — taux {derived.tauxResolution}%</span>
+            <div className="flex flex-col gap-3">
+              {derived.ticketBreakdown.map((t) => {
+                const tColor: Record<string, string> = { open: "#DC2626", "En cours": "#D97706", "Résolu": "#059669", "Fermé": NAVY };
+                const c = tColor[t.status] ?? STEEL;
+                return (
+                  <div key={t.status}>
+                    <div className="mb-1 flex justify-between">
+                      <span className="text-xs font-semibold" style={{ color: c }}>{t.status}</span>
+                      <span className="text-xs text-muted-foreground">{t.count} ({t.pct}%)</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded bg-muted">
+                      <div className="h-full rounded transition-[width] duration-700" style={{ background: c, width: `${t.pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+              {derived.ticketBreakdown.length === 0 && <p className="py-4 text-center text-sm text-muted-foreground">Aucun ticket enregistré</p>}
+            </div>
+          </div>
 
           {/* Line chart: activité vs moyenne mobile */}
-          <Grid item xs={12} md={7}>
-            <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-              <Typography fontWeight={700} color="var(--text-primary)" mb={0.5}>Activité vs moyenne mobile</Typography>
-              <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
-                Événements journaliers et tendance cumulée sur {days} jours
-              </Typography>
-              <ResponsiveContainer width="100%" height={220}>
-                <ComposedChart data={derived.activityComparison}>
-                  <defs>
-                    <linearGradient id="gradActuel" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%"  stopColor={NAVY} stopOpacity={0.25} />
-                      <stop offset="95%" stopColor={NAVY} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} interval="preserveStartEnd" />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
-                  <RechartsTooltip contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
-                    formatter={(v: any, n: any) => [v, n === "actuel" ? "Événements" : "Moy. mobile"]} />
-                  <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }}
-                    formatter={(v) => v === "actuel" ? "Événements / jour" : "Moyenne mobile"} />
-                  <Area type="monotone" dataKey="actuel" fill="url(#gradActuel)" stroke={NAVY} strokeWidth={1.5} dot={false} />
-                  <Line type="monotone" dataKey="moy" stroke={GOLD} strokeWidth={2.5} dot={false} strokeDasharray="5 3" />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </Paper>
-          </Grid>
-        </Grid>
+          <div className={`${paper} md:col-span-7`}>
+            <h3 className="mb-1 font-bold text-foreground">Activité vs moyenne mobile</h3>
+            <span className="mb-3 block text-xs text-muted-foreground">Événements journaliers et tendance cumulée sur {days} jours</span>
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart data={derived.activityComparison}>
+                <defs>
+                  <linearGradient id="gradActuel" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor={NAVY} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={NAVY} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: "var(--text-secondary)" }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 10, fill: "var(--text-secondary)" }} />
+                <RechartsTooltip contentStyle={{ borderRadius: 8, border: `1px solid ${STEEL}`, fontSize: 12 }}
+                  formatter={(v: any, n: any) => [v, n === "actuel" ? "Événements" : "Moy. mobile"]} />
+                <Legend wrapperStyle={{ fontSize: 11, color: "var(--text-secondary)" }}
+                  formatter={(v) => v === "actuel" ? "Événements / jour" : "Moyenne mobile"} />
+                <Area type="monotone" dataKey="actuel" fill="url(#gradActuel)" stroke={NAVY} strokeWidth={1.5} dot={false} />
+                <Line type="monotone" dataKey="moy" stroke={GOLD} strokeWidth={2.5} dot={false} strokeDasharray="5 3" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
         {/* ─── ACTIVITY FEED ──────────────────────────────────────── */}
-        <Paper sx={{ p: 2.5, borderRadius: 2, boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <AccessTimeIcon sx={{ color: STEEL }} />
-              <Typography fontWeight={700} color="var(--text-primary)">Fil d'activité récente</Typography>
+        <div className={paper}>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock size={20} className="text-[#1E6091]" />
+              <h3 className="font-bold text-foreground">Fil d&apos;activité récente</h3>
               {hasDrill && (
-                <Chip size="small" color="warning" variant="outlined" icon={<FilterAltIcon />}
-                  label={`Filtre actif${drillAction ? ` — ${drillAction}` : ""}${drillStatus ? ` — ${statusLabel(drillStatus)}` : ""}`}
-                  onDelete={() => { setDrillAction(null); setDrillStatus(null); }} />
+                <button type="button" onClick={() => { setDrillAction(null); setDrillStatus(null); }} className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-amber-500 bg-transparent px-2.5 text-xs leading-6 text-amber-600">
+                  <Filter size={13} /> {`Filtre actif${drillAction ? ` — ${drillAction}` : ""}${drillStatus ? ` — ${statusLabel(drillStatus)}` : ""}`} <X size={13} />
+                </button>
               )}
-            </Box>
-            <Typography variant="caption" color="text.secondary">
+            </div>
+            <span className="text-xs text-muted-foreground">
               {filteredLogs.length} événement{filteredLogs.length !== 1 ? "s" : ""}
               {hasDrill ? " (filtrés)" : ""}
-            </Typography>
-          </Box>
-          <Divider sx={{ mb: 1.5 }} />
+            </span>
+          </div>
+          <hr className="mb-3 border-border" />
           {filteredLogs.length === 0 ? (
-            <Typography color="text.secondary" textAlign="center" py={3}>Aucun événement à afficher.</Typography>
+            <p className="py-6 text-center text-muted-foreground">Aucun événement à afficher.</p>
           ) : (
-            <Stack spacing={0.5}>
+            <div className="flex flex-col gap-1">
               {filteredLogs.slice(0, 30).map((log) => (
-                <Box key={log.id}
-                  sx={{ display: "flex", alignItems: "center", gap: 1.5, py: 0.75, px: 1.5,
-                    borderRadius: 1, cursor: "pointer",
-                    "&:hover": { background: "var(--bg-hover)" },
-                    background: drillAction === log.action ? "rgba(60,128,71,0.06)" : "transparent",
-                  }}
-                  onClick={() => setDrillAction((d) => d === log.action ? null : log.action)}>
-                  <Chip label={log.action} size="small"
-                    sx={{ fontSize: "0.65rem", fontWeight: 700, minWidth: 64, textAlign: "center",
-                      background: actionColor(log.action), color: "white" }} />
-                  <Typography variant="body2" color="text.primary" sx={{ flex: 1, fontSize: "0.8rem" }}
-                    noWrap>
-                    {log.description ?? "—"}
-                  </Typography>
-                  {log.user && (
-                    <Typography variant="caption" color={STEEL} sx={{ whiteSpace: "nowrap" }}>
-                      {log.user.name ?? log.user.username ?? ""}
-                    </Typography>
-                  )}
-                  <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
-                    {fmtDate(log.created_at)}
-                  </Typography>
-                </Box>
+                <div
+                  key={log.id}
+                  onClick={() => setDrillAction((d) => d === log.action ? null : log.action)}
+                  className={`flex cursor-pointer items-center gap-3 rounded px-3 py-1.5 hover:bg-muted ${drillAction === log.action ? "bg-[#3C8047]/[0.06]" : ""}`}
+                >
+                  <span className="min-w-16 rounded-full px-2 text-center text-[0.65rem] font-bold leading-6 text-white" style={{ background: actionColor(log.action) }}>{log.action}</span>
+                  <span className="flex-1 truncate text-[0.8rem] text-foreground">{log.description ?? "—"}</span>
+                  {log.user && <span className="whitespace-nowrap text-xs text-[#1E6091]">{log.user.name ?? log.user.username ?? ""}</span>}
+                  <span className="whitespace-nowrap text-xs text-muted-foreground">{fmtDate(log.created_at)}</span>
+                </div>
               ))}
-            </Stack>
+            </div>
           )}
-        </Paper>
-      </Container>
+        </div>
+      </PageContainer>
 
-      {/* Snackbar PDF */}
-      <Snackbar open={!!snack} autoHideDuration={4000} onClose={() => setSnack("")}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        message={snack} />
+      {/* Notification PDF */}
+      <Snackbar open={!!snack} severity={snack.startsWith("Erreur") ? "error" : "success"} autoHideMs={4000} onClose={() => setSnack("")}>{snack}</Snackbar>
 
       {/* ─── Panneau alertes & seuils ───────────────────────────────── */}
       <AlertsPanel
@@ -1011,7 +844,6 @@ export default function DashboardPage() {
           setDismissedAlerts(new Set());
         }}
       />
-
     </>
   );
 }

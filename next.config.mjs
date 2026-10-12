@@ -5,8 +5,6 @@ const nextConfig = {
 
   experimental: {
     optimizePackageImports: [
-      "@mui/material",
-      "@mui/icons-material",
       "recharts",
       "framer-motion",
     ],
@@ -45,7 +43,7 @@ const nextConfig = {
     const csp = [
       "default-src 'self'",
       // 'unsafe-eval' n'est nécessaire qu'en dev (Fast Refresh / webpack eval) — absent en build de production.
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+      `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ''}`,
       // 'unsafe-inline' requis par les styles injectés dynamiquement par MUI/emotion.
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
       "font-src 'self' https://fonts.gstatic.com data:",
@@ -53,6 +51,8 @@ const nextConfig = {
       "img-src 'self' data: blob: https:",
       // + WebSocket temps réel (Socket.IO) vers le backend : http(s)://h -> ws(s)://h
       `connect-src 'self' ${backendUrl} ${backendUrl.replace(/^http/, 'ws')}`,
+      // Widget anti-robot Cloudflare Turnstile (login) : iframe du défi.
+      "frame-src https://challenges.cloudflare.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

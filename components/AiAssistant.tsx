@@ -1,20 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import {
-  Box, Paper, Typography, TextField, IconButton, Chip,
-  CircularProgress, Tooltip, Collapse, Avatar,
-} from "@mui/material";
-import SmartToyIcon    from "@mui/icons-material/SmartToy";
-import CloseIcon       from "@mui/icons-material/Close";
-import SendIcon        from "@mui/icons-material/Send";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-
-const NAVY  = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
+import { Bot, CircleAlert, Copy, Send, Sparkles, X } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
 
 interface AiContext {
   kpis:       Record<string, number>;
@@ -55,7 +44,7 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
   const [loading, setLoading]   = useState(false);
   const [copied, setCopied]     = useState<number | null>(null);
   const bottomRef               = useRef<HTMLDivElement>(null);
-  const inputRef                = useRef<HTMLInputElement>(null);
+  const inputRef                = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -131,258 +120,129 @@ export default function AiAssistant({ context = EMPTY_CONTEXT }: Props) {
   return (
     <>
       {/* Floating toggle button */}
-      <Tooltip title={open ? "Fermer l'assistant IA" : "Assistant IA GeoTrust"} placement="left">
-        <Box
+      <Tooltip title={open ? "Fermer l'assistant IA" : "Assistant IA GeoTrust"} side="left">
+        <button
+          type="button"
+          aria-label={open ? "Fermer l'assistant IA" : "Ouvrir l'assistant IA"}
           onClick={() => setOpen((v) => !v)}
-          sx={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            zIndex: 1400,
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
+          className="fixed bottom-6 right-6 z-[1400] flex size-14 cursor-pointer items-center justify-center rounded-full border-0 shadow-[0_4px_20px_rgba(0,0,0,0.25)] transition-all duration-[250ms] hover:scale-[1.08] hover:shadow-[0_6px_24px_rgba(0,0,0,0.35)]"
+          style={{
             background: open
-              ? `linear-gradient(135deg, var(--banner-to) 0%, var(--banner-from) 100%)`
-              : `linear-gradient(135deg, ${GOLD} 0%, #1F5C30 100%)`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-            transition: "all 0.25s ease",
-            "&:hover": { transform: "scale(1.08)", boxShadow: "0 6px 24px rgba(0,0,0,0.35)" },
+              ? "linear-gradient(135deg, var(--banner-to) 0%, var(--banner-from) 100%)"
+              : "linear-gradient(135deg, #3C8047 0%, #1F5C30 100%)",
           }}
         >
-          {open
-            ? <CloseIcon sx={{ color: "#fff", fontSize: 22 }} />
-            : <SmartToyIcon sx={{ color: "#fff", fontSize: 24 }} />
-          }
-        </Box>
+          {open ? <X size={22} className="text-white" /> : <Bot size={24} className="text-white" />}
+        </button>
       </Tooltip>
 
       {/* Chat panel */}
-      <Collapse in={open} timeout={280} unmountOnExit>
-        <Paper
-          elevation={8}
-          sx={{
-            position: "fixed",
-            bottom: 92,
-            right: 24,
-            zIndex: 1399,
-            width: { xs: "calc(100vw - 32px)", sm: 400 },
-            maxWidth: 420,
-            height: 540,
-            display: "flex",
-            flexDirection: "column",
-            borderRadius: 3,
-            overflow: "hidden",
-            border: `1px solid rgba(30,96,145,0.15)`,
-          }}
-        >
+      {open && (
+        <div className="fixed bottom-[92px] right-6 z-[1399] flex h-[540px] w-[calc(100vw-32px)] max-w-[420px] flex-col overflow-hidden rounded-2xl border border-[#1E6091]/15 bg-surface shadow-2xl sm:w-[400px]">
           {/* Header */}
-          <Box
-            sx={{
-              background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`,
-              px: 2, py: 1.5,
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-            }}
-          >
-            <Avatar sx={{ bgcolor: GOLD, width: 32, height: 32 }}>
-              <SmartToyIcon sx={{ fontSize: 18, color: NAVY }} />
-            </Avatar>
-            <Box flex={1}>
-              <Typography fontSize={13} fontWeight={700} color="#fff">Assistant IA GeoTrust</Typography>
-              <Typography fontSize={11} color="rgba(255,255,255,0.6)">
-                Analyse vos données en temps réel
-              </Typography>
-            </Box>
+          <div className="flex items-center gap-3 px-4 py-3" style={{ background: "linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)" }}>
+            <span className="flex size-8 items-center justify-center rounded-full bg-[#3C8047] text-[#0F3B5C]"><Bot size={18} /></span>
+            <div className="flex-1">
+              <div className="text-[13px] font-bold text-white">Assistant IA GeoTrust</div>
+              <div className="text-[11px] text-white/60">Analyse vos données en temps réel</div>
+            </div>
             <Tooltip title="Réinitialiser la conversation">
-              <IconButton size="small" onClick={clearChat} sx={{ color: "rgba(255,255,255,0.5)", "&:hover": { color: "#fff" } }}>
-                <AutoFixHighIcon fontSize="small" />
-              </IconButton>
+              <button type="button" aria-label="Réinitialiser la conversation" onClick={clearChat} className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-white/50 hover:text-white">
+                <Sparkles size={18} />
+              </button>
             </Tooltip>
-          </Box>
+          </div>
 
           {/* Messages */}
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: "auto",
-              px: 2,
-              py: 1.5,
-              display: "flex",
-              flexDirection: "column",
-              gap: 1.5,
-              bgcolor: "var(--bg-page)",
-            }}
-          >
+          <div className="flex flex-1 flex-col gap-3 overflow-y-auto bg-background px-4 py-3">
             {messages.map((msg, idx) => (
-              <Box key={idx} display="flex" flexDirection="column"
-                alignItems={msg.role === "user" ? "flex-end" : "flex-start"}>
+              <div key={idx} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
                 {msg.isError ? (
-                  <Box
-                    sx={{
-                      maxWidth: "90%",
-                      px: 1.5,
-                      py: 1,
-                      borderRadius: "12px 12px 12px 2px",
-                      bgcolor: "#FEF2F2",
-                      border: "0.5px solid #FECACA",
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 0.8,
-                    }}
-                  >
-                    <ErrorOutlineIcon sx={{ fontSize: 16, color: "#DC2626", mt: 0.2, flexShrink: 0 }} />
-                    <Typography fontSize={13} lineHeight={1.6} color="#991B1B">
-                      {msg.content}
-                    </Typography>
-                  </Box>
+                  <div className="flex max-w-[90%] items-start gap-2 rounded-[12px_12px_12px_2px] border border-red-200 bg-red-50 px-3 py-2">
+                    <CircleAlert size={16} className="mt-0.5 shrink-0 text-red-600" />
+                    <span className="text-[13px] leading-relaxed text-red-800">{msg.content}</span>
+                  </div>
                 ) : (
-                  <Box
-                    sx={{
-                      maxWidth: "85%",
-                      px: 1.5,
-                      py: 1,
-                      borderRadius: msg.role === "user" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
-                      bgcolor: msg.role === "user" ? STEEL : "var(--bg-surface)",
-                      border: msg.role === "assistant" ? "0.5px solid rgba(30,96,145,0.15)" : "none",
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-                      position: "relative",
-                    }}
+                  <div
+                    className={`group relative max-w-[85%] px-3 py-2 shadow-[0_1px_4px_rgba(0,0,0,0.06)] ${
+                      msg.role === "user"
+                        ? "rounded-[12px_12px_2px_12px] bg-[#1E6091]"
+                        : "rounded-[12px_12px_12px_2px] border border-[#1E6091]/15 bg-surface"
+                    }`}
                   >
-                    <Typography
-                      fontSize={13}
-                      lineHeight={1.6}
-                      color={msg.role === "user" ? "#fff" : "var(--text-primary)"}
-                      sx={{ whiteSpace: "pre-wrap" }}
-                    >
-                      {msg.content}
-                    </Typography>
+                    <div className={`whitespace-pre-wrap text-[13px] leading-relaxed ${msg.role === "user" ? "text-white" : "text-foreground"}`}>{msg.content}</div>
                     {msg.role === "assistant" && (
-                      <IconButton
-                        size="small"
+                      <button
+                        type="button"
+                        aria-label="Copier le message"
                         onClick={() => copyMessage(idx, msg.content)}
-                        sx={{
-                          position: "absolute", top: 2, right: 2,
-                          opacity: 0, transition: "opacity 0.2s",
-                          ".MuiBox-root:hover &": { opacity: 1 },
-                          "&:hover": { opacity: 1 },
-                          color: copied === idx ? "#059669" : STEEL,
-                          p: 0.3,
-                        }}
+                        className={`absolute right-0.5 top-0.5 cursor-pointer rounded-full border-0 bg-transparent p-1 opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100 ${copied === idx ? "text-emerald-600" : "text-[#1E6091]"}`}
                       >
-                        <ContentCopyIcon sx={{ fontSize: 12 }} />
-                      </IconButton>
+                        <Copy size={12} />
+                      </button>
                     )}
-                  </Box>
+                  </div>
                 )}
-              </Box>
+              </div>
             ))}
 
             {loading && (
-              <Box display="flex" alignItems="center" gap={1}>
-                <Box sx={{
-                  px: 1.5, py: 1, borderRadius: "12px 12px 12px 2px",
-                  bgcolor: "var(--bg-surface)", border: "0.5px solid rgba(30,96,145,0.15)",
-                  display: "flex", alignItems: "center", gap: 1,
-                }}>
-                  <CircularProgress size={12} sx={{ color: STEEL }} />
-                  <Typography fontSize={12} color="text.secondary">Analyse en cours…</Typography>
-                </Box>
-              </Box>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-[12px_12px_12px_2px] border border-[#1E6091]/15 bg-surface px-3 py-2">
+                  <Spinner className="size-3 text-[#1E6091]" />
+                  <span className="text-xs text-muted-foreground">Analyse en cours…</span>
+                </div>
+              </div>
             )}
 
             <div ref={bottomRef} />
-          </Box>
+          </div>
 
           {/* Quick questions */}
           {messages.length <= 1 && (
-            <Box px={1.5} pb={1} sx={{ bgcolor: "var(--bg-page)" }}>
-              <Typography fontSize={11} color="text.secondary" mb={0.8} px={0.5}>
-                Questions rapides :
-              </Typography>
-              <Box display="flex" flexWrap="wrap" gap={0.6}>
+            <div className="bg-background px-3 pb-2">
+              <div className="mb-2 px-1 text-[11px] text-muted-foreground">Questions rapides :</div>
+              <div className="flex flex-wrap gap-1.5">
                 {QUICK_QUESTIONS.map((q) => (
-                  <Chip
+                  <button
                     key={q}
-                    label={q}
-                    size="small"
-                    variant="outlined"
+                    type="button"
                     onClick={() => send(q)}
-                    sx={{
-                      fontSize: 10,
-                      height: 24,
-                      cursor: "pointer",
-                      borderColor: `rgba(30,96,145,0.25)`,
-                      color: STEEL,
-                      "&:hover": { bgcolor: `rgba(30,96,145,0.06)`, borderColor: STEEL },
-                    }}
-                  />
+                    className="h-6 cursor-pointer rounded-full border border-[#1E6091]/25 bg-transparent px-2.5 text-[10px] text-[#1E6091] transition-colors hover:border-[#1E6091] hover:bg-[#1E6091]/5"
+                  >
+                    {q}
+                  </button>
                 ))}
-              </Box>
-            </Box>
+              </div>
+            </div>
           )}
 
           {/* Input */}
-          <Box
-            sx={{
-              px: 1.5,
-              py: 1.2,
-              borderTop: "0.5px solid rgba(30,96,145,0.12)",
-              bgcolor: "var(--bg-surface)",
-              display: "flex",
-              gap: 1,
-              alignItems: "flex-end",
-            }}
-          >
-            <TextField
-              inputRef={inputRef}
-              fullWidth
-              multiline
-              maxRows={3}
-              size="small"
+          <div className="flex items-end gap-2 border-t border-[#1E6091]/10 bg-surface px-3 py-2.5">
+            <textarea
+              ref={inputRef}
+              rows={1}
               placeholder="Posez votre question…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
               disabled={loading}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  fontSize: 13,
-                  borderRadius: 2,
-                  "& fieldset": { borderColor: "rgba(30,96,145,0.2)" },
-                  "&:hover fieldset": { borderColor: STEEL },
-                  "&.Mui-focused fieldset": { borderColor: STEEL },
-                },
-              }}
+              className="max-h-20 min-h-9 w-full resize-none rounded-lg border border-[#1E6091]/20 bg-transparent px-3 py-2 text-[13px] text-foreground outline-none placeholder:text-muted-foreground hover:border-[#1E6091] focus:border-[#1E6091] disabled:opacity-60"
             />
             <Tooltip title="Envoyer (Entrée)">
-              <span>
-                <IconButton
-                  onClick={() => send()}
-                  disabled={loading || !input.trim()}
-                  sx={{
-                    bgcolor: NAVY,
-                    color: "#fff",
-                    width: 36,
-                    height: 36,
-                    borderRadius: 2,
-                    flexShrink: 0,
-                    "&:hover": { bgcolor: STEEL },
-                    "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.12)", color: "rgba(0,0,0,0.26)" },
-                  }}
-                >
-                  <SendIcon sx={{ fontSize: 17 }} />
-                </IconButton>
-              </span>
+              <button
+                type="button"
+                aria-label="Envoyer"
+                onClick={() => send()}
+                disabled={loading || !input.trim()}
+                className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-[#0F3B5C] text-white transition-colors hover:bg-[#1E6091] disabled:cursor-default disabled:bg-black/10 disabled:text-black/25"
+              >
+                <Send size={17} />
+              </button>
             </Tooltip>
-          </Box>
-        </Paper>
-      </Collapse>
+          </div>
+        </div>
+      )}
     </>
   );
 }

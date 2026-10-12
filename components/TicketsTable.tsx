@@ -2,43 +2,18 @@
 
 import { TicketDto, TicketStatus } from "@/lib/tickets";
 import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Paper,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import BugReportIcon from "@mui/icons-material/BugReport";
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import LockIcon from "@mui/icons-material/Lock";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import NorthIcon from "@mui/icons-material/North";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+  ArrowDown, ArrowUp, Bug, CircleCheck, Circle, Hourglass, Lock, MoveUp, Maximize2, Search, ChevronsUpDown, X,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { PaginationBar } from "./PaginationBar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Panel } from "@/components/ui/page-blocks";
 
-const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
 
 const STANDARD_CATEGORIES = [
@@ -73,11 +48,11 @@ type StatusCfg = {
 };
 
 const STATUS_CFG: Record<TicketStatus, StatusCfg> = {
-  open:          { label: "Ouvert",           dot: "#f59e0b", icon: <RadioButtonUncheckedIcon sx={{ fontSize: 13 }} /> },
-  in_progress:   { label: "En cours",         dot: STEEL,     icon: <HourglassEmptyIcon sx={{ fontSize: 13 }} /> },
-  waiting_user:  { label: "Att. utilisateur", dot: "#7c3aed", icon: <HourglassEmptyIcon sx={{ fontSize: 13 }} /> },
-  resolved:      { label: "Resolu",           dot: "#22c55e", icon: <CheckCircleOutlineIcon sx={{ fontSize: 13 }} /> },
-  closed:        { label: "Ferme",            dot: "#94A3B8", icon: <LockIcon sx={{ fontSize: 13 }} /> },
+  open:          { label: "Ouvert",           dot: "#f59e0b", icon: <Circle size={13} /> },
+  in_progress:   { label: "En cours",         dot: STEEL,     icon: <Hourglass size={13} /> },
+  waiting_user:  { label: "Att. utilisateur", dot: "#7c3aed", icon: <Hourglass size={13} /> },
+  resolved:      { label: "Resolu",           dot: "#22c55e", icon: <CircleCheck size={13} /> },
+  closed:        { label: "Ferme",            dot: "#94A3B8", icon: <Lock size={13} /> },
 };
 
 const SEVERITY_ORDER: Record<string, number> = { urgent: 0, eleve: 1, moyen: 2, faible: 3 };
@@ -107,10 +82,10 @@ type SortKey = "id" | "title" | "severity" | "status" | "createdAt";
 type SortDir = "asc" | "desc";
 
 function SortIcon({ active, dir }: { active: boolean; dir: SortDir }) {
-  if (!active) return <UnfoldMoreIcon sx={{ fontSize: 13, opacity: 0.4, ml: 0.5 }} />;
+  if (!active) return <ChevronsUpDown size={13} className="ml-1 opacity-40" />;
   return dir === "asc"
-    ? <ArrowUpwardIcon sx={{ fontSize: 13, ml: 0.5, color: "#3C8047" }} />
-    : <ArrowDownwardIcon sx={{ fontSize: 13, ml: 0.5, color: "#3C8047" }} />;
+    ? <ArrowUp size={13} className="ml-1 text-[#3C8047]" />
+    : <ArrowDown size={13} className="ml-1 text-[#3C8047]" />;
 }
 
 export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: TicketsTableProps) {
@@ -180,168 +155,108 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
     setFilterCategory("all");
   }
 
-  const selectSx = {
-    height: 36,
-    fontSize: 13,
-    borderRadius: 2,
-    bgcolor: "var(--bg-page)",
-    "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" },
-    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL },
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 },
-  };
+  const selectCls = "h-9 w-auto text-[13px]";
 
-  const colHeader = (label: string, key?: SortKey, pl?: number) => (
-    <TableCell
+  const colHeader = (label: string, key?: SortKey, first?: boolean) => (
+    <th
       onClick={key ? () => handleSort(key) : undefined}
-      sx={{
-        bgcolor: NAVY,
-        color: sortKey === key ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.55)",
-        fontWeight: 600,
-        fontSize: 10.5,
-        textTransform: "uppercase",
-        letterSpacing: 1,
-        borderBottom: "none",
-        py: 1.75,
-        pl: pl ?? undefined,
-        cursor: key ? "pointer" : "default",
-        userSelect: "none",
-        whiteSpace: "nowrap",
-        "&:hover": key ? { color: "rgba(255,255,255,0.9)" } : {},
-      }}
+      className={`select-none whitespace-nowrap py-3.5 text-left text-[10.5px] font-semibold uppercase tracking-[1px] ${first ? "pl-6" : "pl-4"} ${
+        sortKey === key ? "text-white/95" : "text-white/55"
+      } ${key ? "cursor-pointer hover:text-white/90" : ""}`}
     >
-      <Box display="flex" alignItems="center">
+      <span className="flex items-center">
         {label}
         {key && <SortIcon active={sortKey === key} dir={sortDir} />}
-      </Box>
-    </TableCell>
+      </span>
+    </th>
   );
 
   return (
-    <Box>
+    <div>
       {/* Barre de recherche + filtres */}
-      <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
-        <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
-          <TextField
-            size="small"
-            placeholder="Rechercher par titre, demandeur..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            sx={{
-              flex: 1, minWidth: 240,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s",
-                "&:hover": { bgcolor: "var(--bg-surface)" },
-                "&.Mui-focused": { bgcolor: "var(--bg-surface)" },
-                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 },
-              },
-            }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
-              endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-            }}
-          />
-          <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} size="small" displayEmpty sx={selectSx}>
-            <MenuItem value="all">Tous les statuts</MenuItem>
+      <Panel className="mb-5 p-4 shadow-[0_1px_4px_rgba(15,59,92,0.04)]">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative min-w-60 flex-1">
+            <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Rechercher par titre, demandeur..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-9" />
+            {search && (
+              <button type="button" aria-label="Effacer la recherche" onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted">
+                <X size={16} />
+              </button>
+            )}
+          </div>
+          <Select aria-label="Statut" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className={selectCls}>
+            <option value="all">Tous les statuts</option>
             {(Object.entries(STATUS_CFG) as [TicketStatus, StatusCfg][]).map(([val, cfg]) => (
-              <MenuItem key={val} value={val}>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: cfg.dot, flexShrink: 0 }} />
-                  {cfg.label}
-                </Box>
-              </MenuItem>
+              <option key={val} value={val}>{cfg.label}</option>
             ))}
           </Select>
-          <Select value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)} size="small" displayEmpty sx={selectSx}>
-            <MenuItem value="all">Toutes les sévérités</MenuItem>
-            {[
-              { value: "urgent", label: "Urgent", color: "#b91c1c" },
-              { value: "eleve",  label: "Elevé",  color: "#c2410c" },
-              { value: "moyen",  label: "Moyen",  color: "#b45309" },
-              { value: "faible", label: "Faible", color: "#64748b" },
-            ].map((s) => (
-              <MenuItem key={s.value} value={s.value}>
-                <Typography sx={{ fontWeight: 600, color: s.color, fontSize: 13 }}>{s.label}</Typography>
-              </MenuItem>
-            ))}
+          <Select aria-label="Sévérité" value={filterSeverity} onChange={(e) => setFilterSeverity(e.target.value)} className={selectCls}>
+            <option value="all">Toutes les sévérités</option>
+            <option value="urgent">Urgent</option>
+            <option value="eleve">Elevé</option>
+            <option value="moyen">Moyen</option>
+            <option value="faible">Faible</option>
           </Select>
-          <Select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} size="small" displayEmpty sx={{ ...selectSx, minWidth: 180 }}>
-            <MenuItem value="all">Toutes les catégories</MenuItem>
-            {categories.map((cat) => (<MenuItem key={cat} value={cat}>{cat}</MenuItem>))}
+          <Select aria-label="Catégorie" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className={`${selectCls} min-w-44`}>
+            <option value="all">Toutes les catégories</option>
+            {categories.map((cat) => (<option key={cat} value={cat}>{cat}</option>))}
           </Select>
           {activeFilterCount > 0 && (
-            <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={clearFilters}
-              sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
-              Effacer ({activeFilterCount})
+            <Button size="sm" variant="ghost" className="font-medium text-muted-foreground" onClick={clearFilters}>
+              <X size={15} /> Effacer ({activeFilterCount})
             </Button>
           )}
-        </Box>
-        <Box display="flex" alignItems="center" mt={1.5} pt={1} sx={{ borderTop: "1px solid #F1F5F9" }}>
-          <Typography variant="caption" color="text.secondary">
-            {sorted.length} ticket{sorted.length !== 1 ? "s" : ""}{sorted.length !== tickets.length ? ` sur ${tickets.length} au total` : ""}
-          </Typography>
-        </Box>
-      </Paper>
+        </div>
+        <div className="mt-3 flex items-center border-t border-border pt-2 text-xs text-muted-foreground">
+          {sorted.length} ticket{sorted.length !== 1 ? "s" : ""}{sorted.length !== tickets.length ? ` sur ${tickets.length} au total` : ""}
+        </div>
+      </Panel>
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-      >
-        <TableContainer
-          component={Paper}
-          elevation={0}
-          sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                {colHeader("Ticket",     "title",     3)}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+        <Panel className="overflow-hidden">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-[#0F3B5C]">
+                {colHeader("Ticket", "title", true)}
                 {colHeader("Demandeur")}
-                {colHeader("Sévérité",  "severity")}
-                {colHeader("Statut",    "status")}
+                {colHeader("Sévérité", "severity")}
+                {colHeader("Statut", "status")}
                 {colHeader("Réponse IT")}
-                {colHeader("Date",      "createdAt")}
-                <TableCell sx={{ bgcolor: NAVY, borderBottom: "none", pr: 2.5, width: 80 }} />
-              </TableRow>
-            </TableHead>
+                {colHeader("Date", "createdAt")}
+                <th className="w-20 pr-5" />
+              </tr>
+            </thead>
 
-            <TableBody>
+            <tbody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 8, border: "none" }}>
-                    <Box display="flex" alignItems="center" justifyContent="center" gap={1.5}>
-                      <CircularProgress size={18} sx={{ color: STEEL }} />
-                      <Typography variant="body2" color="text.secondary">Chargement des tickets...</Typography>
-                    </Box>
-                  </TableCell>
-                </TableRow>
+                <tr>
+                  <td colSpan={7} className="py-16 text-center">
+                    <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                      <Spinner className="text-[#1E6091]" /> Chargement des tickets...
+                    </div>
+                  </td>
+                </tr>
               ) : sorted.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 8, border: "none" }}>
-                    <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
-                      <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <BugReportIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
-                      </Box>
-                      <Typography variant="body2" color="text.disabled">
-                        Aucun ticket ne correspond aux filtres.
-                      </Typography>
+                <tr>
+                  <td colSpan={7} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <span className="flex size-[52px] items-center justify-center rounded-full bg-muted text-border-strong"><Bug size={24} /></span>
+                      <span className="text-sm text-muted-foreground">Aucun ticket ne correspond aux filtres.</span>
                       {activeFilterCount > 0 && (
-                        <Typography
-                          variant="caption"
-                          sx={{ color: STEEL, cursor: "pointer", textDecoration: "underline" }}
-                          onClick={clearFilters}
-                        >
+                        <button type="button" onClick={clearFilters} className="cursor-pointer border-0 bg-transparent text-xs text-[#1E6091] underline">
                           Réinitialiser les filtres
-                        </Typography>
+                        </button>
                       )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
+                    </div>
+                  </td>
+                </tr>
               ) : (
                 paginated.map((ticket, idx) => {
                   const sc = STATUS_CFG[ticket.status] ?? STATUS_CFG.open;
                   const sv = severityLabel(ticket.severity);
+                  const cell = "border-b border-border bg-surface pl-4 py-2.5";
                   return (
                     <motion.tr
                       key={ticket.id}
@@ -351,98 +266,87 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
                       style={{ display: "table-row", cursor: onChangeStatus ? "pointer" : "default" }}
                       onClick={() => onChangeStatus?.(ticket)}
                     >
-                      <TableCell sx={{ pl: 3, maxWidth: 260, borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
-                        <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.3, color: "var(--text-primary)" }} noWrap>
-                          #{ticket.id} — {ticket.title}
-                        </Typography>
-                        {ticket.category && (
-                          <Typography variant="caption" color="text.secondary">{ticket.category}</Typography>
-                        )}
-                      </TableCell>
+                      <td className="max-w-[260px] border-b border-border bg-surface py-2.5 pl-6">
+                        <div className="truncate text-sm font-semibold leading-tight text-foreground">#{ticket.id} — {ticket.title}</div>
+                        {ticket.category && <div className="text-xs text-muted-foreground">{ticket.category}</div>}
+                      </td>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
+                      <td className={cell}>
                         {ticket.requesterName ? (
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Avatar sx={{ width: 28, height: 28, fontSize: 11, fontWeight: 700, bgcolor: NAVY }}>
+                          <div className="flex items-center gap-2">
+                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#0F3B5C] text-[11px] font-bold text-white">
                               {userInitials(ticket.requesterName)}
-                            </Avatar>
-                            <Box>
-                              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2, color: "var(--text-primary)" }}>{ticket.requesterName}</Typography>
-                              {ticket.requesterEmail && (
-                                <Typography variant="caption" color="text.secondary">{ticket.requesterEmail}</Typography>
-                              )}
-                            </Box>
-                          </Box>
+                            </span>
+                            <div>
+                              <div className="text-sm font-semibold leading-tight text-foreground">{ticket.requesterName}</div>
+                              {ticket.requesterEmail && <div className="text-xs text-muted-foreground">{ticket.requesterEmail}</div>}
+                            </div>
+                          </div>
                         ) : (
-                          <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
+                          <span className="text-sm text-border-strong">—</span>
                         )}
-                      </TableCell>
+                      </td>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: sv.color }}>
-                          {sv.label}
-                        </Typography>
-                      </TableCell>
+                      <td className={cell}><span className="text-[11px] font-bold" style={{ color: sv.color }}>{sv.label}</span></td>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
-                        <Box display="flex" alignItems="center" gap={0.75}>
-                          <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: sc.dot, flexShrink: 0 }} />
-                          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: 11.5, color: "var(--text-primary)" }}>
-                            {sc.label}
-                          </Typography>
-                        </Box>
-                      </TableCell>
+                      <td className={cell}>
+                        <span className="flex items-center gap-1.5">
+                          <span className="size-1.5 shrink-0 rounded-full" style={{ background: sc.dot }} />
+                          <span className="text-[11.5px] font-semibold text-foreground">{sc.label}</span>
+                        </span>
+                      </td>
 
-                      <TableCell sx={{ maxWidth: 240, borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
+                      <td className={`${cell} max-w-[240px]`}>
                         {ticket.itResponse ? (
-                          <Tooltip title={ticket.itResponse} arrow placement="top">
-                            <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200, fontSize: 12 }}>
-                              {ticket.itResponse}
-                            </Typography>
+                          <Tooltip title={ticket.itResponse}>
+                            <span className="block max-w-[200px] truncate text-xs text-muted-foreground">{ticket.itResponse}</span>
                           </Tooltip>
                         ) : (
-                          <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
+                          <span className="text-sm text-border-strong">—</span>
                         )}
-                      </TableCell>
+                      </td>
 
-                      <TableCell sx={{ borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
-                          {formatDate(ticket.createdAt)}
-                        </Typography>
-                      </TableCell>
+                      <td className={cell}><span className="whitespace-nowrap text-xs text-muted-foreground">{formatDate(ticket.createdAt)}</span></td>
 
-                      <TableCell sx={{ pr: 2, borderBottom: "1px solid #F1F5F9", bgcolor: "var(--bg-surface)" }} onClick={(e) => e.stopPropagation()}>
-                        <Box display="flex" alignItems="center" gap={0.5}>
+                      <td className="border-b border-border bg-surface py-2.5 pl-4 pr-4" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1">
                           {onChangeStatus && (
                             <Tooltip title="Ouvrir la conversation">
-                              <IconButton size="small" onClick={(e) => { e.stopPropagation(); onChangeStatus(ticket); }} sx={{ color: "var(--border-strong)", "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
-                                <OpenInFullIcon sx={{ fontSize: 16 }} />
-                              </IconButton>
+                              <button
+                                type="button"
+                                aria-label="Ouvrir la conversation"
+                                onClick={(e) => { e.stopPropagation(); onChangeStatus(ticket); }}
+                                className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-border-strong hover:bg-blue-50 hover:text-[#1E6091]"
+                              >
+                                <Maximize2 size={16} />
+                              </button>
                             </Tooltip>
                           )}
                           {onEscalate && (
                             <Tooltip title={ticket.escalated ? "Déjà escaladé — voir la discussion GeoTrust" : "Escalader vers GeoTrust"}>
-                              <IconButton
-                                size="small"
+                              <button
+                                type="button"
+                                aria-label="Escalader vers GeoTrust"
                                 onClick={(e) => { e.stopPropagation(); onEscalate(ticket); }}
-                                sx={ticket.escalated
-                                  ? { color: "#92400E", bgcolor: "#FEF3C7", "&:hover": { bgcolor: "#FDE68A" } }
-                                  : { color: "var(--border-strong)", "&:hover": { color: "#92400E", bgcolor: "#FEF3C7" } }
-                                }
+                                className={`cursor-pointer rounded-full border-0 p-1.5 ${
+                                  ticket.escalated
+                                    ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                                    : "bg-transparent text-border-strong hover:bg-amber-100 hover:text-amber-800"
+                                }`}
                               >
-                                <NorthIcon sx={{ fontSize: 16 }} />
-                              </IconButton>
+                                <MoveUp size={16} />
+                              </button>
                             </Tooltip>
                           )}
-                        </Box>
-                      </TableCell>
+                        </div>
+                      </td>
                     </motion.tr>
                   );
                 })
               )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </tbody>
+          </table>
+        </Panel>
 
         {!loading && sorted.length > 0 && (
           <PaginationBar
@@ -455,6 +359,6 @@ export function TicketsTable({ tickets, loading, onChangeStatus, onEscalate }: T
           />
         )}
       </motion.div>
-    </Box>
+    </div>
   );
 }

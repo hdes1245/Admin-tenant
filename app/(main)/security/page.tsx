@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   fetchTenantBranding, fetchTenantHealth, fetchTenantSecurity,
@@ -7,29 +7,18 @@ import {
 } from "@/lib/tenantAdmin";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  Alert, Avatar, Box, Button, Card, CardContent, Checkbox, Chip, CircularProgress,
-  Container, Dialog, DialogActions, DialogContent, DialogTitle,
-  Grid, IconButton, InputAdornment, Stack, Switch, TextField, Tooltip, Typography,
-} from "@mui/material";
-import SecurityIcon from "@mui/icons-material/Security";
-import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import ConfirmationNumberOutlinedIcon from "@mui/icons-material/ConfirmationNumberOutlined";
-import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
-import UploadIcon from "@mui/icons-material/Upload";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import WifiLockIcon from "@mui/icons-material/WifiLock";
-import DevicesIcon from "@mui/icons-material/Devices";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import TimerOffIcon from "@mui/icons-material/TimerOff";
+  CircleAlert, CircleCheck, Clock, HeartPulse, ImageIcon, Lock, Monitor, Plus, RefreshCw, ShieldCheck,
+  Ticket, TimerOff, Timer, Trash2, TriangleAlert, Upload, UserX, WifiOff,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { KpiTile, PageContainer, PageHeader, Panel } from "@/components/ui/page-blocks";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
@@ -47,42 +36,76 @@ function fmt(s?: string | null): string {
 
 function SectionCard({ title, icon, children, accent }: { title: string; icon: React.ReactNode; children: React.ReactNode; accent?: string }) {
   return (
-    <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid var(--border)", height: "100%" }}>
-      <CardContent sx={{ p: 3 }}>
-        <Box display="flex" alignItems="center" gap={1.5} mb={2.5}>
-          <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: accent ? `${accent}14` : "var(--bg-hover)", display: "flex", alignItems: "center", justifyContent: "center", color: accent ?? "var(--text-primary)" }}>{icon}</Box>
-          <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)", fontSize: 15 }}>{title}</Typography>
-        </Box>
-        {children}
-      </CardContent>
-    </Card>
+    <Panel className="h-full rounded-2xl p-6">
+      <div className="mb-5 flex items-center gap-3">
+        <span
+          className="flex size-9 items-center justify-center rounded-lg"
+          style={{ background: accent ? `color-mix(in srgb, ${accent} 8%, transparent)` : "var(--bg-hover)", color: accent ?? "var(--text-primary)" }}
+        >
+          {icon}
+        </span>
+        <h2 className="text-[15px] font-bold text-foreground">{title}</h2>
+      </div>
+      {children}
+    </Panel>
   );
 }
 
 function PolicyRow({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between"
-      sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid", borderColor: checked ? `${STEEL}30` : "var(--border)", bgcolor: checked ? `${STEEL}08` : "var(--bg-page)", transition: "all .15s", cursor: "pointer", "&:hover": { borderColor: STEEL } }}
+    <div
       onClick={() => onChange(!checked)}
+      className={`flex cursor-pointer items-center justify-between rounded-lg border px-4 py-2.5 transition-all hover:border-[#1E6091] ${checked ? "border-[#1E6091]/20 bg-[#1E6091]/5" : "border-border bg-background"}`}
     >
-      <Box display="flex" alignItems="center" gap={1.5}>
-        <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: checked ? "#059669" : "#CBD5E1", transition: "background .15s" }} />
-        <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>{label}</Typography>
-      </Box>
-      <Checkbox checked={checked} onChange={(e) => { e.stopPropagation(); onChange(e.target.checked); }} size="small" sx={{ p: 0, color: "var(--border-strong)", "&.Mui-checked": { color: NAVY } }} />
-    </Box>
+      <div className="flex items-center gap-3">
+        <span className={`size-2 rounded-full transition-colors ${checked ? "bg-emerald-600" : "bg-slate-300"}`} />
+        <span className="text-sm font-medium text-foreground">{label}</span>
+      </div>
+      <input
+        type="checkbox"
+        aria-label={label}
+        checked={checked}
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => onChange(e.target.checked)}
+        className="size-4 cursor-pointer accent-[#0F3B5C]"
+      />
+    </div>
   );
 }
 
 function HealthRow({ label, value, highlight }: { label: string; value: React.ReactNode; highlight?: boolean }) {
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" py={1} sx={{ borderBottom: "1px solid var(--border)" }}>
-      <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 13 }}>{label}</Typography>
-      <Box component="span" sx={{ fontWeight: 600, color: highlight ? "#DC2626" : "var(--text-primary)", fontSize: 13 }}>{value}</Box>
-    </Box>
+    <div className="flex items-center justify-between border-b border-border py-2">
+      <span className="text-[13px] text-muted-foreground">{label}</span>
+      <span className={`text-[13px] font-semibold ${highlight ? "text-red-600" : "text-foreground"}`}>{value}</span>
+    </div>
   );
 }
 
+/** Carte « option activable » (expiration MDP / timeout session). */
+function ToggleCard({
+  icon, label, enabled, onToggle, value, onValue, unit, min, max,
+}: {
+  icon: React.ReactNode; label: string; enabled: boolean; onToggle: (v: boolean) => void;
+  value: number | null; onValue: (n: number) => void; unit: string; min: number; max: number;
+}) {
+  return (
+    <div className={`rounded-lg border p-4 ${enabled ? "border-[#1E6091]/20 bg-[#1E6091]/5" : "border-border bg-background"}`}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <span className="text-[#1E6091]">{icon}</span> {label}
+        </span>
+        <Switch aria-label={label} checked={enabled} onCheckedChange={onToggle} />
+      </div>
+      {enabled && (
+        <div className="relative mt-1">
+          <Input type="number" min={min} max={max} value={value ?? ""} onChange={(e) => onValue(Number(e.target.value))} className="pr-14" />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">{unit}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function SecurityPage() {
   const queryClient = useQueryClient();
@@ -117,188 +140,247 @@ export default function SecurityPage() {
   const openTickets  = health?.support?.openTickets ?? 0;
   const critTickets  = health?.support?.criticalOpenTickets ?? 0;
 
+  const addIp = () => {
+    const ip = newIp.trim();
+    if (!ip) return;
+    setIpList((l) => [...l.filter((x) => x !== ip), ip]);
+    setNewIp("");
+  };
+
+  const kpis = [
+    { icon: <CircleAlert size={20} />, label: "Erreurs 24h", value: errorCount, color: errorCount > 0 ? "#DC2626" : "#059669" },
+    { icon: <Ticket size={20} />, label: "Tickets ouverts", value: openTickets, color: openTickets > 5 ? "#D97706" : NAVY },
+    { icon: <TriangleAlert size={20} />, label: "Critiques", value: critTickets, color: critTickets > 0 ? "#DC2626" : "#059669" },
+  ];
+
   return (
     <>
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <SecurityIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Securite et Sante</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>Politique MDP, expiration, sessions, whitelist IP et monitoring.</Typography>
-        </Box>
-        <Box display="flex" alignItems="center" gap={1}>
-                <Chip label={tenantStatus === "active" ? "Tenant actif" : tenantStatus ?? "..."} size="small" icon={tenantStatus === "active" ? <CheckCircleOutlineIcon style={{ fontSize: 14 }} /> : <ErrorOutlineIcon style={{ fontSize: 14 }} />} sx={{ bgcolor: tenantStatus === "active" ? "rgba(5,150,105,0.2)" : "rgba(220,38,38,0.2)", color: "white", fontWeight: 600, fontSize: 12, border: "1px solid rgba(255,255,255,0.2)", "& .MuiChip-icon": { color: tenantStatus === "active" ? "#6EE7B7" : "#FCA5A5" } }} />
-                <Tooltip title="Actualiser"><Box component="button" onClick={() => { queryClient.invalidateQueries({ queryKey: ["tenant-health"] }); queryClient.invalidateQueries({ queryKey: ["active-sessions"] }); }} sx={{ background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 2, p: 0.75, cursor: "pointer", display: "flex", color: "white", "&:hover": { background: "rgba(255,255,255,0.2)" } }}><RefreshIcon sx={{ fontSize: 18 }} /></Box></Tooltip>
-              </Box>
-      </Box>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} lg={7}>
-            <Stack spacing={3}>
-              {/* ── Password Policy Card ── */}
-              <SectionCard title="Politique de mot de passe" icon={<LockOutlinedIcon sx={{ fontSize: 18 }} />} accent={STEEL}>
-                <Stack spacing={1}>
-                  {([["requireUppercase","Majuscule obligatoire"],["requireLowercase","Minuscule obligatoire"],["requireDigit","Chiffre obligatoire"],["requireSpecialChar","Caractere special"]] as [keyof TenantPasswordPolicy, string][]).map(([k, lbl]) => (
-                    <PolicyRow key={k} label={lbl} checked={!!policy[k]} onChange={(v) => setPolicy((p) => ({ ...p, [k]: v }))} />
-                  ))}
-                  <Box sx={{ px: 2, py: 1.5, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "var(--bg-page)" }}>
-                    <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)", mb: 1 }}>Longueur minimale: <b>{policy.minLength}</b></Typography>
-                    <Box component="input" type="range" min={6} max={32} value={policy.minLength} onChange={(e: any) => setPolicy((p) => ({ ...p, minLength: Number(e.target.value) }))} style={{ width: "100%", accentColor: STEEL }} />
-                  </Box>
-                </Stack>
-                <Box mt={2} pt={2} sx={{ borderTop: "1px solid var(--border)" }}>
-                  <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)", mb: 1.5 }}>Expiration et timeout</Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.maxAgeDays != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.maxAgeDays != null ? `${STEEL}08` : "var(--bg-page)" }}>
-                        <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                          <Box display="flex" alignItems="center" gap={1}><ScheduleIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Expiration MDP</Typography></Box>
-                          <Switch size="small" checked={policy.maxAgeDays != null} onChange={(e) => setPolicy((p) => ({ ...p, maxAgeDays: e.target.checked ? 90 : null }))} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: STEEL } }} />
-                        </Box>
-                        {policy.maxAgeDays != null && <TextField size="small" type="number" fullWidth value={policy.maxAgeDays} onChange={(e) => setPolicy((p) => ({ ...p, maxAgeDays: Number(e.target.value) }))} InputProps={{ endAdornment: <InputAdornment position="end"><Typography variant="caption">jours</Typography></InputAdornment> }} inputProps={{ min: 1, max: 365 }} sx={{ mt: 0.5 }} />}
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Box sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: policy.sessionTimeoutMinutes != null ? `${STEEL}30` : "var(--border)", bgcolor: policy.sessionTimeoutMinutes != null ? `${STEEL}08` : "var(--bg-page)" }}>
-                        <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                          <Box display="flex" alignItems="center" gap={1}><TimerOffIcon sx={{ fontSize: 16, color: STEEL }} /><Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Timeout session</Typography></Box>
-                          <Switch size="small" checked={policy.sessionTimeoutMinutes != null} onChange={(e) => setPolicy((p) => ({ ...p, sessionTimeoutMinutes: e.target.checked ? 30 : null }))} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: STEEL } }} />
-                        </Box>
-                        {policy.sessionTimeoutMinutes != null && <TextField size="small" type="number" fullWidth value={policy.sessionTimeoutMinutes} onChange={(e) => setPolicy((p) => ({ ...p, sessionTimeoutMinutes: Number(e.target.value) }))} InputProps={{ endAdornment: <InputAdornment position="end"><Typography variant="caption">min</Typography></InputAdornment> }} inputProps={{ min: 1, max: 1440 }} sx={{ mt: 0.5 }} />}
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Box>
-                {policyMsg && <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }} onClose={() => setPolicyMsg(null)}>{policyMsg}</Alert>}
-                {policyErr && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }} onClose={() => setPolicyErr(null)}>{policyErr}</Alert>}
-                <Button variant="contained" fullWidth sx={{ mt: 2, bgcolor: NAVY, "&:hover": { bgcolor: STEEL }, borderRadius: 2, fontWeight: 600 }} disabled={updatePolicyMutation.isPending} onClick={async () => { setPolicyMsg(null); setPolicyErr(null); try { await updatePolicyMutation.mutateAsync(policy); setPolicyMsg("Politique sauvegardee."); } catch (e: any) { setPolicyErr(e.message); } }}>
-                  {updatePolicyMutation.isPending ? <CircularProgress size={18} sx={{ color: "white" }} /> : "Sauvegarder la politique"}
-                </Button>
-              </SectionCard>
-              {/* ── IP Whitelist Card ── */}
-              <SectionCard title="Liste blanche IP" icon={<WifiLockIcon sx={{ fontSize: 18 }} />} accent="#7c3aed">
-                <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-                  <Typography variant="body2" fontWeight={500} sx={{ color: "var(--text-primary)" }}>Activer la restriction par IP</Typography>
-                  <Switch checked={ipEnabled} onChange={(e) => setIpEnabled(e.target.checked)} sx={{ "& .MuiSwitch-thumb": { bgcolor: NAVY }, "& .Mui-checked+.MuiSwitch-track": { bgcolor: "#7c3aed" } }} />
-                </Box>
-                {ipEnabled && (
-                  <>
-                    <Alert severity="warning" sx={{ mb: 2, borderRadius: 2, fontSize: 12 }}>Seules les IP listees ci-dessous pourront acceder au panneau admin.</Alert>
-                    <Box display="flex" gap={1} mb={1.5}>
-                      <TextField size="small" fullWidth placeholder="Ex: 192.168.1.1" value={newIp} onChange={(e) => setNewIp(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && newIp.trim()) { setIpList((l) => [...l.filter((x) => x !== newIp.trim()), newIp.trim()]); setNewIp(""); } }} />
-                      <IconButton size="small" onClick={() => { if (newIp.trim()) { setIpList((l) => [...l.filter((x) => x !== newIp.trim()), newIp.trim()]); setNewIp(""); } }} sx={{ bgcolor: NAVY, color: "white", borderRadius: 2, "&:hover": { bgcolor: STEEL }, flexShrink: 0 }}><AddIcon sx={{ fontSize: 18 }} /></IconButton>
-                    </Box>
-                    <Stack spacing={0.75} mb={2}>
-                      {ipList.length === 0 && <Typography variant="caption" sx={{ color: "var(--text-muted)", textAlign: "center", display: "block", py: 1 }}>Aucune IP ajoutee</Typography>}
-                      {ipList.map((ip) => (
-                        <Box key={ip} display="flex" alignItems="center" justifyContent="space-between" sx={{ px: 1.5, py: 0.75, borderRadius: 1.5, bgcolor: "var(--bg-page)", border: "1px solid var(--border)" }}>
-                          <Typography variant="body2" sx={{ fontFamily: "monospace", color: "var(--text-primary)" }}>{ip}</Typography>
-                          <IconButton size="small" onClick={() => setIpList((l) => l.filter((x) => x !== ip))} sx={{ p: 0.25, color: "#DC2626" }}><DeleteOutlineIcon sx={{ fontSize: 16 }} /></IconButton>
-                        </Box>
-                      ))}
-                    </Stack>
-                  </>
-                )}
-                {ipMsg && <Alert severity="success" sx={{ mb: 1.5, borderRadius: 2 }} onClose={() => setIpMsg(null)}>{ipMsg}</Alert>}
-                {ipErr && <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }} onClose={() => setIpErr(null)}>{ipErr}</Alert>}
-                <Button variant="contained" fullWidth sx={{ bgcolor: "#7c3aed", "&:hover": { bgcolor: "#6d28d9" }, borderRadius: 2, fontWeight: 600 }} disabled={updateIpMutation.isPending} onClick={async () => { setIpMsg(null); setIpErr(null); try { await updateIpMutation.mutateAsync({ enabled: ipEnabled, ips: ipList }); setIpMsg("Whitelist IP sauvegardee."); } catch (e: any) { setIpErr(e.message); } }}>
-                  {updateIpMutation.isPending ? <CircularProgress size={18} sx={{ color: "white" }} /> : "Sauvegarder la whitelist"}
-                </Button>
-              </SectionCard>
-              {/* ── Logo Upload Card ── */}
-              <SectionCard title="Logo de la plateforme" icon={<ImageOutlinedIcon sx={{ fontSize: 18 }} />} accent={GOLD}>
-                {tenantLogoUrl && <Box component="img" src={tenantLogoUrl} alt="Logo tenant" sx={{ display: "block", maxHeight: 80, maxWidth: 220, mb: 2, borderRadius: 2, objectFit: "contain", border: "1px solid var(--border)" }} onError={(e: any) => { e.target.style.display = "none"; }} />}
-                <Box component="label" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, p: 3, borderRadius: 2, border: "2px dashed", borderColor: "var(--border-strong)", bgcolor: "var(--bg-page)", cursor: "pointer", transition: "all .15s", "&:hover": { borderColor: GOLD, bgcolor: `${GOLD}08` } }}>
-                  <UploadIcon sx={{ fontSize: 32, color: "var(--text-muted)" }} />
-                  <Typography variant="body2" sx={{ color: "var(--text-secondary)", textAlign: "center" }}>Cliquez pour selectionner un logo<br /><Typography component="span" variant="caption" sx={{ color: "var(--text-muted)" }}>PNG, JPG, WEBP — max 5 Mo</Typography></Typography>
-                  <input type="file" accept="image/*" hidden onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setLogoMsg(null); setLogoErr(null); try { await uploadLogoMutation.mutateAsync(file); setLogoMsg("Logo mis a jour."); } catch (ex: any) { setLogoErr(ex.message); } }} />
-                </Box>
-                {logoMsg && <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }} onClose={() => setLogoMsg(null)}>{logoMsg}</Alert>}
-                {logoErr && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }} onClose={() => setLogoErr(null)}>{logoErr}</Alert>}
-              </SectionCard>
-            </Stack>
-          </Grid>
+      <PageHeader icon={<ShieldCheck size={30} />} title="Securite et Sante" subtitle="Politique MDP, expiration, sessions, whitelist IP et monitoring.">
+        <div className="flex items-center gap-2">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-white"
+            style={{ background: tenantStatus === "active" ? "rgba(5,150,105,0.2)" : "rgba(220,38,38,0.2)" }}
+          >
+            {tenantStatus === "active"
+              ? <CircleCheck size={14} className="text-emerald-300" />
+              : <CircleAlert size={14} className="text-red-300" />}
+            {tenantStatus === "active" ? "Tenant actif" : tenantStatus ?? "..."}
+          </span>
+          <Tooltip title="Actualiser">
+            <button
+              type="button"
+              aria-label="Actualiser"
+              onClick={() => { queryClient.invalidateQueries({ queryKey: ["tenant-health"] }); queryClient.invalidateQueries({ queryKey: ["active-sessions"] }); }}
+              className="flex cursor-pointer rounded-lg border border-white/20 bg-white/10 p-1.5 text-white hover:bg-white/20"
+            >
+              <RefreshCw size={18} />
+            </button>
+          </Tooltip>
+        </div>
+      </PageHeader>
 
-          <Grid item xs={12} lg={5}>
-            <Stack spacing={3}>
-              {/* ── KPI tiles ── */}
-              <Grid container spacing={2}>
-                {[{ icon: <ErrorOutlineIcon sx={{ fontSize: 20 }} />, label: "Erreurs 24h", value: errorCount, color: errorCount > 0 ? "#DC2626" : "#059669", bg: errorCount > 0 ? "#FEF2F2" : "#F0FDF4" }, { icon: <ConfirmationNumberOutlinedIcon sx={{ fontSize: 20 }} />, label: "Tickets ouverts", value: openTickets, color: openTickets > 5 ? "#D97706" : NAVY, bg: openTickets > 5 ? "#FFFBEB" : "#F8FAFC" }, { icon: <ReportProblemOutlinedIcon sx={{ fontSize: 20 }} />, label: "Critiques", value: critTickets, color: critTickets > 0 ? "#DC2626" : "#059669", bg: critTickets > 0 ? "#FEF2F2" : "#F0FDF4" }].map((kpi) => (
-                  <Grid item xs={4} key={kpi.label}>
-                    <Box sx={{ borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.color, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" } }}>
-                      <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.color, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.color}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
-                      <Box>
-                        <Typography variant="h5" fontWeight={800} sx={{ color: kpi.color, lineHeight: 1, letterSpacing: -0.5 }}>{healthQuery.isLoading ? "..." : kpi.value}</Typography>
-                        <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ lineHeight: 1.3 }}>{kpi.label}</Typography>
-                      </Box>
-                    </Box>
-                  </Grid>
+      <PageContainer>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="flex flex-col gap-6 lg:col-span-7">
+            {/* ── Password Policy Card ── */}
+            <SectionCard title="Politique de mot de passe" icon={<Lock size={18} />} accent={STEEL}>
+              <div className="flex flex-col gap-2">
+                {([["requireUppercase","Majuscule obligatoire"],["requireLowercase","Minuscule obligatoire"],["requireDigit","Chiffre obligatoire"],["requireSpecialChar","Caractere special"]] as [keyof TenantPasswordPolicy, string][]).map(([k, lbl]) => (
+                  <PolicyRow key={k} label={lbl} checked={!!policy[k]} onChange={(v) => setPolicy((p) => ({ ...p, [k]: v }))} />
                 ))}
-              </Grid>
-              {/* ── Sessions actives ── */}
-              <SectionCard title="Sessions actives" icon={<DevicesIcon sx={{ fontSize: 18 }} />} accent={STEEL}>
-                {sessionsQuery.isLoading && <Box display="flex" justifyContent="center" py={3}><CircularProgress size={24} /></Box>}
-                {!sessionsQuery.isLoading && (sessionsQuery.data ?? []).length === 0 && <Typography variant="body2" sx={{ color: "var(--text-muted)", textAlign: "center", py: 2 }}>Aucune session detectee.</Typography>}
-                <Stack spacing={1}>
-                  {(sessionsQuery.data ?? []).map((s) => (
-                    <Box key={s.userId} display="flex" alignItems="center" gap={1.5} sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid var(--border)", bgcolor: "var(--bg-page)" }}>
-                      <Avatar sx={{ width: 32, height: 32, bgcolor: STEEL, fontSize: 13 }}>{s.userName.charAt(0).toUpperCase()}</Avatar>
-                      <Box flex={1} minWidth={0}>
-                        <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }} noWrap>{s.userName}</Typography>
-                        <Box display="flex" gap={1} flexWrap="wrap" mt={0.25}>
-                          {s.userRole && <Chip label={s.userRole} size="small" sx={{ height: 16, fontSize: 9, fontWeight: 600, bgcolor: `${STEEL}15`, color: STEEL }} />}
-                          {s.ip && <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{s.ip}</Typography>}
-                        </Box>
-                        <Box display="flex" alignItems="center" gap={0.5} mt={0.25}><AccessTimeIcon sx={{ fontSize: 11, color: "var(--text-muted)" }} /><Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{fmt(s.lastActivity)}</Typography></Box>
-                      </Box>
-                      <Tooltip title="Revoquer la session">
-                        <IconButton size="small" onClick={() => setRevokeTarget({ userId: s.userId, userName: s.userName })} sx={{ color: "#DC2626", "&:hover": { bgcolor: "#FEF2F2" } }}><PersonOffIcon sx={{ fontSize: 18 }} /></IconButton>
-                      </Tooltip>
-                    </Box>
-                  ))}
-                </Stack>
-                {revokeMsg && <Alert severity="success" sx={{ mt: 1.5, borderRadius: 2 }} onClose={() => setRevokeMsg(null)}>{revokeMsg}</Alert>}
-              </SectionCard>
-              {/* ── Sante du tenant ── */}
-              <SectionCard title="Sante du tenant" icon={<MonitorHeartIcon sx={{ fontSize: 18 }} />} accent="#059669">
-                {healthQuery.isLoading ? <Box display="flex" justifyContent="center" py={3}><CircularProgress size={24} /></Box> : (
-                  <Stack>
-                    <HealthRow label="Statut" value={<Chip label={health?.tenant?.status ?? "--"} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: health?.tenant?.status === "active" ? "#D1FAE5" : "#FEE2E2", color: health?.tenant?.status === "active" ? "#065F46" : "#991B1B" }} />} />
-                    <HealthRow label="Derniere synchro" value={fmt(health?.synchronization?.lastAt)} />
-                    <HealthRow label="Statut synchro" value={health?.synchronization?.lastStatus ?? "--"} />
-                    <HealthRow label="Calcule le" value={fmt(health?.computedAt)} />
-                  </Stack>
-                )}
-              </SectionCard>
-              {/* ── Dernieres erreurs ── */}
-              {(health?.activity?.recentErrors ?? []).length > 0 && (
-                <SectionCard title="Dernieres erreurs (24h)" icon={<ErrorOutlineIcon sx={{ fontSize: 18 }} />} accent="#DC2626">
-                  <Stack spacing={0.75}>
-                    {(health?.activity?.recentErrors ?? []).slice(0, 5).map((err) => (
-                      <Box key={err.id} sx={{ px: 2, py: 1.25, borderRadius: 2, border: "1px solid #FEE2E2", bgcolor: "#FEF2F2" }}>
-                        <Box display="flex" alignItems="center" justifyContent="space-between">
-                          <Typography variant="body2" fontWeight={600} sx={{ color: "#DC2626", fontSize: 12 }}>{err.action}</Typography>
-                          <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>{fmt(err.created_at)}</Typography>
-                        </Box>
-                        {err.description && <Typography variant="caption" sx={{ color: "var(--text-secondary)", display: "block" }}>{err.description}</Typography>}
-                      </Box>
+                <div className="rounded-lg border border-border bg-background px-4 py-3">
+                  <div className="mb-2 text-sm font-medium text-foreground">Longueur minimale: <b>{policy.minLength}</b></div>
+                  <input
+                    type="range"
+                    aria-label="Longueur minimale"
+                    min={6}
+                    max={32}
+                    value={policy.minLength}
+                    onChange={(e) => setPolicy((p) => ({ ...p, minLength: Number(e.target.value) }))}
+                    className="w-full cursor-pointer accent-[#1E6091]"
+                  />
+                </div>
+              </div>
+              <div className="mt-4 border-t border-border pt-4">
+                <div className="mb-3 text-sm font-semibold text-foreground">Expiration et timeout</div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <ToggleCard
+                    icon={<Timer size={16} />} label="Expiration MDP" unit="jours" min={1} max={365}
+                    enabled={policy.maxAgeDays != null} onToggle={(v) => setPolicy((p) => ({ ...p, maxAgeDays: v ? 90 : null }))}
+                    value={policy.maxAgeDays} onValue={(n) => setPolicy((p) => ({ ...p, maxAgeDays: n }))}
+                  />
+                  <ToggleCard
+                    icon={<TimerOff size={16} />} label="Timeout session" unit="min" min={1} max={1440}
+                    enabled={policy.sessionTimeoutMinutes != null} onToggle={(v) => setPolicy((p) => ({ ...p, sessionTimeoutMinutes: v ? 30 : null }))}
+                    value={policy.sessionTimeoutMinutes} onValue={(n) => setPolicy((p) => ({ ...p, sessionTimeoutMinutes: n }))}
+                  />
+                </div>
+              </div>
+              {policyMsg && <Alert severity="success" className="mt-4" onClose={() => setPolicyMsg(null)}>{policyMsg}</Alert>}
+              {policyErr && <Alert severity="error" className="mt-4" onClose={() => setPolicyErr(null)}>{policyErr}</Alert>}
+              <Button
+                className="mt-4 w-full hover:bg-[#1E6091] hover:opacity-100"
+                disabled={updatePolicyMutation.isPending}
+                onClick={async () => { setPolicyMsg(null); setPolicyErr(null); try { await updatePolicyMutation.mutateAsync(policy); setPolicyMsg("Politique sauvegardee."); } catch (e: any) { setPolicyErr(e.message); } }}
+              >
+                {updatePolicyMutation.isPending ? <Spinner className="size-[18px]" /> : "Sauvegarder la politique"}
+              </Button>
+            </SectionCard>
+
+            {/* ── IP Whitelist Card ── */}
+            <SectionCard title="Liste blanche IP" icon={<WifiOff size={18} />} accent="#7c3aed">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Activer la restriction par IP</span>
+                <Switch aria-label="Activer la restriction par IP" checked={ipEnabled} onCheckedChange={setIpEnabled} className={ipEnabled ? "bg-[#7c3aed]" : ""} />
+              </div>
+              {ipEnabled && (
+                <>
+                  <Alert severity="warning" className="mb-4 text-xs">Seules les IP listees ci-dessous pourront acceder au panneau admin.</Alert>
+                  <div className="mb-3 flex gap-2">
+                    <Input placeholder="Ex: 192.168.1.1" value={newIp} onChange={(e) => setNewIp(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addIp(); }} />
+                    <Button size="icon" aria-label="Ajouter l'IP" className="shrink-0 hover:bg-[#1E6091] hover:opacity-100" onClick={addIp}><Plus size={18} /></Button>
+                  </div>
+                  <div className="mb-4 flex flex-col gap-1.5">
+                    {ipList.length === 0 && <span className="block py-2 text-center text-xs text-muted-foreground">Aucune IP ajoutee</span>}
+                    {ipList.map((ip) => (
+                      <div key={ip} className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-1.5">
+                        <span className="font-mono text-sm text-foreground">{ip}</span>
+                        <button type="button" aria-label={`Retirer ${ip}`} onClick={() => setIpList((l) => l.filter((x) => x !== ip))} className="cursor-pointer border-0 bg-transparent p-0.5 text-red-600">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     ))}
-                  </Stack>
-                </SectionCard>
+                  </div>
+                </>
               )}
-            </Stack>
-          </Grid>
-        </Grid>
-      </Container>
+              {ipMsg && <Alert severity="success" className="mb-3" onClose={() => setIpMsg(null)}>{ipMsg}</Alert>}
+              {ipErr && <Alert severity="error" className="mb-3" onClose={() => setIpErr(null)}>{ipErr}</Alert>}
+              <Button
+                className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] hover:opacity-100"
+                disabled={updateIpMutation.isPending}
+                onClick={async () => { setIpMsg(null); setIpErr(null); try { await updateIpMutation.mutateAsync({ enabled: ipEnabled, ips: ipList }); setIpMsg("Whitelist IP sauvegardee."); } catch (e: any) { setIpErr(e.message); } }}
+              >
+                {updateIpMutation.isPending ? <Spinner className="size-[18px]" /> : "Sauvegarder la whitelist"}
+              </Button>
+            </SectionCard>
+
+            {/* ── Logo Upload Card ── */}
+            <SectionCard title="Logo de la plateforme" icon={<ImageIcon size={18} />} accent={GOLD}>
+              {tenantLogoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={tenantLogoUrl} alt="Logo tenant" className="mb-4 block max-h-20 max-w-[220px] rounded-lg border border-border object-contain" onError={(e: any) => { e.target.style.display = "none"; }} />
+              )}
+              <label className="flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed border-border-strong bg-background p-6 transition-all hover:border-[#3C8047] hover:bg-[#3C8047]/5">
+                <Upload size={32} className="text-muted-foreground" />
+                <span className="text-center text-sm text-muted-foreground">
+                  Cliquez pour selectionner un logo<br />
+                  <span className="text-xs">PNG, JPG, WEBP — max 5 Mo</span>
+                </span>
+                <input type="file" accept="image/*" hidden onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setLogoMsg(null); setLogoErr(null); try { await uploadLogoMutation.mutateAsync(file); setLogoMsg("Logo mis a jour."); } catch (ex: any) { setLogoErr(ex.message); } }} />
+              </label>
+              {logoMsg && <Alert severity="success" className="mt-4" onClose={() => setLogoMsg(null)}>{logoMsg}</Alert>}
+              {logoErr && <Alert severity="error" className="mt-4" onClose={() => setLogoErr(null)}>{logoErr}</Alert>}
+            </SectionCard>
+          </div>
+
+          <div className="flex flex-col gap-6 lg:col-span-5">
+            {/* ── KPI tiles ── */}
+            <div className="grid grid-cols-3 gap-4">
+              {kpis.map((kpi) => (
+                <KpiTile key={kpi.label} icon={kpi.icon} label={kpi.label} accent={kpi.color} value={healthQuery.isLoading ? "..." : kpi.value} />
+              ))}
+            </div>
+
+            {/* ── Sessions actives ── */}
+            <SectionCard title="Sessions actives" icon={<Monitor size={18} />} accent={STEEL}>
+              {sessionsQuery.isLoading && <div className="flex justify-center py-6"><Spinner className="size-6" /></div>}
+              {!sessionsQuery.isLoading && (sessionsQuery.data ?? []).length === 0 && (
+                <p className="py-4 text-center text-sm text-muted-foreground">Aucune session detectee.</p>
+              )}
+              <div className="flex flex-col gap-2">
+                {(sessionsQuery.data ?? []).map((s) => (
+                  <div key={s.userId} className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-2.5">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#1E6091] text-[13px] text-white">{s.userName.charAt(0).toUpperCase()}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-foreground">{s.userName}</div>
+                      <div className="mt-0.5 flex flex-wrap gap-2">
+                        {s.userRole && <span className="rounded-full bg-[#1E6091]/10 px-2 text-[9px] font-semibold leading-4 text-[#1E6091]">{s.userRole}</span>}
+                        {s.ip && <span className="text-xs text-muted-foreground">{s.ip}</span>}
+                      </div>
+                      <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground"><Clock size={11} /> {fmt(s.lastActivity)}</div>
+                    </div>
+                    <Tooltip title="Revoquer la session">
+                      <button type="button" aria-label="Revoquer la session" onClick={() => setRevokeTarget({ userId: s.userId, userName: s.userName })} className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-red-600 hover:bg-red-50">
+                        <UserX size={18} />
+                      </button>
+                    </Tooltip>
+                  </div>
+                ))}
+              </div>
+              {revokeMsg && <Alert severity="success" className="mt-3" onClose={() => setRevokeMsg(null)}>{revokeMsg}</Alert>}
+            </SectionCard>
+
+            {/* ── Sante du tenant ── */}
+            <SectionCard title="Sante du tenant" icon={<HeartPulse size={18} />} accent="#059669">
+              {healthQuery.isLoading ? (
+                <div className="flex justify-center py-6"><Spinner className="size-6" /></div>
+              ) : (
+                <div>
+                  <HealthRow
+                    label="Statut"
+                    value={
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[11px] font-bold"
+                        style={{
+                          background: health?.tenant?.status === "active" ? "#D1FAE5" : "#FEE2E2",
+                          color: health?.tenant?.status === "active" ? "#065F46" : "#991B1B",
+                        }}
+                      >
+                        {health?.tenant?.status ?? "--"}
+                      </span>
+                    }
+                  />
+                  <HealthRow label="Derniere synchro" value={fmt(health?.synchronization?.lastAt)} />
+                  <HealthRow label="Statut synchro" value={health?.synchronization?.lastStatus ?? "--"} />
+                  <HealthRow label="Calcule le" value={fmt(health?.computedAt)} />
+                </div>
+              )}
+            </SectionCard>
+
+            {/* ── Dernieres erreurs ── */}
+            {(health?.activity?.recentErrors ?? []).length > 0 && (
+              <SectionCard title="Dernieres erreurs (24h)" icon={<CircleAlert size={18} />} accent="#DC2626">
+                <div className="flex flex-col gap-1.5">
+                  {(health?.activity?.recentErrors ?? []).slice(0, 5).map((err) => (
+                    <div key={err.id} className="rounded-lg border border-red-100 bg-red-50 px-4 py-2.5 dark:border-red-900 dark:bg-red-950/40">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-red-600">{err.action}</span>
+                        <span className="text-xs text-muted-foreground">{fmt(err.created_at)}</span>
+                      </div>
+                      {err.description && <span className="block text-xs text-muted-foreground">{err.description}</span>}
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            )}
+          </div>
+        </div>
+      </PageContainer>
+
       {/* ── Revoke dialog ── */}
-      <Dialog open={!!revokeTarget} onClose={() => setRevokeTarget(null)} PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
-        <DialogTitle sx={{ fontWeight: 700, color: "var(--text-primary)" }}>Revoquer la session</DialogTitle>
-        <DialogContent><Typography>Confirmer la revocation de la session de <b>{revokeTarget?.userName}</b> ? L utilisateur sera deconnecte lors de son prochain appel API.</Typography></DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setRevokeTarget(null)} sx={{ color: "var(--text-secondary)" }}>Annuler</Button>
-          <Button variant="contained" sx={{ bgcolor: "#DC2626", "&:hover": { bgcolor: "#B91C1C" }, borderRadius: 2 }} disabled={revokeMutation.isPending} onClick={() => { if (revokeTarget) revokeMutation.mutate(revokeTarget.userId); }}>
-            {revokeMutation.isPending ? <CircularProgress size={16} sx={{ color: "white" }} /> : "Revoquer"}
-          </Button>
-        </DialogActions>
+      <Dialog open={!!revokeTarget} onOpenChange={(o) => !o && setRevokeTarget(null)}>
+        <DialogContent size="xs" accent={false} aria-describedby={undefined}>
+          <DialogHeader>Revoquer la session</DialogHeader>
+          <DialogBody className="text-sm">
+            Confirmer la revocation de la session de <b>{revokeTarget?.userName}</b> ? L utilisateur sera deconnecte lors de son prochain appel API.
+          </DialogBody>
+          <DialogFooter className="border-t-0">
+            <Button variant="ghost" onClick={() => setRevokeTarget(null)}>Annuler</Button>
+            <Button variant="destructive" disabled={revokeMutation.isPending} onClick={() => { if (revokeTarget) revokeMutation.mutate(revokeTarget.userId); }}>
+              {revokeMutation.isPending ? <Spinner className="size-4" /> : "Revoquer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );

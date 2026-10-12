@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { UsersTable } from "@/components/UsersTable";
 import {
@@ -17,50 +17,17 @@ import { fetchZones, Zone } from "@/lib/zones";
 import { fetchMe } from "@/lib/auth";
 import { downloadCsv } from "@/lib/csvExport";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Paper,
-  Select,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import DownloadIcon from "@mui/icons-material/Download";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import CodeIcon from "@mui/icons-material/Code";
-import CircularProgress from "@mui/material/CircularProgress";
-import AddIcon from "@mui/icons-material/Add";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import LockResetIcon from "@mui/icons-material/LockReset";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import ShieldIcon from "@mui/icons-material/Shield";
-import ToggleOnIcon from "@mui/icons-material/ToggleOn";
-import ToggleOffIcon from "@mui/icons-material/ToggleOff";
-import GroupsIcon from "@mui/icons-material/Groups";
-import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import BadgeIcon from "@mui/icons-material/Badge";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { Code, Download, FileUp, IdCard, KeyRound, Plus, Search, ShieldAlert, Trash2, TriangleAlert, UserCheck, UserCog, UserPlus, Users, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input, Field } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Alert } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { HeaderButton, KpiTile, PageContainer, PageHeader, Panel } from "@/components/ui/page-blocks";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
@@ -365,140 +332,105 @@ export default function UsersPage() {
   };
 
   const kpis = [
-    { label: "Total utilisateurs", value: totalUsers,   icon: <GroupsIcon sx={{ fontSize: 22 }} />,            accent: NAVY,      iconBg: NAVY },
-    { label: "Comptes actifs",      value: activeCount,  icon: <ManageAccountsIcon sx={{ fontSize: 22 }} />,    accent: "#059669", iconBg: "#059669" },
-    { label: "CAFs terrain",        value: cafCount,     icon: <BadgeIcon sx={{ fontSize: 22 }} />,             accent: STEEL,     iconBg: STEEL },
-    { label: "Encadrants",          value: managerCount, icon: <SupervisorAccountIcon sx={{ fontSize: 22 }} />, accent: GOLD,      iconBg: GOLD },
+    { label: "Total utilisateurs", value: totalUsers,   icon: <Users size={22} />,        accent: NAVY },
+    { label: "Comptes actifs",      value: activeCount,  icon: <UserCog size={22} />,      accent: "#059669" },
+    { label: "CAFs terrain",        value: cafCount,     icon: <IdCard size={22} />,       accent: STEEL },
+    { label: "Encadrants",          value: managerCount, icon: <UserCheck size={22} />,    accent: GOLD },
   ];
+
+  const hdrBtn = <T extends React.ReactNode>(x: T) => x;
+  void hdrBtn;
 
   return (
     <>
       {/* Header */}
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <PeopleAltIcon sx={{ color: GOLD, fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Utilisateurs</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>Comptes CAF, chefs d&apos;agence et administrateurs du tenant</Typography>
-        </Box>
-        <Box display="flex" gap={1.5} flexWrap="wrap">
-                <Tooltip title="Exporter la liste en CSV">
-                  <Button variant="outlined" startIcon={<DownloadIcon />}
-                    onClick={() => downloadCsv(users, [
-                      { key: "id", label: "Id" }, { key: "name", label: "Nom" },
-                      { key: "username", label: "Login" }, { key: "email", label: "Email" },
-                      { key: "roleName", label: "Role" }, { key: "agenceName", label: "Agence" },
-                      { key: "zoneName", label: "Zone" }, { key: "cafCode", label: "Code CAF" },
-                    ], "utilisateurs.csv")}
-                    sx={{ borderColor: "rgba(255,255,255,0.5)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-                    Exporter
-                  </Button>
-                </Tooltip>
-                <Button variant="outlined" startIcon={<UploadFileIcon />}
-                  onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedImportRows([]); setImportFileName(null); }}
-                  sx={{ borderColor: "rgba(255,255,255,0.5)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-                  Importer CSV
-                </Button>
-                <Tooltip title="Reinitialiser tous les mots de passe">
-                  <Button variant="outlined" startIcon={<LockResetIcon />}
-                    onClick={() => { setResetAllPasswordValue(""); setResetAllError(null); setResetAllDialogOpen(true); }}
-                    sx={{ borderColor: "rgba(255,255,255,0.5)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-                    Reinit. MDP
-                  </Button>
-                </Tooltip>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={openCreateDialog}
-                  sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, boxShadow: "0 4px 14px rgba(60,128,71,0.4)", "&:hover": { bgcolor: "#B8891F" } }}>
-                  Nouvel utilisateur
-                </Button>
-              </Box>
-      </Box>
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+      <PageHeader icon={<Users size={30} />} title="Utilisateurs" subtitle="Comptes CAF, chefs d'agence et administrateurs du tenant">
+        <div className="flex flex-wrap gap-3">
+          <Tooltip title="Exporter la liste en CSV">
+            <HeaderButton
+              onClick={() => downloadCsv(users, [
+                { key: "id", label: "Id" }, { key: "name", label: "Nom" },
+                { key: "username", label: "Login" }, { key: "email", label: "Email" },
+                { key: "roleName", label: "Role" }, { key: "agenceName", label: "Agence" },
+                { key: "zoneName", label: "Zone" }, { key: "cafCode", label: "Code CAF" },
+              ], "utilisateurs.csv")}
+            >
+              <Download size={16} /> Exporter
+            </HeaderButton>
+          </Tooltip>
+          <HeaderButton onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedImportRows([]); setImportFileName(null); }}>
+            <FileUp size={16} /> Importer CSV
+          </HeaderButton>
+          <Tooltip title="Reinitialiser tous les mots de passe">
+            <HeaderButton onClick={() => { setResetAllPasswordValue(""); setResetAllError(null); setResetAllDialogOpen(true); }}>
+              <KeyRound size={16} /> Reinit. MDP
+            </HeaderButton>
+          </Tooltip>
+          <Button className="bg-[#3C8047] shadow-lg hover:bg-[#2A5C34] hover:opacity-100" onClick={openCreateDialog}>
+            <Plus size={16} /> Nouvel utilisateur
+          </Button>
+        </div>
+      </PageHeader>
 
+      <PageContainer>
         {/* KPIs */}
         {!isLoading && users.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
-            <Grid container spacing={2} mb={3}>
-              {kpis.map((kpi, i) => (
-                <Grid item xs={6} sm={3} key={i}>
-                  <Box sx={{
-                    borderRadius: 3, bgcolor: "var(--bg-surface)", border: "1px solid var(--border)",
-                    px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
-                    position: "relative", overflow: "hidden",
-                    boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
-                    "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" },
-                    transition: "box-shadow 0.2s",
-                    "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
-                  }}>
-                    <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.iconBg, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.iconBg}44`, flexShrink: 0 }}>
-                      {kpi.icon}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpi.value}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ lineHeight: 1.3 }}>{kpi.label}</Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
+            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {kpis.map((kpi, i) => <KpiTile key={i} label={kpi.label} value={kpi.value} accent={kpi.accent} icon={kpi.icon} />)}
+            </div>
           </motion.div>
         )}
 
-        {isError && <Alert severity="error" sx={{ mb: 3 }}>Impossible de charger les utilisateurs. {error instanceof Error ? error.message : null}</Alert>}
-        {actionError && <Alert severity="error" sx={{ mb: 3 }}>{actionError}</Alert>}
+        {isError && <Alert severity="error" className="mb-6">Impossible de charger les utilisateurs. {error instanceof Error ? error.message : null}</Alert>}
+        {actionError && <Alert severity="error" className="mb-6">{actionError}</Alert>}
 
         {selectedUserIds.length > 0 && (
-          <Box sx={{ mb: 2, px: 2.5, py: 1.5, borderRadius: 2, bgcolor: "#FFF7ED", border: "1px solid #FED7AA", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-            <Typography variant="body2" fontWeight={600} sx={{ color: "#92400E" }}>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 dark:border-orange-900 dark:bg-orange-950/40">
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-200">
               {selectedUserIds.length} utilisateur{selectedUserIds.length > 1 ? "s" : ""} selectionne{selectedUserIds.length > 1 ? "s" : ""}
-            </Typography>
-            <Box display="flex" gap={1}>
-              <Button size="small" variant="outlined" onClick={() => setSelectedUserIds([])} sx={{ borderColor: "#FED7AA", color: "#92400E", fontWeight: 600 }}>Deselectionner</Button>
-              <Button size="small" color="error" variant="contained" startIcon={<DeleteOutlineIcon />} onClick={() => setBulkDeleteOpen(true)}>
-                Supprimer ({selectedUserIds.length})
+            </span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="border-orange-200 text-amber-800" onClick={() => setSelectedUserIds([])}>Deselectionner</Button>
+              <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                <Trash2 size={15} /> Supprimer ({selectedUserIds.length})
               </Button>
-            </Box>
-          </Box>
+            </div>
+          </div>
         )}
 
         {/* Filter bar */}
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
-          <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
-            <TextField
-              size="small" placeholder="Rechercher par nom, login, email ou agence..."
-              value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 260, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: STEEL, borderWidth: 1.5 } } }}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
-                endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-              }}
-            />
-            <Select size="small" displayEmpty value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-              sx={{ minWidth: 180, borderRadius: 2, bgcolor: "var(--bg-page)", "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}>
-              <MenuItem value="">Tous les rôles</MenuItem>
-              {ROLE_OPTIONS.map((r) => <MenuItem key={r.code} value={r.code}>{r.label}</MenuItem>)}
+        <Panel className="mb-5 p-4 shadow-[0_1px_4px_rgba(15,59,92,0.04)]">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-64 flex-1">
+              <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Rechercher par nom, login, email ou agence..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 pr-9" />
+              {search && (
+                <button type="button" aria-label="Effacer la recherche" onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"><X size={16} /></button>
+              )}
+            </div>
+            <Select aria-label="Filtrer par rôle" value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className="w-auto min-w-44">
+              <option value="">Tous les rôles</option>
+              {ROLE_OPTIONS.map((r) => <option key={r.code} value={r.code}>{r.label}</option>)}
             </Select>
-            <Select size="small" displayEmpty value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              sx={{ minWidth: 140, borderRadius: 2, bgcolor: "var(--bg-page)", "& .MuiOutlinedInput-notchedOutline": { borderColor: "var(--border)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: STEEL } }}>
-              <MenuItem value="">Tous les statuts</MenuItem>
-              <MenuItem value="active">Actif</MenuItem>
-              <MenuItem value="inactive">Désactivé</MenuItem>
+            <Select aria-label="Filtrer par statut" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-auto min-w-36">
+              <option value="">Tous les statuts</option>
+              <option value="active">Actif</option>
+              <option value="inactive">Désactivé</option>
             </Select>
             {activeFilters > 0 && (
-              <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={() => { setSearch(""); setFilterRole(""); setFilterStatus(""); }}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
-                Effacer ({activeFilters})
+              <Button size="sm" variant="ghost" className="font-medium text-muted-foreground" onClick={() => { setSearch(""); setFilterRole(""); setFilterStatus(""); }}>
+                <X size={15} /> Effacer ({activeFilters})
               </Button>
             )}
-          </Box>
+          </div>
           {!isLoading && (
-            <Box display="flex" gap={1} mt={1.5} pt={1} sx={{ borderTop: "1px solid #F1F5F9" }} alignItems="center">
-              <Typography variant="caption" color="text.secondary">
-                {filteredUsers.length} utilisateur{filteredUsers.length !== 1 ? "s" : ""}{activeFilters > 0 ? ` · ${users.length} au total` : ""}
-              </Typography>
-            </Box>
+            <div className="mt-3 flex items-center gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
+              {filteredUsers.length} utilisateur{filteredUsers.length !== 1 ? "s" : ""}{activeFilters > 0 ? ` · ${users.length} au total` : ""}
+            </div>
           )}
-        </Paper>
+        </Panel>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}>
           <UsersTable
@@ -513,340 +445,265 @@ export default function UsersPage() {
             onToggleSelectAll={toggleSelectAllVisible}
           />
         </motion.div>
-      </Container>
+      </PageContainer>
 
       {/* Dialog: Create / Edit */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}>
-              {editing ? <PeopleAltIcon sx={{ color: GOLD, fontSize: 20 }} /> : <PersonAddIcon sx={{ color: GOLD, fontSize: 20 }} />}
-            </Avatar>
-            <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)" }}>
-              {editing ? "Modifier l'utilisateur" : "Nouvel utilisateur"}
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2.5, pb: 1 }}>
-          <Grid container spacing={1.5}>
-            <Grid item xs={12} sm={6}>
-              <TextField label="Nom complet" fullWidth size="small" value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Jean Dupont" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField label="Login (identifiant)" fullWidth size="small" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="ex: jdupont" helperText="Identifiant unique de connexion" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField label="Email" type="email" fullWidth size="small" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ex: jean.dupont@societe.fr" />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField select label="Role" fullWidth size="small" value={role} onChange={(e) => setRole(e.target.value)}>
-                {ROLE_OPTIONS.map((r) => (<MenuItem key={r.code} value={r.code}>{r.label}</MenuItem>))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField select label="Statut du compte" fullWidth size="small"
-                value={isActive ? "active" : "inactive"}
-                onChange={(e) => setIsActive(e.target.value === "active")}
-                helperText={isActive ? "Utilisateur autorise a se connecter." : "Connexion bloquee."}
-              >
-                <MenuItem value="active"><Box display="flex" alignItems="center" gap={1}><ToggleOnIcon sx={{ color: "#16a34a", fontSize: 18 }} />Actif</Box></MenuItem>
-                <MenuItem value="inactive"><Box display="flex" alignItems="center" gap={1}><ToggleOffIcon sx={{ color: "#ef4444", fontSize: 18 }} />Desactive</Box></MenuItem>
-              </TextField>
-            </Grid>
-            {isCafRole && (
-              <Grid item xs={12}>
-                <TextField label="Code CAF" fullWidth size="small" value={cafCode} onChange={(e) => setCafCode(e.target.value)} placeholder="ex: CAF001" helperText="Obligatoire pour les CAFs." />
-              </Grid>
-            )}
-            {isAgenceRequired && (
-              <Grid item xs={12} sm={6}>
-                <TextField select label={isCafRole ? "Agence principale *" : "Agence *"} fullWidth size="small"
-                  value={agenceId === "" ? "" : String(agenceId)}
-                  onChange={(e) => { const v = e.target.value; setAgenceId(v === "" ? "" : Number(v)); }}
-                  error={agenceId === ""} helperText="Obligatoire pour ce role"
-                >
-                  <MenuItem value="">Aucune agence</MenuItem>
-                  {agences.map((a) => (<MenuItem key={a.id} value={String(a.id)}>{a.name} ({a.code})</MenuItem>))}
-                </TextField>
-              </Grid>
-            )}
-            {isResponsableZoneRole ? (
-              <Grid item xs={12} sm={6}>
-                <TextField select label="Zone *" fullWidth size="small"
-                  value={zoneId === "" ? "" : String(zoneId)}
-                  onChange={(e) => { const v = e.target.value; setZoneId(v === "" ? "" : Number(v)); }}
-                  error={zoneId === ""} helperText="Obligatoire pour ce role"
-                >
-                  <MenuItem value="">Aucune zone</MenuItem>
-                  {zones.map((z) => (<MenuItem key={z.id} value={String(z.id)}>{z.name} ({z.code})</MenuItem>))}
-                </TextField>
-              </Grid>
-            ) : (
-              <Grid item xs={12} sm={6}>
-                <TextField label="Zone (automatique)" fullWidth size="small"
-                  value={computedZoneName || "Aucune zone"}
-                  helperText={agenceId === "" ? "Selectionnez une agence." : "Calculee automatiquement."}
-                  disabled
-                />
-              </Grid>
-            )}
-            {isCafRole && (
-              <Grid item xs={12}>
-                <Box sx={{ border: "1px solid var(--border)", borderRadius: 2, p: 1.5, bgcolor: "var(--bg-page)" }}>
-                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
-                    <Typography fontSize={12.5} fontWeight={700} color="var(--text-primary)">
-                      Agences supplémentaires (CAF multi-agences)
-                    </Typography>
-                    <Button
-                      size="small" startIcon={<AddIcon sx={{ fontSize: 16 }} />}
-                      onClick={() => setAdditionalAssignments((prev) => [...prev, { agenceId: 0, cafCode: "" }])}
-                      sx={{ fontSize: 12, fontWeight: 600 }}
-                    >
-                      Ajouter une agence
+      <Dialog open={dialogOpen} onOpenChange={(o) => !o && setDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={editing ? <Users size={20} /> : <UserPlus size={20} />}>{editing ? "Modifier l'utilisateur" : "Nouvel utilisateur"}</DialogHeader>
+          <DialogBody className="max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Field label="Nom complet"><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Jean Dupont" /></Field>
+              <Field label="Login (identifiant)" help="Identifiant unique de connexion"><Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="ex: jdupont" /></Field>
+              <Field label="Email"><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ex: jean.dupont@societe.fr" /></Field>
+              <Field label="Role">
+                <Select value={role} onChange={(e) => setRole(e.target.value)}>
+                  {ROLE_OPTIONS.map((r) => (<option key={r.code} value={r.code}>{r.label}</option>))}
+                </Select>
+              </Field>
+              <Field label="Statut du compte" help={isActive ? "Utilisateur autorise a se connecter." : "Connexion bloquee."}>
+                <Select value={isActive ? "active" : "inactive"} onChange={(e) => setIsActive(e.target.value === "active")}>
+                  <option value="active">Actif</option>
+                  <option value="inactive">Desactive</option>
+                </Select>
+              </Field>
+              {isCafRole && (
+                <Field label="Code CAF" help="Obligatoire pour les CAFs." className="sm:col-span-2">
+                  <Input value={cafCode} onChange={(e) => setCafCode(e.target.value)} placeholder="ex: CAF001" />
+                </Field>
+              )}
+              {isAgenceRequired && (
+                <Field label={isCafRole ? "Agence principale *" : "Agence *"} help="Obligatoire pour ce role">
+                  <Select
+                    value={agenceId === "" ? "" : String(agenceId)}
+                    onChange={(e) => { const v = e.target.value; setAgenceId(v === "" ? "" : Number(v)); }}
+                    className={agenceId === "" ? "border-red-500" : ""}
+                  >
+                    <option value="">Aucune agence</option>
+                    {agences.map((a) => (<option key={a.id} value={String(a.id)}>{a.name} ({a.code})</option>))}
+                  </Select>
+                </Field>
+              )}
+              {isResponsableZoneRole ? (
+                <Field label="Zone *" help="Obligatoire pour ce role">
+                  <Select
+                    value={zoneId === "" ? "" : String(zoneId)}
+                    onChange={(e) => { const v = e.target.value; setZoneId(v === "" ? "" : Number(v)); }}
+                    className={zoneId === "" ? "border-red-500" : ""}
+                  >
+                    <option value="">Aucune zone</option>
+                    {zones.map((z) => (<option key={z.id} value={String(z.id)}>{z.name} ({z.code})</option>))}
+                  </Select>
+                </Field>
+              ) : (
+                <Field label="Zone (automatique)" help={agenceId === "" ? "Selectionnez une agence." : "Calculee automatiquement."}>
+                  <Input value={computedZoneName || "Aucune zone"} disabled readOnly />
+                </Field>
+              )}
+              {isCafRole && (
+                <div className="rounded-lg border border-border bg-background p-3 sm:col-span-2">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-[12.5px] font-bold text-foreground">Agences supplémentaires (CAF multi-agences)</span>
+                    <Button size="sm" variant="ghost" className="text-xs font-semibold" onClick={() => setAdditionalAssignments((prev) => [...prev, { agenceId: 0, cafCode: "" }])}>
+                      <Plus size={16} /> Ajouter une agence
                     </Button>
-                  </Box>
-                  {loadingAssignments && (
-                    <Typography fontSize={12} color="text.secondary">Chargement des agences existantes…</Typography>
-                  )}
+                  </div>
+                  {loadingAssignments && <span className="text-xs text-muted-foreground">Chargement des agences existantes…</span>}
                   {additionalAssignments.length === 0 && !loadingAssignments && (
-                    <Typography fontSize={12} color="text.secondary">
-                      Ce CAF n&apos;est rattaché qu&apos;à son agence principale ci-dessus.
-                    </Typography>
+                    <span className="text-xs text-muted-foreground">Ce CAF n&apos;est rattaché qu&apos;à son agence principale ci-dessus.</span>
                   )}
-                  <Box display="flex" flexDirection="column" gap={1}>
+                  <div className="flex flex-col gap-2">
                     {additionalAssignments.map((a, idx) => (
-                      <Box key={idx} display="flex" gap={1} alignItems="center">
-                        <TextField
-                          select size="small" label="Agence" sx={{ flex: 1 }}
+                      <div key={idx} className="flex items-center gap-2">
+                        <Select
+                          aria-label="Agence"
+                          className="flex-1"
                           value={a.agenceId ? String(a.agenceId) : ""}
                           onChange={(e) => {
                             const v = Number(e.target.value);
                             setAdditionalAssignments((prev) => prev.map((row, i) => i === idx ? { ...row, agenceId: v } : row));
                           }}
                         >
-                          <MenuItem value="">—</MenuItem>
+                          <option value="">—</option>
                           {agences.filter((ag) => ag.id === a.agenceId || ag.id !== agenceId).map((ag) => (
-                            <MenuItem key={ag.id} value={String(ag.id)}>{ag.name} ({ag.code})</MenuItem>
+                            <option key={ag.id} value={String(ag.id)}>{ag.name} ({ag.code})</option>
                           ))}
-                        </TextField>
-                        <TextField
-                          size="small" label="Code CAF" sx={{ flex: 1 }} placeholder="ex: 001A02"
+                        </Select>
+                        <Input
+                          aria-label="Code CAF" className="flex-1" placeholder="ex: 001A02"
                           value={a.cafCode}
                           onChange={(e) => {
                             const v = e.target.value;
                             setAdditionalAssignments((prev) => prev.map((row, i) => i === idx ? { ...row, cafCode: v } : row));
                           }}
                         />
-                        <IconButton size="small" onClick={() => setAdditionalAssignments((prev) => prev.filter((_, i) => i !== idx))} sx={{ color: "#dc2626" }}>
-                          <DeleteOutlineIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
+                        <button type="button" aria-label="Retirer cette agence" onClick={() => setAdditionalAssignments((prev) => prev.filter((_, i) => i !== idx))}
+                          className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-red-600 hover:bg-red-50"><Trash2 size={16} /></button>
+                      </div>
                     ))}
-                  </Box>
-                </Box>
-              </Grid>
-            )}
-            {!editing && (
-              <Grid item xs={12}>
-                <TextField label="Mot de passe initial" type="password" fullWidth size="small" value={password} onChange={(e) => setPassword(e.target.value)} helperText="Pour la premiere connexion." />
-              </Grid>
-            )}
-            {formError && (
-              <Grid item xs={12}>
-                <Alert severity="error" sx={{ mt: 0.5 }}>{formError}</Alert>
-              </Grid>
-            )}
-          </Grid>
+                  </div>
+                </div>
+              )}
+              {!editing && (
+                <Field label="Mot de passe initial" help="Pour la premiere connexion." className="sm:col-span-2">
+                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                </Field>
+              )}
+              {formError && <Alert severity="error" className="sm:col-span-2">{formError}</Alert>}
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleSave} disabled={!name.trim() || !username.trim() || createMutation.isPending || updateMutation.isPending} className="hover:bg-[#1E6091] hover:opacity-100">
+              {editing ? "Enregistrer" : "Creer l'utilisateur"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={handleSave} variant="contained"
-            disabled={!name.trim() || !username.trim() || createMutation.isPending || updateMutation.isPending}
-            sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            {editing ? "Enregistrer" : "Creer l'utilisateur"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* Dialog: Bulk delete */}
-      <Dialog open={bulkDeleteOpen} onClose={() => setBulkDeleteOpen(false)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}><WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} /></Avatar>
-            <Typography variant="h6" fontWeight={700}>Supprimer la selection</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Vous allez supprimer{" "}
-            <Typography component="span" fontWeight={700} color="text.primary">{selectedUserIds.length} utilisateur{selectedUserIds.length > 1 ? "s" : ""}</Typography>.
-            Cette action est irreversible.
-          </Typography>
+      <Dialog open={bulkDeleteOpen} onOpenChange={(o) => !o && setBulkDeleteOpen(false)}>
+        <DialogContent size="xs" accent={false} aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer la selection</DialogHeader>
+          <DialogBody className="text-sm text-muted-foreground">
+            Vous allez supprimer <strong className="text-foreground">{selectedUserIds.length} utilisateur{selectedUserIds.length > 1 ? "s" : ""}</strong>. Cette action est irreversible.
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkDeleteOpen(false)}>Annuler</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending || selectedUserIds.length === 0}
+              onClick={async () => {
+                setActionError(null);
+                try {
+                  const ids = [...selectedUserIds];
+                  const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id)));
+                  const failed = results.filter((r) => r.status === "rejected").length;
+                  if (failed > 0) setActionError(`${failed} suppression(s) ont echoue.`);
+                  setBulkDeleteOpen(false); setSelectedUserIds([]);
+                } catch (err) {
+                  setActionError(err instanceof Error ? err.message : "Suppression multiple impossible.");
+                }
+              }}
+            >
+              <Trash2 size={15} /> Supprimer la selection
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setBulkDeleteOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button color="error" variant="contained" startIcon={<DeleteOutlineIcon />}
-            disabled={deleteMutation.isPending || selectedUserIds.length === 0}
-            onClick={async () => {
-              setActionError(null);
-              try {
-                const ids = [...selectedUserIds];
-                const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id)));
-                const failed = results.filter((r) => r.status === "rejected").length;
-                if (failed > 0) setActionError(`${failed} suppression(s) ont echoue.`);
-                setBulkDeleteOpen(false); setSelectedUserIds([]);
-              } catch (err) {
-                setActionError(err instanceof Error ? err.message : "Suppression multiple impossible.");
-              }
-            }}>
-            Supprimer la selection
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* Dialog: Single delete */}
-      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}><WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} /></Avatar>
-            <Typography variant="h6" fontWeight={700}>Supprimer l&apos;utilisateur</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Vous etes sur le point de supprimer le compte de{" "}
-            <Typography component="span" fontWeight={700} color="text.primary">{deleteTarget?.name}</Typography>{" "}
-            <Typography component="span" color="text.secondary">({deleteTarget?.username})</Typography>.
-            Cette action est irreversible.
-          </Typography>
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent size="xs" accent={false} aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer l&apos;utilisateur</DialogHeader>
+          <DialogBody className="text-sm text-muted-foreground">
+            Vous etes sur le point de supprimer le compte de <strong className="text-foreground">{deleteTarget?.name}</strong> ({deleteTarget?.username}). Cette action est irreversible.
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Annuler</Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleteMutation.isPending}><Trash2 size={15} /> Supprimer</Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDeleteTarget(null)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={confirmDelete} color="error" variant="contained" disabled={deleteMutation.isPending} startIcon={<DeleteOutlineIcon />}>Supprimer</Button>
-        </DialogActions>
       </Dialog>
 
       {/* Dialog: Reset password */}
-      <Dialog open={resetDialogOpen && !!resetTarget} onClose={() => setResetDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}><LockResetIcon sx={{ color: GOLD, fontSize: 20 }} /></Avatar>
-            <Box>
-              <Typography variant="h6" fontWeight={700} sx={{ color: "var(--text-primary)" }}>Reinitialiser le mot de passe</Typography>
-              <Typography variant="caption" color="text.secondary">{resetTarget?.name} ({resetTarget?.username})</Typography>
-            </Box>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary" mb={2}>Le nouveau mot de passe devra etre communique a l&apos;utilisateur.</Typography>
-          <TextField label="Nouveau mot de passe" type="password" fullWidth size="small" value={resetPasswordValue} onChange={(e) => setResetPasswordValue(e.target.value)} />
-          {resetPasswordError && <Alert severity="error" sx={{ mt: 2 }}>{resetPasswordError}</Alert>}
+      <Dialog open={resetDialogOpen && !!resetTarget} onOpenChange={(o) => !o && setResetDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={<KeyRound size={20} />}>Reinitialiser le mot de passe</DialogHeader>
+          <DialogBody>
+            <div className="mb-3 text-xs text-muted-foreground">{resetTarget?.name} ({resetTarget?.username})</div>
+            <p className="mb-4 text-sm text-muted-foreground">Le nouveau mot de passe devra etre communique a l&apos;utilisateur.</p>
+            <Field label="Nouveau mot de passe"><Input type="password" value={resetPasswordValue} onChange={(e) => setResetPasswordValue(e.target.value)} /></Field>
+            {resetPasswordError && <Alert severity="error" className="mt-4">{resetPasswordError}</Alert>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetDialogOpen(false)}>Annuler</Button>
+            <Button
+              disabled={resetPasswordMutation.isPending || !resetPasswordValue.trim()}
+              className="hover:bg-[#1E6091] hover:opacity-100"
+              onClick={async () => {
+                if (!resetTarget || !resetPasswordValue.trim()) return;
+                setResetPasswordError(null);
+                try {
+                  await resetPasswordMutation.mutateAsync({ id: resetTarget.id, password: resetPasswordValue.trim() });
+                } catch (err) {
+                  setResetPasswordError(err instanceof Error ? err.message : "Reinitialisation impossible pour cet utilisateur.");
+                }
+              }}
+            >
+              <KeyRound size={15} /> Confirmer
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setResetDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button
-            onClick={async () => {
-              if (!resetTarget || !resetPasswordValue.trim()) return;
-              setResetPasswordError(null);
-              try {
-                await resetPasswordMutation.mutateAsync({ id: resetTarget.id, password: resetPasswordValue.trim() });
-              } catch (err) {
-                setResetPasswordError(err instanceof Error ? err.message : "Reinitialisation impossible pour cet utilisateur.");
-              }
-            }}
-            variant="contained" disabled={resetPasswordMutation.isPending || !resetPasswordValue.trim()} startIcon={<LockResetIcon />}
-            sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            Confirmer
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* Dialog: Import CSV */}
-      <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}><UploadFileIcon sx={{ color: GOLD, fontSize: 20 }} /></Avatar>
-            <Typography variant="h6" fontWeight={700}>Importer des utilisateurs via CSV</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
-            <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>name,username,password,email,role,agence_code,zone_code,caf_code</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
-              <b>name</b>, <b>username</b>, <b>password</b>, <b>role</b> — obligatoires<br />
-              <b>email</b>, <b>agence_code</b>, <b>zone_code</b>, <b>caf_code</b> — optionnels<br />
-              Rôles valides : admin_tenant, caf, chef_agence, responsable_zone…
-            </Typography>
-          </Box>
-          <Button component="label" variant="outlined" startIcon={<UploadFileIcon />} sx={{ borderRadius: 2 }}>
-            Choisir un fichier CSV
-            <input type="file" accept=".csv,text/csv" hidden onChange={handleUsersCsvFile} />
-          </Button>
-          {importFileName && <Box mt={2}><Chip label={importFileName} size="small" icon={<UploadFileIcon />} color="warning" variant="outlined" /></Box>}
-          {parsedImportRows.length > 0 && <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }}><b>{parsedImportRows.length} utilisateur{parsedImportRows.length > 1 ? "s" : ""}</b> prêts à être importés.</Alert>}
-          {importError && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{importError}</Alert>}
+      <Dialog open={importDialogOpen} onOpenChange={(o) => !o && setImportDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={<FileUp size={20} />}>Importer des utilisateurs via CSV</DialogHeader>
+          <DialogBody>
+            <div className="mb-5 rounded-lg border border-border bg-muted/40 p-4">
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground"><Code size={16} /> Format attendu</div>
+              <code className="mb-3 block break-all rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs">name,username,password,email,role,agence_code,zone_code,caf_code</code>
+              <p className="text-xs leading-8 text-muted-foreground">
+                <b>name</b>, <b>username</b>, <b>password</b>, <b>role</b> — obligatoires<br />
+                <b>email</b>, <b>agence_code</b>, <b>zone_code</b>, <b>caf_code</b> — optionnels<br />
+                Rôles valides : admin_tenant, caf, chef_agence, responsable_zone…
+              </p>
+            </div>
+            <label className="inline-flex">
+              <span className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border-strong bg-surface px-4 text-sm font-semibold hover:bg-muted"><FileUp size={15} /> Choisir un fichier CSV</span>
+              <input type="file" accept=".csv,text/csv" hidden onChange={handleUsersCsvFile} />
+            </label>
+            {importFileName && (
+              <div className="mt-4"><span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 px-2.5 py-0.5 text-xs text-amber-700 dark:text-amber-300"><FileUp size={13} /> {importFileName}</span></div>
+            )}
+            {parsedImportRows.length > 0 && <Alert severity="success" className="mt-4"><b>{parsedImportRows.length} utilisateur{parsedImportRows.length > 1 ? "s" : ""}</b> prêts à être importés.</Alert>}
+            {importError && <Alert severity="error" className="mt-4">{importError}</Alert>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>Annuler</Button>
+            <Button
+              disabled={!parsedImportRows.length || importMutation.isPending}
+              className="hover:bg-[#1E6091] hover:opacity-100"
+              onClick={async () => { if (!parsedImportRows.length) return; setImportError(null); try { await importMutation.mutateAsync(parsedImportRows); } catch (err: any) { setImportError(err?.message ?? "Import impossible."); } }}
+            >
+              {importMutation.isPending ? <Spinner className="size-4" /> : <FileUp size={15} />} Lancer l&apos;import ({parsedImportRows.length})
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setImportDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button
-            onClick={async () => { if (!parsedImportRows.length) return; setImportError(null); try { await importMutation.mutateAsync(parsedImportRows); } catch (err: any) { setImportError(err?.message ?? "Import impossible."); } }}
-            variant="contained" disabled={!parsedImportRows.length || importMutation.isPending}
-            startIcon={importMutation.isPending ? <CircularProgress size={16} sx={{ color: "white" }} /> : <UploadFileIcon />}
-            sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            Lancer l&apos;import ({parsedImportRows.length})
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* Dialog: Reset all */}
-      <Dialog open={resetAllDialogOpen} onClose={() => setResetAllDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: "#f59e0b" }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#fff7ed" }}><ShieldIcon sx={{ color: "#f59e0b", fontSize: 20 }} /></Avatar>
-            <Typography variant="h6" fontWeight={700}>Reinitialiser tous les mots de passe</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }}>Cette action affecte <strong>tous les utilisateurs</strong> du tenant.</Alert>
-          <Typography variant="body2" color="text.secondary" mb={2}>Un mot de passe temporaire commun sera defini. Chaque utilisateur devra le modifier lors de sa prochaine connexion.</Typography>
-          <TextField label="Mot de passe temporaire commun" type="password" fullWidth size="small" value={resetAllPasswordValue} onChange={(e) => setResetAllPasswordValue(e.target.value)} />
-          {resetAllError && <Alert severity="error" sx={{ mt: 2 }}>{resetAllError}</Alert>}
+      <Dialog open={resetAllDialogOpen} onOpenChange={(o) => !o && setResetAllDialogOpen(false)}>
+        <DialogContent size="sm" accent={false} aria-describedby={undefined}>
+          <div className="h-1 bg-amber-500" />
+          <DialogHeader icon={<ShieldAlert size={20} />}>Reinitialiser tous les mots de passe</DialogHeader>
+          <DialogBody>
+            <Alert severity="warning" className="mb-4">Cette action affecte <strong>tous les utilisateurs</strong> du tenant.</Alert>
+            <p className="mb-4 text-sm text-muted-foreground">Un mot de passe temporaire commun sera defini. Chaque utilisateur devra le modifier lors de sa prochaine connexion.</p>
+            <Field label="Mot de passe temporaire commun"><Input type="password" value={resetAllPasswordValue} onChange={(e) => setResetAllPasswordValue(e.target.value)} /></Field>
+            {resetAllError && <Alert severity="error" className="mt-4">{resetAllError}</Alert>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetAllDialogOpen(false)}>Annuler</Button>
+            <Button
+              disabled={resetAllMutation.isPending || !resetAllPasswordValue.trim()}
+              className="bg-amber-500 hover:bg-amber-600 hover:opacity-100"
+              onClick={async () => {
+                if (!resetAllPasswordValue.trim()) return;
+                setResetAllError(null);
+                try {
+                  await resetAllMutation.mutateAsync(resetAllPasswordValue.trim());
+                } catch (err) {
+                  setResetAllError(err instanceof Error ? err.message : "Reinitialisation impossible.");
+                }
+              }}
+            >
+              <KeyRound size={15} /> Reinitialiser tous les mots de passe
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setResetAllDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button
-            onClick={async () => {
-              if (!resetAllPasswordValue.trim()) return;
-              setResetAllError(null);
-              try {
-                await resetAllMutation.mutateAsync(resetAllPasswordValue.trim());
-              } catch (err) {
-                setResetAllError(err instanceof Error ? err.message : "Reinitialisation impossible.");
-              }
-            }}
-            variant="contained" color="warning"
-            disabled={resetAllMutation.isPending || !resetAllPasswordValue.trim()}
-            startIcon={<LockResetIcon />}>
-            Reinitialiser tous les mots de passe
-          </Button>
-        </DialogActions>
       </Dialog>
     </>
   );

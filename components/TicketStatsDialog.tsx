@@ -1,32 +1,8 @@
 "use client";
 
 import {
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Dialog,
-  Divider,
-  Grid,
-  IconButton,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import DownloadIcon from "@mui/icons-material/Download";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import LockIcon from "@mui/icons-material/Lock";
-import PauseCircleIcon from "@mui/icons-material/PauseCircle";
+  X, Download, BarChart3, CalendarDays, FilterX, Clock, AlertTriangle, CheckCircle2, Hourglass, PauseCircle,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -34,14 +10,16 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip as RTooltip,
-  Cell,
-  PieChart,
-  Pie,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 import { TicketDto } from "@/lib/tickets";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
@@ -183,24 +161,73 @@ function computeStats(tickets: TicketDto[]) {
   };
 }
 
+// ── Petits blocs UI ────────────────────────────────────────────────────────────
+function Chip({ label, bg, color }: { label: React.ReactNode; bg: string; color: string }) {
+  return (
+    <span className="inline-flex h-5 w-fit items-center rounded-full px-2.5 text-[11px] font-bold" style={{ background: bg, color }}>
+      {label}
+    </span>
+  );
+}
+
+const sevStyle = (sev: string) => ({
+  bg: sev === "urgent" ? "#FEF2F2" : sev === "eleve" ? "#FFFBEB" : "#F1F5F9",
+  color: sev === "urgent" ? "#dc2626" : sev === "eleve" ? "#d97706" : "#64748B",
+});
+
+function Card({ title, icon, border, children, className }: { title?: React.ReactNode; icon?: React.ReactNode; border?: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={"rounded-[10px] bg-surface p-5 " + (className ?? "")} style={{ border: `1px solid ${border ?? "var(--border)"}` }}>
+      {title && (
+        <div className="mb-4 flex items-center gap-2 text-[13px] font-bold text-foreground">
+          {icon}
+          {title}
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function TableHead({ cols, labels, bg, color }: { cols: string; labels: string[]; bg: string; color: string }) {
+  return (
+    <div className="mb-1 grid gap-2 rounded-md px-4 py-2" style={{ gridTemplateColumns: cols, background: bg }}>
+      {labels.map((h) => (
+        <span key={h} className="text-[10.5px] font-bold uppercase tracking-wider" style={{ color }}>{h}</span>
+      ))}
+    </div>
+  );
+}
+
+function Row({ cols, bg, hover, children }: { cols: string; bg: string; hover?: string; children: React.ReactNode }) {
+  return (
+    <div
+      className="grid items-center gap-2 rounded px-4 py-[10px] transition-colors hover:[background:var(--row-hover)]"
+      style={{ gridTemplateColumns: cols, background: bg, ["--row-hover" as string]: hover ?? bg }}
+    >
+      {children}
+    </div>
+  );
+}
+
+const Cell = ({ children, muted }: { children: React.ReactNode; muted?: boolean }) => (
+  <span className={"truncate text-sm " + (muted ? "text-secondary-foreground" : "font-semibold text-foreground")} style={muted ? { color: "var(--text-secondary)" } : undefined}>
+    {children}
+  </span>
+);
+
 // ── Stat KPI card ──────────────────────────────────────────────────────────────
 function StatKpi({ label, value, sub, icon, color }: { label: string; value: string | number; sub?: string; icon: React.ReactNode; color: string }) {
   return (
-    <Box
-      sx={{
-        bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)",
-        px: 2.5, py: 2, display: "flex", alignItems: "center", gap: 1.5,
-        position: "relative", overflow: "hidden",
-        "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: color },
-      }}
-    >
-      <Avatar sx={{ width: 40, height: 40, bgcolor: color + "18", color, flexShrink: 0 }}>{icon}</Avatar>
-      <Box>
-        <Typography fontWeight={800} fontSize={22} sx={{ color, lineHeight: 1 }}>{value}</Typography>
-        <Typography variant="caption" color="text.secondary" fontWeight={500}>{label}</Typography>
-        {sub && <Typography variant="caption" sx={{ color: "var(--text-muted)", display: "block", fontSize: 10.5 }}>{sub}</Typography>}
-      </Box>
-    </Box>
+    <div className="relative flex items-center gap-3 overflow-hidden rounded-[10px] border border-border bg-surface px-5 py-4">
+      <span className="absolute inset-y-0 left-0 w-1" style={{ background: color }} />
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full" style={{ background: color + "18", color }}>{icon}</span>
+      <div>
+        <div className="text-[22px] font-extrabold leading-none" style={{ color }}>{value}</div>
+        <div className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>{label}</div>
+        {sub && <div className="text-[10.5px]" style={{ color: "var(--text-muted)" }}>{sub}</div>}
+      </div>
+    </div>
   );
 }
 
@@ -208,20 +235,17 @@ function StatKpi({ label, value, sub, icon, color }: { label: string; value: str
 function HBar({ label, value, max, color, total }: { label: string; value: number; max: number; color: string; total: number }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
-    <Box display="flex" alignItems="center" gap={1.5} mb={1}>
-      <Typography variant="caption" sx={{ minWidth: 110, color: "var(--text-secondary)", fontWeight: 500, fontSize: 12 }}>{label}</Typography>
-      <Box flex={1} sx={{ height: 10, bgcolor: "#F1F5F9", borderRadius: 5, overflow: "hidden" }}>
-        <Box sx={{ width: `${pct}%`, height: "100%", bgcolor: color, borderRadius: 5, transition: "width 0.6s ease" }} />
-      </Box>
-      <Typography variant="caption" sx={{ minWidth: 28, textAlign: "right", fontWeight: 700, color, fontSize: 12 }}>{value}</Typography>
-      {total > 0 && (
-        <Typography variant="caption" sx={{ minWidth: 36, color: "var(--text-muted)", fontSize: 11 }}>
-          {Math.round((value / total) * 100)}%
-        </Typography>
-      )}
-    </Box>
+    <div className="mb-2 flex items-center gap-3">
+      <span className="min-w-[110px] text-xs font-medium" style={{ color: "var(--text-secondary)" }}>{label}</span>
+      <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "#F1F5F9" }}>
+        <div className="h-full rounded-full transition-[width] duration-500" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="min-w-7 text-right text-xs font-bold" style={{ color }}>{value}</span>
+      {total > 0 && <span className="min-w-9 text-[11px]" style={{ color: "var(--text-muted)" }}>{Math.round((value / total) * 100)}%</span>}
+    </div>
   );
 }
+
 
 // ── PDF generation ─────────────────────────────────────────────────────────────
 function generatePdf(tickets: TicketDto[], tenantName?: string, dateRange?: { from: string; to: string }) {
@@ -844,224 +868,142 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
 
   const monthChartData = Object.entries(s.monthsMap).map(([name, value]) => ({ name, value }));
 
+  const plural = filteredTickets.length !== 1 ? "s" : "";
+  const kpis = [
+    { label: "Total tickets",            value: s.total,                    sub: `${s.resolved} résolus`,      icon: <BarChart3 size={20} />,    color: "#64748B" },
+    { label: "Taux de résolution",       value: `${s.resolutionRate}%`,     sub: `${s.resolved}/${s.total}`,   icon: <CheckCircle2 size={20} />, color: "#16a34a" },
+    { label: "Délai moy. résolution",    value: `${s.avgResolutionDays}j`,  sub: "tickets résolus/fermés",     icon: <Clock size={20} />,        color: STEEL },
+    { label: "Att. réponse utilisateur", value: s.byStatus.waiting_user,    sub: "tickets bloqués",            icon: <PauseCircle size={20} />,  color: "#7c3aed" },
+    { label: "Jamais traités",           value: s.untouchedTickets.length,  sub: "aucune action IT",           icon: <AlertTriangle size={20} />, color: "#dc2626" },
+  ];
+
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="lg"
-      PaperProps={{ sx: { borderRadius: 3, overflow: "hidden", height: { xs: "100dvh", sm: "calc(92vh / var(--ui-zoom))" }, display: "flex", flexDirection: "column" } }}
-    >
-      <Box sx={{ height: 4, bgcolor: GOLD, flexShrink: 0 }} />
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent size="lg" accent={false} aria-describedby={undefined} className="flex flex-col" style={{ height: "calc(92vh / var(--ui-zoom))" }}>
+        <div className="h-1 shrink-0" style={{ background: GOLD }} />
 
-      {/* Header */}
-      <Box sx={{ px: 3, py: 2, flexShrink: 0, background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)` }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Box display="flex" alignItems="center" gap={2}>
-            <Avatar sx={{ bgcolor: GOLD, width: 42, height: 42 }}>
-              <BarChartIcon sx={{ color: NAVY, fontSize: 22 }} />
-            </Avatar>
-            <Box>
-              <Typography fontWeight={700} fontSize={16} sx={{ color: "white" }}>
-                Statistiques & Rapport tickets IT
-              </Typography>
-              <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.65)" }}>
-                {filteredTickets.length} ticket{filteredTickets.length !== 1 ? "s" : ""} analysés
-                {hasFilter ? ` · filtrés sur ${tickets.length} au total` : ""}
-              </Typography>
-            </Box>
-          </Box>
-          <Box display="flex" gap={1}>
-            <Button
-              variant="contained"
-              startIcon={generating ? <CircularProgress size={14} sx={{ color: "white" }} /> : <DownloadIcon />}
-              onClick={handleExport}
-              disabled={generating || filteredTickets.length === 0}
-              sx={{ bgcolor: GOLD, color: "var(--text-primary)", fontWeight: 700, fontSize: 13, "&:hover": { bgcolor: "#2A5C34" } }}
-            >
-              {generating ? "Génération…" : "Exporter PDF"}
-            </Button>
-            <IconButton onClick={onClose} size="small" sx={{ color: "rgba(255,255,255,0.7)", "&:hover": { color: "white", bgcolor: "rgba(255,255,255,0.1)" } }}>
-              <CloseIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Period filter bar */}
-      <Box
-        sx={{
-          flexShrink: 0, px: 3, py: 1.5,
-          bgcolor: "var(--bg-surface)", borderBottom: "1px solid var(--border)",
-          display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap",
-        }}
-      >
-        <Box display="flex" alignItems="center" gap={1}>
-          <CalendarMonthIcon sx={{ fontSize: 18, color: "var(--text-secondary)" }} />
-          <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-            Période
-          </Typography>
-        </Box>
-
-        <TextField
-          type="date"
-          size="small"
-          label="Du"
-          value={dateFrom}
-          onChange={(e) => setDateFrom(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ max: dateTo || undefined }}
-          sx={{
-            width: 160,
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-              "& fieldset": { borderColor: "var(--border)" },
-              "&:hover fieldset": { borderColor: "var(--border-strong)" },
-              "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
-            },
-          }}
-        />
-
-        <Typography variant="body2" sx={{ color: "var(--text-muted)" }}>→</Typography>
-
-        <TextField
-          type="date"
-          size="small"
-          label="Au"
-          value={dateTo}
-          onChange={(e) => setDateTo(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ min: dateFrom || undefined }}
-          sx={{
-            width: 160,
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 2,
-              "& fieldset": { borderColor: "var(--border)" },
-              "&:hover fieldset": { borderColor: "var(--border-strong)" },
-              "&.Mui-focused fieldset": { borderColor: STEEL, borderWidth: 1.5 },
-            },
-          }}
-        />
-
-        {hasFilter && (
-          <>
-            <Chip
-              label={
-                dateFrom && dateTo
-                  ? `${fmtDisplayDate(dateFrom)} → ${fmtDisplayDate(dateTo)}`
-                  : dateFrom
-                  ? `Depuis le ${fmtDisplayDate(dateFrom)}`
-                  : `Jusqu'au ${fmtDisplayDate(dateTo)}`
-              }
-              size="small"
-              sx={{ bgcolor: "#EFF6FF", color: STEEL, fontWeight: 600, fontSize: 11 }}
-            />
-            <Chip
-              label={`${filteredTickets.length} ticket${filteredTickets.length !== 1 ? "s" : ""}`}
-              size="small"
-              sx={{ bgcolor: "#F0FDF4", color: "#15803d", fontWeight: 700, fontSize: 11 }}
-            />
-            <Tooltip title="Effacer le filtre">
-              <IconButton
-                size="small"
-                onClick={() => { setDateFrom(""); setDateTo(""); }}
-                sx={{ color: "var(--text-muted)", "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}
+        {/* Header */}
+        <div className="shrink-0 px-6 py-4" style={{ background: "linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)" }}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <span className="flex size-[42px] items-center justify-center rounded-full" style={{ background: GOLD }}>
+                <BarChart3 size={22} color={NAVY} />
+              </span>
+              <div>
+                <DialogTitle className="text-base font-bold text-white">Statistiques & Rapport tickets IT</DialogTitle>
+                <div className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>
+                  {filteredTickets.length} ticket{plural} analysés
+                  {hasFilter ? ` · filtrés sur ${tickets.length} au total` : ""}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleExport}
+                disabled={generating || filteredTickets.length === 0}
+                className="text-[13px] font-bold text-white hover:opacity-90"
+                style={{ background: GOLD }}
               >
-                <FilterAltOffIcon sx={{ fontSize: 17 }} />
-              </IconButton>
-            </Tooltip>
-          </>
+                {generating ? <Spinner /> : <Download size={16} />}
+                {generating ? "Génération…" : "Exporter PDF"}
+              </Button>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Fermer"
+                className="flex size-8 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-white/70 hover:bg-white/10 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Period filter bar */}
+        <div className="flex shrink-0 flex-wrap items-center gap-4 border-b border-border bg-surface px-6 py-3">
+          <div className="flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+            <CalendarDays size={18} />
+            <span className="text-xs font-bold uppercase tracking-wider">Période</span>
+          </div>
+          <label className="flex items-center gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+            Du
+            <Input type="date" className="w-40" value={dateFrom} max={dateTo || undefined} onChange={(e) => setDateFrom(e.target.value)} />
+          </label>
+          <span style={{ color: "var(--text-muted)" }}>→</span>
+          <label className="flex items-center gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+            Au
+            <Input type="date" className="w-40" value={dateTo} min={dateFrom || undefined} onChange={(e) => setDateTo(e.target.value)} />
+          </label>
+
+          {hasFilter ? (
+            <>
+              <Chip
+                bg="#EFF6FF"
+                color={STEEL}
+                label={
+                  dateFrom && dateTo
+                    ? `${fmtDisplayDate(dateFrom)} → ${fmtDisplayDate(dateTo)}`
+                    : dateFrom
+                    ? `Depuis le ${fmtDisplayDate(dateFrom)}`
+                    : `Jusqu'au ${fmtDisplayDate(dateTo)}`
+                }
+              />
+              <Chip bg="#F0FDF4" color="#15803d" label={`${filteredTickets.length} ticket${plural}`} />
+              <Tooltip title="Effacer le filtre">
+                <button
+                  type="button"
+                  aria-label="Effacer le filtre"
+                  onClick={() => { setDateFrom(""); setDateTo(""); }}
+                  className="flex size-8 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent hover:bg-red-50 hover:text-red-600"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  <FilterX size={17} />
+                </button>
+              </Tooltip>
+            </>
+          ) : (
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>Tous les tickets · {tickets.length} au total</span>
+          )}
+        </div>
+
+        {exportError && (
+          <Alert severity="error" onClose={() => setExportError(null)} className="mx-6 mt-3 shrink-0">
+            {exportError}
+          </Alert>
         )}
 
-        {!hasFilter && (
-          <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>
-            Tous les tickets · {tickets.length} au total
-          </Typography>
-        )}
-      </Box>
+        {/* Body */}
+        <div className="min-h-0 flex-1 overflow-y-auto p-6" style={{ background: "var(--bg-page)" }}>
+          {/* KPI row */}
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+            {kpis.map((k, i) => <StatKpi key={i} {...k} />)}
+          </div>
 
-      {exportError && (
-        <Alert severity="error" onClose={() => setExportError(null)} sx={{ mx: 3, mt: 1.5, flexShrink: 0 }}>
-          {exportError}
-        </Alert>
-      )}
-
-      {/* Body */}
-      <Box sx={{ flex: 1, overflowY: "auto", p: 3, bgcolor: "var(--bg-page)" }}>
-
-        {/* KPI row */}
-        <Grid container spacing={2} mb={3}>
-          {[
-            { label: "Total tickets",          value: s.total,             sub: `${s.resolved} résolus`,   icon: <BarChartIcon sx={{ fontSize: 20 }} />,         color: "#64748B" },
-            { label: "Taux de résolution",     value: `${s.resolutionRate}%`, sub: `${s.resolved}/${s.total}`, icon: <CheckCircleIcon sx={{ fontSize: 20 }} />,     color: "#16a34a" },
-            { label: "Délai moy. résolution",  value: `${s.avgResolutionDays}j`, sub: "tickets résolus/fermés", icon: <AccessTimeIcon sx={{ fontSize: 20 }} />,   color: STEEL },
-            { label: "Att. réponse utilisateur", value: s.byStatus.waiting_user, sub: "tickets bloqués", icon: <PauseCircleIcon sx={{ fontSize: 20 }} />,         color: "#7c3aed" },
-            { label: "Jamais traités",         value: s.untouchedTickets.length, sub: "aucune action IT", icon: <WarningAmberIcon sx={{ fontSize: 20 }} />,       color: "#dc2626" },
-          ].map((k, i) => (
-            <Grid item xs={6} sm={4} md={12 / 5} key={i}>
-              <StatKpi {...k} />
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Charts row 1 */}
-        <Grid container spacing={2.5} mb={2.5}>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={2}>
-                Répartition par statut
-              </Typography>
+          {/* Charts row 1 */}
+          <div className="mb-5 grid gap-5 md:grid-cols-2">
+            <Card title="Répartition par statut">
               {statusChartData.length > 0 ? (
-                <>
-                  {statusChartData.map((d) => (
-                    <HBar
-                      key={d.name}
-                      label={d.name}
-                      value={d.value}
-                      max={Math.max(...statusChartData.map((x) => x.value))}
-                      color={d.fill}
-                      total={s.total}
-                    />
-                  ))}
-                </>
+                statusChartData.map((d) => (
+                  <HBar key={d.name} label={d.name} value={d.value} max={Math.max(...statusChartData.map((x) => x.value))} color={d.fill} total={s.total} />
+                ))
               ) : (
-                <Typography variant="body2" color="text.disabled" textAlign="center" py={3}>Aucune donnée</Typography>
+                <div className="py-6 text-center text-sm" style={{ color: "var(--text-muted)" }}>Aucune donnée</div>
               )}
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={2}>
-                Répartition par sévérité
-              </Typography>
+            </Card>
+            <Card title="Répartition par sévérité">
               {sevChartData.length > 0 ? (
-                <>
-                  {sevChartData.map((d) => (
-                    <HBar
-                      key={d.name}
-                      label={d.name}
-                      value={d.value}
-                      max={Math.max(...sevChartData.map((x) => x.value))}
-                      color={d.fill}
-                      total={s.total}
-                    />
-                  ))}
-                </>
+                sevChartData.map((d) => (
+                  <HBar key={d.name} label={d.name} value={d.value} max={Math.max(...sevChartData.map((x) => x.value))} color={d.fill} total={s.total} />
+                ))
               ) : (
-                <Typography variant="body2" color="text.disabled" textAlign="center" py={3}>Aucune donnée</Typography>
+                <div className="py-6 text-center text-sm" style={{ color: "var(--text-muted)" }}>Aucune donnée</div>
               )}
-            </Box>
-          </Grid>
-        </Grid>
+            </Card>
+          </div>
 
-        {/* Charts row 2 */}
-        <Grid container spacing={2.5} mb={2.5}>
-          <Grid item xs={12} md={7}>
-            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={2}>
-                Volume de tickets — 6 derniers mois
-              </Typography>
+          {/* Charts row 2 */}
+          <div className="mb-5 grid gap-5 md:grid-cols-12">
+            <Card title="Volume de tickets — 6 derniers mois" className="md:col-span-7">
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={monthChartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -1071,283 +1013,120 @@ export function TicketStatsDialog({ tickets, open, onClose, tenantName }: Props)
                   <Bar dataKey="value" name="Tickets" radius={[4, 4, 0, 0]} fill={NAVY} />
                 </BarChart>
               </ResponsiveContainer>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} md={5}>
-            <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5 }}>
-              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)" mb={1.5}>
-                Ancienneté des tickets actifs
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+            </Card>
+            <Card title="Ancienneté des tickets actifs" className="md:col-span-5">
+              <div className="-mt-2 mb-3 text-xs" style={{ color: "var(--text-secondary)" }}>
                 Tickets ouverts + en cours ({s.byStatus.open + s.byStatus.in_progress} au total)
-              </Typography>
+              </div>
               {ageChartData.map((d) => (
-                <HBar
-                  key={d.name}
-                  label={d.name}
-                  value={d.value}
-                  max={Math.max(...ageChartData.map((x) => x.value), 1)}
-                  color={d.fill}
-                  total={s.byStatus.open + s.byStatus.in_progress}
-                />
+                <HBar key={d.name} label={d.name} value={d.value} max={Math.max(...ageChartData.map((x) => x.value), 1)} color={d.fill} total={s.byStatus.open + s.byStatus.in_progress} />
               ))}
-            </Box>
-          </Grid>
-        </Grid>
+            </Card>
+          </div>
 
-        {/* Waiting tickets table */}
-        {s.waitingTickets.length > 0 && (
-          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid var(--border)", p: 2.5, mb: 2.5 }}>
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
-              <PauseCircleIcon sx={{ color: "#7c3aed", fontSize: 20 }} />
-              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
-                Tickets en attente de réponse utilisateur ({s.waitingTickets.length})
-              </Typography>
-            </Box>
-            {/* Header */}
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 140px 100px 80px", gap: 1, bgcolor: NAVY, borderRadius: 1.5, px: 2, py: 1, mb: 0.5 }}>
-              {["Titre", "Demandeur", "En attente", "Sévérité"].map((h) => (
-                <Typography key={h} variant="caption" fontWeight={700} sx={{ color: "rgba(255,255,255,0.65)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.8 }}>
-                  {h}
-                </Typography>
+          {/* Waiting tickets */}
+          {s.waitingTickets.length > 0 && (
+            <Card className="mb-5" icon={<PauseCircle size={20} color="#7c3aed" />} title={`Tickets en attente de réponse utilisateur (${s.waitingTickets.length})`}>
+              <TableHead cols="1fr 140px 100px 80px" labels={["Titre", "Demandeur", "En attente", "Sévérité"]} bg={NAVY} color="rgba(255,255,255,0.65)" />
+              {s.waitingTickets.slice(0, 8).map((t, i) => (
+                <Row key={t.id} cols="1fr 140px 100px 80px" bg={i % 2 === 0 ? "var(--bg-page)" : "var(--bg-surface)"} hover="#EFF6FF">
+                  <Cell>{t.title}</Cell>
+                  <Cell muted>{t.requesterName ?? "—"}</Cell>
+                  <Chip label={`${Math.ceil(t.waitingDays)}j`} bg="#FAF5FF" color="#7c3aed" />
+                  <Chip label={t.severity} {...sevStyle(t.severity)} />
+                </Row>
               ))}
-            </Box>
-            {s.waitingTickets.slice(0, 8).map((t, i) => (
-              <Box
-                key={t.id}
-                sx={{
-                  display: "grid", gridTemplateColumns: "1fr 140px 100px 80px",
-                  gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                  bgcolor: i % 2 === 0 ? "var(--bg-page)" : "var(--bg-surface)",
-                  "&:hover": { bgcolor: "#EFF6FF" },
-                }}
-              >
-                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
-                <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
-                <Chip
-                  label={`${Math.ceil(t.waitingDays)}j`}
-                  size="small"
-                  sx={{ bgcolor: "#FAF5FF", color: "#7c3aed", fontWeight: 700, height: 20, fontSize: 11, width: "fit-content" }}
-                />
-                <Chip
-                  label={t.severity}
-                  size="small"
-                  sx={{
-                    height: 20, fontSize: 11, fontWeight: 700, width: "fit-content",
-                    bgcolor: t.severity === "urgent" ? "#FEF2F2" : t.severity === "eleve" ? "#FFFBEB" : "#F1F5F9",
-                    color: t.severity === "urgent" ? "#dc2626" : t.severity === "eleve" ? "#d97706" : "#64748B",
-                  }}
-                />
-              </Box>
-            ))}
-          </Box>
-        )}
+            </Card>
+          )}
 
-        {/* Untouched tickets */}
-        {s.untouchedTickets.length > 0 && (
-          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid #FEE2E2", p: 2.5 }}>
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
-              <WarningAmberIcon sx={{ color: "#dc2626", fontSize: 20 }} />
-              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
-                Tickets jamais traités — aucune action IT ({s.untouchedTickets.length})
-              </Typography>
-            </Box>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 140px 80px 80px", gap: 1, bgcolor: "#FEF2F2", borderRadius: 1.5, px: 2, py: 1, mb: 0.5 }}>
-              {["Titre", "Demandeur", "Âge", "Sévérité"].map((h) => (
-                <Typography key={h} variant="caption" fontWeight={700} sx={{ color: "#991b1b", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.8 }}>
-                  {h}
-                </Typography>
+          {/* Untouched */}
+          {s.untouchedTickets.length > 0 && (
+            <Card border="#FEE2E2" icon={<AlertTriangle size={20} color="#dc2626" />} title={`Tickets jamais traités — aucune action IT (${s.untouchedTickets.length})`}>
+              <TableHead cols="1fr 140px 80px 80px" labels={["Titre", "Demandeur", "Âge", "Sévérité"]} bg="#FEF2F2" color="#991b1b" />
+              {s.untouchedTickets.map((t, i) => (
+                <Row key={t.id} cols="1fr 140px 80px 80px" bg={i % 2 === 0 ? "#FFF7F7" : "var(--bg-surface)"}>
+                  <Cell>{t.title}</Cell>
+                  <Cell muted>{t.requesterName ?? "—"}</Cell>
+                  <Chip label={`${Math.ceil(t.ageDays)}j`} bg="#FEF2F2" color="#dc2626" />
+                  <Chip label={t.severity} {...sevStyle(t.severity)} />
+                </Row>
               ))}
-            </Box>
-            {s.untouchedTickets.map((t, i) => (
-              <Box
-                key={t.id}
-                sx={{
-                  display: "grid", gridTemplateColumns: "1fr 140px 80px 80px",
-                  gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                  bgcolor: i % 2 === 0 ? "#FFF7F7" : "var(--bg-surface)",
-                }}
-              >
-                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
-                <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
-                <Chip
-                  label={`${Math.ceil(t.ageDays)}j`}
-                  size="small"
-                  sx={{ bgcolor: "#FEF2F2", color: "#dc2626", fontWeight: 700, height: 20, fontSize: 11, width: "fit-content" }}
-                />
-                <Chip
-                  label={t.severity}
-                  size="small"
-                  sx={{
-                    height: 20, fontSize: 11, fontWeight: 700, width: "fit-content",
-                    bgcolor: t.severity === "urgent" ? "#FEF2F2" : t.severity === "eleve" ? "#FFFBEB" : "#F1F5F9",
-                    color: t.severity === "urgent" ? "#dc2626" : t.severity === "eleve" ? "#d97706" : "#64748B",
-                  }}
-                />
-              </Box>
-            ))}
-          </Box>
-        )}
+            </Card>
+          )}
 
-        {/* ── Tickets en cours ──────────────────────────────── */}
-        {s.inProgressList.length > 0 && (
-          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid #DBEAFE", p: 2.5, mt: 2.5 }}>
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
-              <HourglassEmptyIcon sx={{ color: STEEL, fontSize: 20 }} />
-              <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
-                Tickets en cours de traitement ({s.inProgressList.length})
-              </Typography>
-            </Box>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 130px 80px 90px 80px", gap: 1, bgcolor: NAVY, borderRadius: 1.5, px: 2, py: 1, mb: 0.5 }}>
-              {["Titre", "Demandeur", "Sévérité", "Catégorie", "Âge"].map((h) => (
-                <Typography key={h} variant="caption" fontWeight={700} sx={{ color: "rgba(255,255,255,0.65)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.8 }}>
-                  {h}
-                </Typography>
+          {/* In progress */}
+          {s.inProgressList.length > 0 && (
+            <Card className="mt-5" border="#DBEAFE" icon={<Hourglass size={20} color={STEEL} />} title={`Tickets en cours de traitement (${s.inProgressList.length})`}>
+              <TableHead cols="1fr 130px 80px 90px 80px" labels={["Titre", "Demandeur", "Sévérité", "Catégorie", "Âge"]} bg={NAVY} color="rgba(255,255,255,0.65)" />
+              {s.inProgressList.map((t, i) => (
+                <Row key={t.id} cols="1fr 130px 80px 90px 80px" bg={i % 2 === 0 ? "#EFF6FF" : "var(--bg-surface)"} hover="#DBEAFE">
+                  <Cell>{t.title}</Cell>
+                  <Cell muted>{t.requesterName ?? "—"}</Cell>
+                  <Chip label={t.severity} bg={t.severity === "urgent" ? "#FEF2F2" : t.severity === "eleve" ? "#FFFBEB" : "#EFF6FF"} color={t.severity === "urgent" ? "#dc2626" : t.severity === "eleve" ? "#d97706" : STEEL} />
+                  <Cell muted>{t.category ?? "—"}</Cell>
+                  <Chip
+                    label={t.ageDays < 1 ? `${Math.round(t.ageDays * 24)}h` : `${Math.ceil(t.ageDays)}j`}
+                    bg={t.ageDays > 30 ? "#FEF2F2" : t.ageDays > 7 ? "#FFFBEB" : "#F0FDF4"}
+                    color={t.ageDays > 30 ? "#dc2626" : t.ageDays > 7 ? "#d97706" : "#15803d"}
+                  />
+                </Row>
               ))}
-            </Box>
-            {s.inProgressList.map((t, i) => (
-              <Box
-                key={t.id}
-                sx={{
-                  display: "grid", gridTemplateColumns: "1fr 130px 80px 90px 80px",
-                  gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                  bgcolor: i % 2 === 0 ? "#EFF6FF" : "var(--bg-surface)",
-                  "&:hover": { bgcolor: "#DBEAFE" },
-                }}
-              >
-                <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
-                <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
-                <Chip
-                  label={t.severity}
-                  size="small"
-                  sx={{
-                    height: 20, fontSize: 11, fontWeight: 700, width: "fit-content",
-                    bgcolor: t.severity === "urgent" ? "#FEF2F2" : t.severity === "eleve" ? "#FFFBEB" : "#EFF6FF",
-                    color: t.severity === "urgent" ? "#dc2626" : t.severity === "eleve" ? "#d97706" : STEEL,
-                  }}
-                />
-                <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 12 }} noWrap>{t.category ?? "—"}</Typography>
-                <Chip
-                  label={t.ageDays < 1 ? `${Math.round(t.ageDays * 24)}h` : `${Math.ceil(t.ageDays)}j`}
-                  size="small"
-                  sx={{
-                    height: 20, fontSize: 11, fontWeight: 700, width: "fit-content",
-                    bgcolor: t.ageDays > 30 ? "#FEF2F2" : t.ageDays > 7 ? "#FFFBEB" : "#F0FDF4",
-                    color: t.ageDays > 30 ? "#dc2626" : t.ageDays > 7 ? "#d97706" : "#15803d",
-                  }}
-                />
-              </Box>
-            ))}
-          </Box>
-        )}
+            </Card>
+          )}
 
-        {/* ── Tickets traités ───────────────────────────────── */}
-        {s.resolvedList.length > 0 && (
-          <Box sx={{ bgcolor: "var(--bg-surface)", borderRadius: 2.5, border: "1px solid #BBF7D0", p: 2.5, mt: 2.5 }}>
-            <Box display="flex" alignItems="center" justifyContent="space-between" mb={2} flexWrap="wrap" gap={1}>
-              <Box display="flex" alignItems="center" gap={1}>
-                <CheckCircleIcon sx={{ color: "#16a34a", fontSize: 20 }} />
-                <Typography fontWeight={700} fontSize={13} color="var(--text-primary)">
+          {/* Resolved */}
+          {s.resolvedList.length > 0 && (
+            <Card className="mt-5" border="#BBF7D0">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-[13px] font-bold text-foreground">
+                  <CheckCircle2 size={20} color="#16a34a" />
                   Tickets traités — Résolus & Fermés ({s.resolvedList.length})
-                </Typography>
-              </Box>
-              <Box display="flex" gap={1}>
-                {s.fastestResolution && (
-                  <Chip
-                    label={`⚡ Plus rapide : ${s.fastestResolution.resolutionDays.toFixed(1)}j`}
-                    size="small"
-                    sx={{ bgcolor: "#F0FDF4", color: "#15803d", fontWeight: 700, fontSize: 11 }}
-                  />
-                )}
-                {s.slowestResolution && s.resolvedList.length > 1 && (
-                  <Chip
-                    label={`⏱ Plus long : ${s.slowestResolution.resolutionDays.toFixed(1)}j`}
-                    size="small"
-                    sx={{ bgcolor: "#FFFBEB", color: "#b45309", fontWeight: 700, fontSize: 11 }}
-                  />
-                )}
-              </Box>
-            </Box>
+                </div>
+                <div className="flex gap-2">
+                  {s.fastestResolution && <Chip bg="#F0FDF4" color="#15803d" label={`⚡ Plus rapide : ${s.fastestResolution.resolutionDays.toFixed(1)}j`} />}
+                  {s.slowestResolution && s.resolvedList.length > 1 && <Chip bg="#FFFBEB" color="#b45309" label={`⏱ Plus long : ${s.slowestResolution.resolutionDays.toFixed(1)}j`} />}
+                </div>
+              </div>
 
-            {/* Resolution time mini-bars */}
-            <Box sx={{ mb: 2, p: 1.5, bgcolor: "var(--bg-page)", borderRadius: 2, border: "1px solid var(--border)" }}>
-              <Typography variant="caption" fontWeight={700} sx={{ color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.8, display: "block", mb: 1 }}>
-                Délai de résolution
-              </Typography>
-              <Box display="flex" gap={2} flexWrap="wrap">
-                {[
-                  { label: "< 1j",   value: s.resTimeBuckets["<1j"],   color: "#16a34a", bg: "#F0FDF4" },
-                  { label: "1–7j",   value: s.resTimeBuckets["1-7j"],  color: "#b45309", bg: "#FFFBEB" },
-                  { label: "8–30j",  value: s.resTimeBuckets["8-30j"], color: "#d97706", bg: "#FFF7ED" },
-                  { label: "> 30j",  value: s.resTimeBuckets[">30j"],  color: "#dc2626", bg: "#FEF2F2" },
-                ].map((b) => (
-                  <Box key={b.label} sx={{ px: 2, py: 0.75, borderRadius: 2, bgcolor: b.bg, border: `1px solid ${b.color}30` }}>
-                    <Typography fontWeight={800} fontSize={18} sx={{ color: b.color, lineHeight: 1 }}>{b.value}</Typography>
-                    <Typography variant="caption" sx={{ color: b.color, fontWeight: 600 }}>{b.label}</Typography>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
+              <div className="mb-4 rounded-lg border border-border p-3" style={{ background: "var(--bg-page)" }}>
+                <div className="mb-2 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-secondary)" }}>Délai de résolution</div>
+                <div className="flex flex-wrap gap-4">
+                  {[
+                    { label: "< 1j",  value: s.resTimeBuckets["<1j"],   color: "#16a34a", bg: "#F0FDF4" },
+                    { label: "1–7j",  value: s.resTimeBuckets["1-7j"],  color: "#b45309", bg: "#FFFBEB" },
+                    { label: "8–30j", value: s.resTimeBuckets["8-30j"], color: "#d97706", bg: "#FFF7ED" },
+                    { label: "> 30j", value: s.resTimeBuckets[">30j"],  color: "#dc2626", bg: "#FEF2F2" },
+                  ].map((b) => (
+                    <div key={b.label} className="rounded-lg px-4 py-1.5" style={{ background: b.bg, border: `1px solid ${b.color}30` }}>
+                      <div className="text-lg font-extrabold leading-none" style={{ color: b.color }}>{b.value}</div>
+                      <div className="text-xs font-semibold" style={{ color: b.color }}>{b.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            {/* Table */}
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 130px 80px 80px 80px 90px", gap: 1, bgcolor: "#15803d", borderRadius: 1.5, px: 2, py: 1, mb: 0.5 }}>
-              {["Titre", "Demandeur", "Statut", "Sévérité", "Délai", "Résolu le"].map((h) => (
-                <Typography key={h} variant="caption" fontWeight={700} sx={{ color: "rgba(255,255,255,0.85)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.8 }}>
-                  {h}
-                </Typography>
-              ))}
-            </Box>
-            {s.resolvedList.map((t, i) => {
-              const delay = t.resolutionDays < 1
-                ? `${Math.round(t.resolutionDays * 24)}h`
-                : `${t.resolutionDays.toFixed(1)}j`;
-              const delayColor = t.resolutionDays < 1 ? "#16a34a" : t.resolutionDays < 7 ? "#b45309" : t.resolutionDays < 30 ? "#d97706" : "#dc2626";
-              const delayBg    = t.resolutionDays < 1 ? "#F0FDF4" : t.resolutionDays < 7 ? "#FFFBEB" : t.resolutionDays < 30 ? "#FFF7ED" : "#FEF2F2";
-              return (
-                <Box
-                  key={t.id}
-                  sx={{
-                    display: "grid", gridTemplateColumns: "1fr 130px 80px 80px 80px 90px",
-                    gap: 1, px: 2, py: 1.25, borderRadius: 1,
-                    bgcolor: i % 2 === 0 ? "#F0FDF4" : "var(--bg-surface)",
-                    "&:hover": { bgcolor: "#DCFCE7" },
-                  }}
-                >
-                  <Typography variant="body2" fontWeight={600} noWrap sx={{ color: "var(--text-primary)" }}>{t.title}</Typography>
-                  <Typography variant="body2" sx={{ color: "var(--text-secondary)" }} noWrap>{t.requesterName ?? "—"}</Typography>
-                  <Chip
-                    label={t.status === "resolved" ? "Résolu" : "Fermé"}
-                    size="small"
-                    sx={{
-                      height: 20, fontSize: 11, fontWeight: 700, width: "fit-content",
-                      bgcolor: t.status === "resolved" ? "#F0FDF4" : "#F1F5F9",
-                      color: t.status === "resolved" ? "#16a34a" : "#64748B",
-                    }}
-                  />
-                  <Chip
-                    label={t.severity}
-                    size="small"
-                    sx={{
-                      height: 20, fontSize: 11, fontWeight: 700, width: "fit-content",
-                      bgcolor: t.severity === "urgent" ? "#FEF2F2" : t.severity === "eleve" ? "#FFFBEB" : "#F1F5F9",
-                      color: t.severity === "urgent" ? "#dc2626" : t.severity === "eleve" ? "#d97706" : "#64748B",
-                    }}
-                  />
-                  <Chip
-                    label={delay}
-                    size="small"
-                    sx={{ height: 20, fontSize: 11, fontWeight: 700, width: "fit-content", bgcolor: delayBg, color: delayColor }}
-                  />
-                  <Typography variant="body2" sx={{ color: "var(--text-secondary)", fontSize: 11 }}>
-                    {new Date(t.updatedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
-                  </Typography>
-                </Box>
-              );
-            })}
-          </Box>
-        )}
-      </Box>
+              <TableHead cols="1fr 130px 80px 80px 80px 90px" labels={["Titre", "Demandeur", "Statut", "Sévérité", "Délai", "Résolu le"]} bg="#15803d" color="rgba(255,255,255,0.85)" />
+              {s.resolvedList.map((t, i) => {
+                const delay = t.resolutionDays < 1 ? `${Math.round(t.resolutionDays * 24)}h` : `${t.resolutionDays.toFixed(1)}j`;
+                const delayColor = t.resolutionDays < 1 ? "#16a34a" : t.resolutionDays < 7 ? "#b45309" : t.resolutionDays < 30 ? "#d97706" : "#dc2626";
+                const delayBg    = t.resolutionDays < 1 ? "#F0FDF4" : t.resolutionDays < 7 ? "#FFFBEB" : t.resolutionDays < 30 ? "#FFF7ED" : "#FEF2F2";
+                return (
+                  <Row key={t.id} cols="1fr 130px 80px 80px 80px 90px" bg={i % 2 === 0 ? "#F0FDF4" : "var(--bg-surface)"} hover="#DCFCE7">
+                    <Cell>{t.title}</Cell>
+                    <Cell muted>{t.requesterName ?? "—"}</Cell>
+                    <Chip label={t.status === "resolved" ? "Résolu" : "Fermé"} bg={t.status === "resolved" ? "#F0FDF4" : "#F1F5F9"} color={t.status === "resolved" ? "#16a34a" : "#64748B"} />
+                    <Chip label={t.severity} {...sevStyle(t.severity)} />
+                    <Chip label={delay} bg={delayBg} color={delayColor} />
+                    <span className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
+                      {new Date(t.updatedAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" })}
+                    </span>
+                  </Row>
+                );
+              })}
+            </Card>
+          )}
+        </div>
+      </DialogContent>
     </Dialog>
   );
 }

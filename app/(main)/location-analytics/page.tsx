@@ -2,21 +2,17 @@
 
 import { Fragment, useState } from "react";
 import {
-  Box, Typography, Paper, Stack, Card, CardContent,
-  Select, MenuItem, FormControl, InputLabel, ToggleButton,
-  ToggleButtonGroup, Tab, Tabs,
-} from "@mui/material";
-import {
   Area, Bar, Line, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer,
   Legend, PieChart, Pie, Cell, BarChart,
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
+import { Clock, MapPin, TrendingUp } from "lucide-react";
 import { apiClient } from "@/lib/apiClient";
 import { fetchAgences } from "@/lib/agences";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { Select } from "@/components/ui/select";
+import { Panel } from "@/components/ui/page-blocks";
+import { Segmented, TabBar } from "@/components/ui/tabs";
 
 const NAVY = "#0F3B5C";
 const STEEL = "#1E6091";
@@ -91,67 +87,55 @@ export default function LocationAnalyticsPage() {
   const maxHeat = Math.max(1, ...heatmapData.map((h: any) => h.count));
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <LocationOnIcon sx={{ color: GOLD, fontSize: 32 }} />
-          <Box>
-            <Typography variant="h5" fontWeight={800} color="var(--text-primary)">Analytics Localisations</Typography>
-            <Typography fontSize={13} color="text.secondary">Analyse approfondie des captures GPS terrain</Typography>
-          </Box>
-        </Stack>
-        <Stack direction="row" spacing={1}>
-          <ToggleButtonGroup size="small" value={period} exclusive onChange={(_, v) => v && setPeriod(v)}>
-            {[7, 15, 30, 90].map((d) => <ToggleButton key={d} value={d} sx={{ px: 2, fontSize: 12 }}>{d}j</ToggleButton>)}
-          </ToggleButtonGroup>
-        </Stack>
-      </Stack>
+    <div className="p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <MapPin size={32} className="text-[#3C8047]" />
+          <div>
+            <h1 className="text-2xl font-extrabold text-foreground">Analytics Localisations</h1>
+            <p className="text-[13px] text-muted-foreground">Analyse approfondie des captures GPS terrain</p>
+          </div>
+        </div>
+        <Segmented
+          value={period}
+          onChange={setPeriod}
+          options={[7, 15, 30, 90].map((d) => ({ value: d, label: `${d}j` }))}
+        />
+      </div>
 
       {/* KPI Row */}
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 2, mb: 3 }}>
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
-          { label: `Total ${period}j`, value: totalPeriod.toLocaleString("fr-FR"), color: GOLD, icon: <LocationOnIcon /> },
-          { label: "Moy. / jour", value: avgPerDay.toLocaleString("fr-FR"), color: STEEL, icon: <TrendingUpIcon /> },
-          { label: "Jour pic", value: peakDay?.day?.slice(5) ?? "—", color: NAVY, icon: <AccessTimeIcon /> },
-          { label: "Max / jour", value: peakDay?.count?.toLocaleString("fr-FR") ?? 0, color: "#d97706", icon: <TrendingUpIcon /> },
+          { label: `Total ${period}j`, value: totalPeriod.toLocaleString("fr-FR"), color: GOLD, icon: <MapPin size={22} /> },
+          { label: "Moy. / jour", value: avgPerDay.toLocaleString("fr-FR"), color: STEEL, icon: <TrendingUp size={22} /> },
+          { label: "Jour pic", value: peakDay?.day?.slice(5) ?? "—", color: NAVY, icon: <Clock size={22} /> },
+          { label: "Max / jour", value: peakDay?.count?.toLocaleString("fr-FR") ?? 0, color: "#d97706", icon: <TrendingUp size={22} /> },
         ].map(({ label, value, color, icon }) => (
-          <Card key={label} sx={{ border: `1px solid ${color}30` }}>
-            <CardContent sx={{ pb: "16px !important" }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography fontSize={11} fontWeight={700} color="text.secondary" textTransform="uppercase">{label}</Typography>
-                  <Typography fontSize={26} fontWeight={800} color={color}>{value}</Typography>
-                </Box>
-                <Box sx={{ width: 44, height: 44, borderRadius: 2, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", color }}>{icon}</Box>
-              </Stack>
-            </CardContent>
-          </Card>
+          <div key={label} className="flex items-center justify-between rounded-xl bg-surface p-4 shadow-sm" style={{ border: `1px solid ${color}30` }}>
+            <div>
+              <div className="text-[11px] font-bold uppercase text-muted-foreground">{label}</div>
+              <div className="text-[26px] font-extrabold" style={{ color }}>{value}</div>
+            </div>
+            <span className="flex size-11 items-center justify-center rounded-lg" style={{ background: `${color}18`, color }}>{icon}</span>
+          </div>
         ))}
-      </Box>
+      </div>
 
       {/* Tabs */}
-      <Paper sx={{ borderRadius: 3, overflow: "hidden" }}>
-        <Box sx={{ borderBottom: "1px solid #e2e8f0" }}>
-          <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 2 }}>
-            <Tab label="Tendance temporelle" />
-            <Tab label="Heatmap horaire" />
-            <Tab label="Par type de lieu" />
-            <Tab label="Par agent / agence" />
-          </Tabs>
-        </Box>
+      <Panel className="overflow-hidden rounded-2xl">
+        <div className="border-b border-border px-4">
+          <TabBar tabs={["Tendance temporelle", "Heatmap horaire", "Par type de lieu", "Par agent / agence"]} value={tab} onChange={setTab} />
+        </div>
 
         {/* Tab 0: Trend */}
         {tab === 0 && (
-          <Box sx={{ p: 3 }}>
-            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-              <FormControl size="small" sx={{ minWidth: 160 }}>
-                <InputLabel>Agence</InputLabel>
-                <Select value={agenceFilter} label="Agence" onChange={(e) => setAgenceFilter(e.target.value)}>
-                  <MenuItem value="">Toutes</MenuItem>
-                  {agences.map((a: any) => <MenuItem key={a.id} value={String(a.id)}>{a.name}</MenuItem>)}
-                </Select>
-              </FormControl>
-            </Stack>
+          <div className="p-6">
+            <div className="mb-4 flex items-center gap-4">
+              <Select aria-label="Agence" value={agenceFilter} onChange={(e) => setAgenceFilter(e.target.value)} className="w-44">
+                <option value="">Toutes les agences</option>
+                {agences.map((a: any) => <option key={a.id} value={String(a.id)}>{a.name}</option>)}
+              </Select>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <ComposedChart data={locPerDay}>
                 <defs>
@@ -169,21 +153,21 @@ export default function LocationAnalyticsPage() {
                 <Line type="monotone" dataKey="count" name="Tendance" stroke={STEEL} strokeWidth={1} strokeDasharray="4 2" dot={false} />
               </ComposedChart>
             </ResponsiveContainer>
-          </Box>
+          </div>
         )}
 
         {/* Tab 1: Heatmap */}
         {tab === 1 && (
-          <Box sx={{ p: 3 }}>
-            <Typography fontSize={13} color="text.secondary" mb={2}>
+          <div className="p-6">
+            <p className="mb-4 text-[13px] text-muted-foreground">
               Intensité des captures par jour de la semaine et heure — {period} derniers jours
-            </Typography>
-            <Box sx={{ overflowX: "auto" }}>
-              <Box sx={{ display: "grid", gridTemplateColumns: "60px repeat(24,1fr)", gap: 0.5, minWidth: 800 }}>
+            </p>
+            <div className="overflow-x-auto">
+              <div className="grid min-w-[800px] gap-1" style={{ gridTemplateColumns: "60px repeat(24,1fr)" }}>
                 {/* Header hours */}
-                <Box />
+                <div />
                 {Array.from({ length: 24 }, (_, h) => (
-                  <Typography key={h} fontSize={9} textAlign="center" color="text.secondary">{h}h</Typography>
+                  <div key={h} className="text-center text-[9px] text-muted-foreground">{h}h</div>
                 ))}
                 {/* Rows per day */}
                 {DOW_LABELS.map((dow, d) => (
@@ -191,36 +175,37 @@ export default function LocationAnalyticsPage() {
                   // recevoir de `key`, ce qui cassait la réconciliation React sur
                   // cette liste et générait un avertissement "missing key" en console.
                   <Fragment key={d}>
-                    <Typography fontSize={11} display="flex" alignItems="center" color="text.secondary">{dow}</Typography>
+                    <div className="flex items-center text-[11px] text-muted-foreground">{dow}</div>
                     {Array.from({ length: 24 }, (_, h) => {
                       const count = heatMatrix.get(`${d}-${h}`) ?? 0;
                       const intensity = count / maxHeat;
-                      const bg = intensity === 0 ? "#f1f5f9" : `rgba(60,128,71,${0.1 + intensity * 0.9})`;
+                      const bg = intensity === 0 ? "var(--bg-hover)" : `rgba(60,128,71,${0.1 + intensity * 0.9})`;
                       return (
-                        <Box
+                        <div
                           key={`${d}-${h}`}
                           title={`${dow} ${h}h: ${count} captures`}
-                          sx={{ height: 28, borderRadius: 1, background: bg, cursor: "default", "&:hover": { outline: "2px solid #3C8047" } }}
+                          className="h-7 cursor-default rounded hover:outline-2 hover:outline-[#3C8047]"
+                          style={{ background: bg }}
                         />
                       );
                     })}
                   </Fragment>
                 ))}
-              </Box>
-              <Stack direction="row" alignItems="center" spacing={1} mt={2} justifyContent="center">
-                <Typography fontSize={11} color="text.secondary">Faible</Typography>
+              </div>
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <span className="text-[11px] text-muted-foreground">Faible</span>
                 {[0.1, 0.3, 0.5, 0.7, 0.9].map((v) => (
-                  <Box key={v} sx={{ width: 24, height: 16, borderRadius: 1, background: `rgba(60,128,71,${v})` }} />
+                  <span key={v} className="block h-4 w-6 rounded" style={{ background: `rgba(60,128,71,${v})` }} />
                 ))}
-                <Typography fontSize={11} color="text.secondary">Élevé</Typography>
-              </Stack>
-            </Box>
-          </Box>
+                <span className="text-[11px] text-muted-foreground">Élevé</span>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Tab 2: By type */}
         {tab === 2 && (
-          <Box sx={{ p: 3, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
+          <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie data={byType} dataKey="count" nameKey="type" cx="50%" cy="50%" outerRadius={110}
@@ -239,14 +224,14 @@ export default function LocationAnalyticsPage() {
                 <Bar dataKey="count" name="Captures" fill={GOLD} radius={[0,4,4,0]} />
               </BarChart>
             </ResponsiveContainer>
-          </Box>
+          </div>
         )}
 
         {/* Tab 3: By agent/agence */}
         {tab === 3 && (
-          <Box sx={{ p: 3, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
-            <Box>
-              <Typography fontWeight={700} mb={2} color="var(--text-primary)">Top agents ({period}j)</Typography>
+          <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+            <div>
+              <h3 className="mb-4 font-bold text-foreground">Top agents ({period}j)</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={byUser.slice(0, 10)} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -256,9 +241,9 @@ export default function LocationAnalyticsPage() {
                   <Bar dataKey="locations_count" name="Captures" fill={STEEL} radius={[0,4,4,0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </Box>
-            <Box>
-              <Typography fontWeight={700} mb={2} color="var(--text-primary)">Par agence ({period}j)</Typography>
+            </div>
+            <div>
+              <h3 className="mb-4 font-bold text-foreground">Par agence ({period}j)</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={byAgence}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -268,10 +253,10 @@ export default function LocationAnalyticsPage() {
                   <Bar dataKey="locations_count" name="Captures" fill={GOLD} radius={[3,3,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </Box>
-          </Box>
+            </div>
+          </div>
         )}
-      </Paper>
-    </Box>
+      </Panel>
+    </div>
   );
 }

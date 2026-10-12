@@ -1,25 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Box, Typography, Button, IconButton, Tooltip, Chip, Divider,
-  TextField, Switch, FormControlLabel, Select, MenuItem, FormControl,
-  InputLabel, Stack, Paper, Snackbar, Dialog, DialogTitle,
-  DialogContent, DialogActions, InputAdornment,
-} from "@mui/material";
-import ArrowBackIcon       from "@mui/icons-material/ArrowBack";
-import SaveIcon            from "@mui/icons-material/Save";
-import PublishIcon         from "@mui/icons-material/Publish";
-import DeleteOutlineIcon   from "@mui/icons-material/DeleteOutline";
-import AddIcon             from "@mui/icons-material/Add";
-import DragIndicatorIcon   from "@mui/icons-material/DragIndicator";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import SettingsIcon        from "@mui/icons-material/Settings";
-import WifiOffIcon         from "@mui/icons-material/WifiOff";
-import PreviewIcon         from "@mui/icons-material/Preview";
-import CloseIcon           from "@mui/icons-material/Close";
+  ArrowLeft, ChevronDown, ChevronUp, Eye, GripVertical, Plus, Save, Settings, Trash2, Upload, WifiOff, X,
+} from "lucide-react";
 import {
   FormTemplate, FormField, FieldType, FormStatus, FormCategory,
   loadForms, saveForm, defaultField,
@@ -31,7 +16,15 @@ import {
   fetchLocationTypes, createLocationType, updateLocationType, deleteLocationType,
   LocationTypeItem,
 } from "@/lib/locationTypes";
-import { Alert, CircularProgress } from "@mui/material";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input, Field, Textarea } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Snackbar } from "@/components/ui/snackbar";
+import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 
 const SYSTEM_ID = "system_localiser_client";
 
@@ -71,9 +64,7 @@ async function syncCaptureConfigFromForm(form: FormTemplate): Promise<void> {
   await saveCaptureConfig(config);
 }
 
-const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
 
 const GROUPS = ["Basique", "Choix", "Date & heure", "Terrain"];
 
@@ -84,24 +75,23 @@ function fieldTypeColor(type: FieldType): string {
   return STEEL;
 }
 
+const sectionTitle = "text-xs font-bold uppercase tracking-[0.5px] text-muted-foreground";
+const arrowBtn = "cursor-pointer rounded border-0 bg-transparent p-0.5 text-muted-foreground hover:bg-muted disabled:cursor-default disabled:opacity-30";
+
 // ─── Field preview chip in palette ──────────────────────────────────────────
 function PaletteItem({ ft, onAdd }: { ft: typeof FIELD_TYPES[0]; onAdd: () => void }) {
   return (
-    <Box onClick={onAdd} sx={{
-      display: "flex", alignItems: "center", gap: 1,
-      p: 1, borderRadius: 1.5, cursor: "pointer",
-      border: "0.5px solid var(--border)",
-      bgcolor: "var(--bg-card)",
-      "&:hover": { bgcolor: "rgba(30,96,145,0.05)", borderColor: STEEL },
-      transition: "all .15s",
-    }}>
-      <Box sx={{ width: 28, height: 28, borderRadius: 1, bgcolor: `${fieldTypeColor(ft.type)}15`,
-        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <button
+      type="button"
+      onClick={onAdd}
+      className="flex w-full cursor-pointer items-center gap-2 rounded-md border border-border bg-surface p-2 text-left transition-all hover:border-[#1E6091] hover:bg-[#1E6091]/5"
+    >
+      <span className="flex size-7 shrink-0 items-center justify-center rounded" style={{ background: `${fieldTypeColor(ft.type)}15` }}>
         <i className={`ti ${ft.icon}`} style={{ fontSize: 14, color: fieldTypeColor(ft.type) }} aria-hidden />
-      </Box>
-      <Typography fontSize={12} fontWeight={500} color="var(--text-primary)" noWrap>{ft.label}</Typography>
-      <AddIcon sx={{ fontSize: 14, color: STEEL, ml: "auto", opacity: 0.5 }} />
-    </Box>
+      </span>
+      <span className="truncate text-xs font-medium text-foreground">{ft.label}</span>
+      <Plus size={14} className="ml-auto text-[#1E6091] opacity-50" />
+    </button>
   );
 }
 
@@ -114,37 +104,36 @@ function FieldCard({ field, selected, onSelect, onDelete, onMoveUp, onMoveDown, 
 }) {
   const ftInfo = FIELD_TYPES.find((f) => f.type === field.type);
   return (
-    <Box onClick={onSelect} sx={{
-      p: 1.5, borderRadius: 2, cursor: "pointer",
-      border: selected ? `1.5px solid ${STEEL}` : "1px solid rgba(0,0,0,0.08)",
-      bgcolor: selected ? "rgba(30,96,145,0.03)" : "var(--bg-surface)",
-      boxShadow: selected ? `0 0 0 3px rgba(30,96,145,0.12)` : "0 1px 4px rgba(0,0,0,0.05)",
-      transition: "all .15s",
-      display: "flex", alignItems: "center", gap: 1.5,
-    }}>
-      <DragIndicatorIcon sx={{ fontSize: 18, color: "var(--border-strong)", flexShrink: 0 }} />
-      <Box sx={{ width: 32, height: 32, borderRadius: 1, bgcolor: `${fieldTypeColor(field.type)}15`,
-        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <div
+      onClick={onSelect}
+      className={`flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-all ${
+        selected
+          ? "border-[1.5px] border-[#1E6091] bg-[#1E6091]/[0.03] shadow-[0_0_0_3px_rgba(30,96,145,0.12)]"
+          : "border border-border bg-surface shadow-[0_1px_4px_rgba(0,0,0,0.05)]"
+      }`}
+    >
+      <GripVertical size={18} className="shrink-0 text-border-strong" />
+      <span className="flex size-8 shrink-0 items-center justify-center rounded" style={{ background: `${fieldTypeColor(field.type)}15` }}>
         <i className={`ti ${ftInfo?.icon ?? "ti-forms"}`} style={{ fontSize: 15, color: fieldTypeColor(field.type) }} aria-hidden />
-      </Box>
-      <Box flex={1} minWidth={0}>
-        <Typography fontSize={13} fontWeight={600} color="var(--text-primary)" noWrap>{field.label}</Typography>
-        <Typography fontSize={11} color="text.secondary">{ftInfo?.label}</Typography>
-      </Box>
-      {field.required && <Chip label="Requis" size="small" sx={{ fontSize: 10, height: 18, bgcolor: "#FEF2F2", color: "#991B1B" }} />}
-      <Box display="flex" flexDirection="column" gap={0}>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onMoveUp(); }} disabled={isFirst} sx={{ p: 0.2 }}>
-          <KeyboardArrowUpIcon sx={{ fontSize: 14 }} />
-        </IconButton>
-        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onMoveDown(); }} disabled={isLast} sx={{ p: 0.2 }}>
-          <KeyboardArrowDownIcon sx={{ fontSize: 14 }} />
-        </IconButton>
-      </Box>
-      <IconButton size="small" onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        sx={{ p: 0.4, color: "var(--text-muted)", "&:hover": { color: "#DC2626", bgcolor: "#FEF2F2" } }}>
-        <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-      </IconButton>
-    </Box>
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[13px] font-semibold text-foreground">{field.label}</div>
+        <div className="text-[11px] text-muted-foreground">{ftInfo?.label}</div>
+      </div>
+      {field.required && <span className="rounded-full bg-red-50 px-2 text-[10px] leading-[18px] text-red-800">Requis</span>}
+      <div className="flex flex-col">
+        <button type="button" aria-label="Monter" onClick={(e) => { e.stopPropagation(); onMoveUp(); }} disabled={isFirst} className={arrowBtn}><ChevronUp size={14} /></button>
+        <button type="button" aria-label="Descendre" onClick={(e) => { e.stopPropagation(); onMoveDown(); }} disabled={isLast} className={arrowBtn}><ChevronDown size={14} /></button>
+      </div>
+      <button
+        type="button"
+        aria-label="Supprimer le champ"
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        className="cursor-pointer rounded-full border-0 bg-transparent p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600"
+      >
+        <Trash2 size={16} />
+      </button>
+    </div>
   );
 }
 
@@ -210,31 +199,34 @@ function LocationTypeOptionsEditor({ onNamesChanged }: { onNamesChanged: (names:
   };
 
   if (isLoading) {
-    return <Box display="flex" justifyContent="center" py={2}><CircularProgress size={18} sx={{ color: STEEL }} /></Box>;
+    return <div className="flex justify-center py-4"><Spinner className="size-[18px] text-[#1E6091]" /></div>;
   }
 
   return (
-    <Box>
-      <Typography fontSize={12} fontWeight={600} color="text.secondary" mb={0.5}>
-        Types de lieux (référentiel)
-      </Typography>
-      <Typography fontSize={11} color="text.secondary" mb={1}>
+    <div>
+      <div className="mb-1 text-xs font-semibold text-muted-foreground">Types de lieux (référentiel)</div>
+      <p className="mb-2 text-[11px] text-muted-foreground">
         Ces options sont partagées avec la carte, les filtres et l&apos;app mobile —
         toute modification s&apos;applique immédiatement partout.
-      </Typography>
-      <Stack gap={0.8}>
+      </p>
+      <div className="flex flex-col gap-2">
         {types.map((t, idx) => (
-          <Box key={t.id} display="flex" gap={0.6} alignItems="center">
+          <div key={t.id} className="flex items-center gap-1.5">
             {/* Couleur du marqueur */}
             <Tooltip title="Couleur du marqueur">
-              <Box component="label" sx={{ width: 22, height: 22, borderRadius: "50%", bgcolor: t.color,
-                border: "2px solid var(--border)", cursor: "pointer", flexShrink: 0, position: "relative", overflow: "hidden" }}>
-                <input type="color" defaultValue={t.color}
+              <label className="relative size-[22px] shrink-0 cursor-pointer overflow-hidden rounded-full border-2 border-border" style={{ background: t.color }}>
+                <input
+                  type="color"
+                  aria-label={`Couleur de ${t.name}`}
+                  defaultValue={t.color}
                   onBlur={(e) => { if (e.target.value !== t.color) updateMut.mutate({ id: t.id, dto: { color: e.target.value } }); }}
-                  style={{ opacity: 0, position: "absolute", inset: 0, width: "100%", height: "100%", cursor: "pointer" }} />
-              </Box>
+                  className="absolute inset-0 size-full cursor-pointer opacity-0"
+                />
+              </label>
             </Tooltip>
-            <TextField size="small" fullWidth defaultValue={t.name}
+            <Input
+              defaultValue={t.name}
+              aria-label={`Nom du type ${t.name}`}
               onBlur={(e) => {
                 const v = e.target.value.trim();
                 if (v && v !== t.name) {
@@ -242,37 +234,38 @@ function LocationTypeOptionsEditor({ onNamesChanged }: { onNamesChanged: (names:
                   propagateNames(types.map((x) => x.id === t.id ? { ...x, name: v } : x));
                 }
               }}
-              sx={{ "& input": { fontSize: 12, py: 0.6 } }} />
-            <Box display="flex" flexDirection="column">
-              <IconButton size="small" disabled={idx === 0} onClick={() => move(idx, -1)} sx={{ p: 0.1 }}>
-                <KeyboardArrowUpIcon sx={{ fontSize: 13 }} />
-              </IconButton>
-              <IconButton size="small" disabled={idx === types.length - 1} onClick={() => move(idx, 1)} sx={{ p: 0.1 }}>
-                <KeyboardArrowDownIcon sx={{ fontSize: 13 }} />
-              </IconButton>
-            </Box>
-            <IconButton size="small" onClick={() => deleteMut.mutate(t.id)}
+              className="h-8 text-xs"
+            />
+            <div className="flex flex-col">
+              <button type="button" aria-label="Monter" disabled={idx === 0} onClick={() => move(idx, -1)} className={arrowBtn}><ChevronUp size={13} /></button>
+              <button type="button" aria-label="Descendre" disabled={idx === types.length - 1} onClick={() => move(idx, 1)} className={arrowBtn}><ChevronDown size={13} /></button>
+            </div>
+            <button
+              type="button"
+              aria-label={`Supprimer ${t.name}`}
+              onClick={() => deleteMut.mutate(t.id)}
               disabled={types.length <= 1 || deleteMut.isPending}
-              sx={{ p: 0.4, color: "var(--text-muted)", "&:hover": { color: "#DC2626" } }}>
-              <CloseIcon sx={{ fontSize: 14 }} />
-            </IconButton>
-          </Box>
+              className="cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:text-red-600 disabled:cursor-default disabled:opacity-30"
+            >
+              <X size={14} />
+            </button>
+          </div>
         ))}
-        <Box display="flex" gap={0.8} alignItems="center" mt={0.5}>
-          <TextField size="small" fullWidth placeholder="Nouveau type de lieu…" value={newName}
+        <div className="mt-1 flex items-center gap-2">
+          <Input
+            placeholder="Nouveau type de lieu…"
+            value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && newName.trim()) createMut.mutate(newName); }}
-            sx={{ "& input": { fontSize: 12, py: 0.6 } }} />
-          <Button size="small" startIcon={createMut.isPending ? <CircularProgress size={12} /> : <AddIcon sx={{ fontSize: 14 }} />}
-            disabled={!newName.trim() || createMut.isPending}
-            onClick={() => createMut.mutate(newName)}
-            sx={{ fontSize: 12, color: STEEL, flexShrink: 0 }}>
-            Ajouter
+            className="h-8 text-xs"
+          />
+          <Button size="sm" variant="ghost" className="shrink-0 text-xs text-[#1E6091]" disabled={!newName.trim() || createMut.isPending} onClick={() => createMut.mutate(newName)}>
+            {createMut.isPending ? <Spinner className="size-3" /> : <Plus size={14} />} Ajouter
           </Button>
-        </Box>
-        {error && <Alert severity="error" sx={{ fontSize: 12, borderRadius: 1.5 }} onClose={() => setError(null)}>{error}</Alert>}
-      </Stack>
-    </Box>
+        </div>
+        {error && <Alert severity="error" className="text-xs" onClose={() => setError(null)}>{error}</Alert>}
+      </div>
+    </div>
   );
 }
 
@@ -293,159 +286,136 @@ function FieldSettings({ field, onChange, locationTypeMode = false }: {
   const removeOption = (idx: number) => onChange({ options: field.options.filter((_, i) => i !== idx) });
 
   return (
-    <Stack gap={2}>
-      <TextField label="Label du champ" size="small" fullWidth value={field.label}
-        onChange={(e) => onChange({ label: e.target.value })}
-        sx={{ "& label": { fontSize: 12 }, "& input": { fontSize: 13 } }} />
+    <div className="flex flex-col gap-4">
+      <Field label="Label du champ"><Input value={field.label} onChange={(e) => onChange({ label: e.target.value })} className="text-[13px]" /></Field>
 
       {["text","textarea","number","email","phone"].includes(field.type) && (
-        <TextField label="Placeholder" size="small" fullWidth value={field.placeholder}
-          onChange={(e) => onChange({ placeholder: e.target.value })}
-          sx={{ "& label": { fontSize: 12 }, "& input": { fontSize: 13 } }} />
+        <Field label="Placeholder"><Input value={field.placeholder} onChange={(e) => onChange({ placeholder: e.target.value })} className="text-[13px]" /></Field>
       )}
 
-      <TextField label="Texte d'aide (optionnel)" size="small" fullWidth value={field.helpText}
-        onChange={(e) => onChange({ helpText: e.target.value })}
-        sx={{ "& label": { fontSize: 12 }, "& input": { fontSize: 13 } }} />
+      <Field label="Texte d'aide (optionnel)"><Input value={field.helpText} onChange={(e) => onChange({ helpText: e.target.value })} className="text-[13px]" /></Field>
 
       {field.type === "number" && (
-        <Box display="flex" gap={1.5}>
-          <TextField label="Min" size="small" type="number" fullWidth
-            value={field.min ?? ""} onChange={(e) => onChange({ min: e.target.value ? Number(e.target.value) : undefined })}
-            sx={{ "& label": { fontSize: 12 } }} />
-          <TextField label="Max" size="small" type="number" fullWidth
-            value={field.max ?? ""} onChange={(e) => onChange({ max: e.target.value ? Number(e.target.value) : undefined })}
-            sx={{ "& label": { fontSize: 12 } }} />
-        </Box>
+        <div className="flex gap-3">
+          <Field label="Min" className="flex-1">
+            <Input type="number" value={field.min ?? ""} onChange={(e) => onChange({ min: e.target.value ? Number(e.target.value) : undefined })} />
+          </Field>
+          <Field label="Max" className="flex-1">
+            <Input type="number" value={field.max ?? ""} onChange={(e) => onChange({ max: e.target.value ? Number(e.target.value) : undefined })} />
+          </Field>
+        </div>
       )}
 
-      <FormControlLabel control={
-        <Switch checked={field.required} onChange={(e) => onChange({ required: e.target.checked })} size="small"
-          sx={{ "& .MuiSwitch-switchBase.Mui-checked": { color: STEEL },
-            "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { bgcolor: STEEL } }} />
-      } label={<Typography fontSize={13}>Champ obligatoire</Typography>} />
+      <label className="flex items-center gap-2">
+        <Switch aria-label="Champ obligatoire" checked={field.required} onCheckedChange={(v) => onChange({ required: v })} />
+        <span className="text-[13px]">Champ obligatoire</span>
+      </label>
 
-      {locationTypeMode && (
-        <LocationTypeOptionsEditor onNamesChanged={(names) => onChange({ options: names })} />
-      )}
+      {locationTypeMode && <LocationTypeOptionsEditor onNamesChanged={(names) => onChange({ options: names })} />}
 
       {hasOptions && (
-        <Box>
-          <Typography fontSize={12} fontWeight={600} color="text.secondary" mb={1}>Options</Typography>
-          <Stack gap={0.8}>
+        <div>
+          <div className="mb-2 text-xs font-semibold text-muted-foreground">Options</div>
+          <div className="flex flex-col gap-2">
             {field.options.map((opt, idx) => (
-              <Box key={idx} display="flex" gap={0.8} alignItems="center">
-                <TextField size="small" fullWidth value={opt}
-                  onChange={(e) => handleOptionChange(idx, e.target.value)}
-                  sx={{ "& input": { fontSize: 12, py: 0.6 } }} />
-                <IconButton size="small" onClick={() => removeOption(idx)}
+              <div key={idx} className="flex items-center gap-2">
+                <Input value={opt} aria-label={`Option ${idx + 1}`} onChange={(e) => handleOptionChange(idx, e.target.value)} className="h-8 text-xs" />
+                <button
+                  type="button"
+                  aria-label={`Retirer l'option ${idx + 1}`}
+                  onClick={() => removeOption(idx)}
                   disabled={field.options.length <= 1}
-                  sx={{ p: 0.4, color: "var(--text-muted)", "&:hover": { color: "#DC2626" } }}>
-                  <CloseIcon sx={{ fontSize: 14 }} />
-                </IconButton>
-              </Box>
+                  className="cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:text-red-600 disabled:cursor-default disabled:opacity-30"
+                >
+                  <X size={14} />
+                </button>
+              </div>
             ))}
-            <Button size="small" startIcon={<AddIcon sx={{ fontSize: 14 }} />}
-              onClick={addOption} sx={{ fontSize: 12, color: STEEL, alignSelf: "flex-start" }}>
-              Ajouter une option
+            <Button size="sm" variant="ghost" className="self-start text-xs text-[#1E6091]" onClick={addOption}>
+              <Plus size={14} /> Ajouter une option
             </Button>
-          </Stack>
-        </Box>
+          </div>
+        </div>
       )}
-    </Stack>
+    </div>
   );
 }
 
 // ─── Preview dialog ──────────────────────────────────────────────────────────
 function PreviewDialog({ open, onClose, form }: { open: boolean; onClose: () => void; form: FormTemplate }) {
+  const ro = "pointer-events-none h-9 w-full rounded-lg border border-border bg-muted/40 px-3 text-[13px] text-muted-foreground flex items-center";
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-      <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1 }}>
-        <Box>
-          <Typography fontWeight={700} color="var(--text-primary)">{form.name}</Typography>
-          <Typography fontSize={12} color="text.secondary">{form.description}</Typography>
-        </Box>
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
-      </DialogTitle>
-      <DialogContent dividers>
-        {form.fields.length === 0 ? (
-          <Typography color="text.secondary" textAlign="center" py={4} fontSize={14}>
-            Aucun champ ajouté
-          </Typography>
-        ) : (
-          <Stack gap={2.5}>
-            {form.fields.map((f) => {
-              const ftLabel = FIELD_TYPES.find((t) => t.type === f.type)?.label ?? f.type;
-              const showInput = ["text","email","phone","number"].includes(f.type);
-              const showTextarea = f.type === "textarea";
-              const showSelect = f.type === "select";
-              const showRadio = f.type === "radio";
-              const showCheck = f.type === "checkbox";
-              const showDate = f.type === "date" || f.type === "time";
-              const isSpecial = ["gps","photo","signature"].includes(f.type);
-              return (
-                <Box key={f.id}>
-                  <Typography fontSize={13} fontWeight={600} color="var(--text-primary)" mb={0.4}>
-                    {f.label}{f.required && <span style={{ color: "#DC2626" }}> *</span>}
-                  </Typography>
-                  {f.helpText && <Typography fontSize={11} color="text.secondary" mb={0.6}>{f.helpText}</Typography>}
-                  {showInput && (
-                    <TextField size="small" fullWidth placeholder={f.placeholder || `Saisir ${f.label.toLowerCase()}...`}
-                      type={f.type === "number" ? "number" : f.type === "email" ? "email" : "text"}
-                      disabled sx={{ "& input": { fontSize: 13 } }} />
-                  )}
-                  {showTextarea && (
-                    <TextField size="small" fullWidth multiline rows={3} placeholder={f.placeholder || "Saisir..."}
-                      disabled sx={{ "& textarea": { fontSize: 13 } }} />
-                  )}
-                  {showSelect && (
-                    <FormControl size="small" fullWidth disabled>
-                      <Select value="" displayEmpty sx={{ fontSize: 13 }}>
-                        <MenuItem value="" disabled><em>Sélectionner…</em></MenuItem>
-                        {f.options.map((o) => <MenuItem key={o} value={o} sx={{ fontSize: 13 }}>{o}</MenuItem>)}
-                      </Select>
-                    </FormControl>
-                  )}
-                  {showRadio && (
-                    <Stack gap={0.5} mt={0.5}>
-                      {f.options.map((o) => (
-                        <Box key={o} display="flex" alignItems="center" gap={1}>
-                          <Box sx={{ width: 14, height: 14, borderRadius: "50%", border: "1.5px solid var(--border-strong)" }} />
-                          <Typography fontSize={13} color="text.secondary">{o}</Typography>
-                        </Box>
-                      ))}
-                    </Stack>
-                  )}
-                  {showCheck && (
-                    <Stack gap={0.5} mt={0.5}>
-                      {f.options.map((o) => (
-                        <Box key={o} display="flex" alignItems="center" gap={1}>
-                          <Box sx={{ width: 14, height: 14, borderRadius: 0.5, border: "1.5px solid var(--border-strong)" }} />
-                          <Typography fontSize={13} color="text.secondary">{o}</Typography>
-                        </Box>
-                      ))}
-                    </Stack>
-                  )}
-                  {showDate && (
-                    <TextField size="small" type={f.type} fullWidth disabled sx={{ "& input": { fontSize: 13 } }} />
-                  )}
-                  {isSpecial && (
-                    <Box sx={{ p: 1.5, borderRadius: 1.5, border: "1px dashed var(--border-strong)", bgcolor: "var(--bg-page)",
-                      display: "flex", alignItems: "center", gap: 1 }}>
-                      <i className={`ti ${FIELD_TYPES.find((t) => t.type === f.type)?.icon}`}
-                        style={{ fontSize: 18, color: "var(--text-muted)" }} aria-hidden />
-                      <Typography fontSize={12} color="text.secondary">{ftLabel} — disponible sur mobile</Typography>
-                    </Box>
-                  )}
-                </Box>
-              );
-            })}
-          </Stack>
-        )}
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent size="sm" accent={false} aria-describedby={undefined}>
+        <div className="flex items-start justify-between border-b border-border px-6 py-4">
+          <div>
+            <h2 className="font-bold text-foreground">{form.name}</h2>
+            <div className="text-xs text-muted-foreground">{form.description}</div>
+          </div>
+          <button type="button" aria-label="Fermer" onClick={onClose} className="cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"><X size={20} /></button>
+        </div>
+        <DialogBody className="max-h-[60vh] overflow-y-auto">
+          {form.fields.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Aucun champ ajouté</p>
+          ) : (
+            <div className="flex flex-col gap-5">
+              {form.fields.map((f) => {
+                const ftLabel = FIELD_TYPES.find((t) => t.type === f.type)?.label ?? f.type;
+                const showInput = ["text","email","phone","number"].includes(f.type);
+                const showTextarea = f.type === "textarea";
+                const showSelect = f.type === "select";
+                const showRadio = f.type === "radio";
+                const showCheck = f.type === "checkbox";
+                const showDate = f.type === "date" || f.type === "time";
+                const isSpecial = ["gps","photo","signature"].includes(f.type);
+                return (
+                  <div key={f.id}>
+                    <div className="mb-1 text-[13px] font-semibold text-foreground">{f.label}{f.required && <span className="text-red-600"> *</span>}</div>
+                    {f.helpText && <div className="mb-1.5 text-[11px] text-muted-foreground">{f.helpText}</div>}
+                    {showInput && <div className={ro}>{f.placeholder || `Saisir ${f.label.toLowerCase()}...`}</div>}
+                    {showTextarea && <div className={`${ro} h-[76px] items-start py-2`}>{f.placeholder || "Saisir..."}</div>}
+                    {showSelect && (
+                      <div className={`${ro} justify-between`}>
+                        <em>Sélectionner…</em><span className="text-[10px]">▼</span>
+                      </div>
+                    )}
+                    {showRadio && (
+                      <div className="mt-1 flex flex-col gap-1">
+                        {f.options.map((o) => (
+                          <div key={o} className="flex items-center gap-2">
+                            <span className="size-3.5 rounded-full border-[1.5px] border-border-strong" />
+                            <span className="text-[13px] text-muted-foreground">{o}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {showCheck && (
+                      <div className="mt-1 flex flex-col gap-1">
+                        {f.options.map((o) => (
+                          <div key={o} className="flex items-center gap-2">
+                            <span className="size-3.5 rounded-sm border-[1.5px] border-border-strong" />
+                            <span className="text-[13px] text-muted-foreground">{o}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {showDate && <div className={ro}>{f.type === "date" ? "jj/mm/aaaa" : "--:--"}</div>}
+                    {isSpecial && (
+                      <div className="flex items-center gap-2 rounded-md border border-dashed border-border-strong bg-background p-3">
+                        <i className={`ti ${FIELD_TYPES.find((t) => t.type === f.type)?.icon}`} style={{ fontSize: 18, color: "var(--text-muted)" }} aria-hidden />
+                        <span className="text-xs text-muted-foreground">{ftLabel} — disponible sur mobile</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onClose}>Fermer</Button>
+        </DialogFooter>
       </DialogContent>
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} sx={{ color: "text.secondary" }}>Fermer</Button>
-      </DialogActions>
     </Dialog>
   );
 }
@@ -512,138 +482,120 @@ export default function FormBuilderPage() {
   const selectedField = form?.fields.find((f) => f.id === selectedFieldId) ?? null;
 
   if (!form) return (
-    <>
-      <Box display="flex" alignItems="center" justifyContent="center" minHeight="calc(60vh / var(--ui-zoom))">
-        <Typography color="text.secondary">Chargement…</Typography>
-      </Box>
-    </>
+    <div className="flex items-center justify-center" style={{ minHeight: "calc(60vh / var(--ui-zoom))" }}>
+      <span className="text-muted-foreground">Chargement…</span>
+    </div>
   );
+
+  const statusCls = form.status === "published" ? "bg-emerald-600 text-white" : "bg-amber-500 text-white";
 
   return (
     <>
       {/* Top bar */}
-      <Box sx={{ bgcolor: "var(--bg-surface)", borderBottom: "1px solid var(--border)", px: 3, py: 1.5,
-        display: "flex", alignItems: "center", gap: 2, position: "sticky", top: 64, zIndex: 100 }}>
-        <IconButton size="small" onClick={() => router.push("/forms")} sx={{ border: "1px solid var(--border)", borderRadius: 1.5 }}>
-          <ArrowBackIcon sx={{ fontSize: 18 }} />
-        </IconButton>
-        <Box flex={1}>
-          <TextField value={form.name} onChange={(e) => updateForm({ name: e.target.value })}
-            variant="standard" size="small"
-            inputProps={{ style: { fontSize: 16, fontWeight: 700, color: "var(--text-primary)" } }}
-            sx={{ "& .MuiInput-underline:before": { borderBottomColor: "transparent" },
-              "& .MuiInput-underline:hover:before": { borderBottomColor: "var(--border)" } }} />
-          <Box display="flex" alignItems="center" gap={1} mt={0.3}>
-            <Chip label={form.status === "published" ? "Publié" : form.status === "draft" ? "Brouillon" : "Archivé"}
-              size="small" color={form.status === "published" ? "success" : "warning"} sx={{ height: 18, fontSize: 10 }} />
-            <Chip label={CATEGORY_LABELS[form.category]} size="small"
-              sx={{ height: 18, fontSize: 10, bgcolor: "rgba(30,96,145,0.08)", color: STEEL }} />
+      <div className="sticky top-16 z-[100] flex items-center gap-4 border-b border-border bg-surface px-6 py-3">
+        <button
+          type="button"
+          aria-label="Retour aux formulaires"
+          onClick={() => router.push("/forms")}
+          className="cursor-pointer rounded-md border border-border bg-transparent p-1.5 text-foreground hover:bg-muted"
+        >
+          <ArrowLeft size={18} />
+        </button>
+        <div className="flex-1">
+          <input
+            aria-label="Nom du formulaire"
+            value={form.name}
+            onChange={(e) => updateForm({ name: e.target.value })}
+            className="w-full max-w-md border-0 border-b border-transparent bg-transparent text-base font-bold text-foreground outline-none hover:border-border focus:border-[#1E6091]"
+          />
+          <div className="mt-0.5 flex flex-wrap items-center gap-2">
+            <span className={`rounded-full px-2 text-[10px] leading-[18px] ${statusCls}`}>
+              {form.status === "published" ? "Publié" : form.status === "draft" ? "Brouillon" : "Archivé"}
+            </span>
+            <span className="rounded-full bg-[#1E6091]/10 px-2 text-[10px] leading-[18px] text-[#1E6091]">{CATEGORY_LABELS[form.category]}</span>
             {form.offlineSync && (
-              <Chip icon={<WifiOffIcon sx={{ fontSize: 11 }} />} label="Sync hors-ligne"
-                size="small" sx={{ height: 18, fontSize: 10, bgcolor: "rgba(124,58,237,0.08)", color: "#5B21B6",
-                  "& .MuiChip-icon": { ml: 0.5 } }} />
+              <span className="inline-flex items-center gap-1 rounded-full bg-violet-600/10 px-2 text-[10px] leading-[18px] text-violet-800 dark:text-violet-300">
+                <WifiOff size={11} /> Sync hors-ligne
+              </span>
             )}
-            {dirty && <Chip label="Non enregistré" size="small" color="warning" sx={{ height: 18, fontSize: 10 }} />}
-          </Box>
-        </Box>
-        <Box display="flex" gap={1}>
-          <Button size="small" variant="outlined" startIcon={<PreviewIcon sx={{ fontSize: 15 }} />}
-            onClick={() => setPreview(true)} sx={{ fontSize: 12, borderColor: "var(--border)", color: "text.secondary" }}>
-            Aperçu
+            {dirty && <span className="rounded-full bg-amber-500 px-2 text-[10px] leading-[18px] text-white">Non enregistré</span>}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="text-xs text-muted-foreground" onClick={() => setPreview(true)}>
+            <Eye size={15} /> Aperçu
           </Button>
-          <Button size="small" variant="outlined" startIcon={<SaveIcon sx={{ fontSize: 15 }} />}
-            onClick={() => handleSave()} sx={{ fontSize: 12, borderColor: STEEL, color: STEEL }}>
-            Enregistrer
+          <Button size="sm" variant="outline" className="border-[#1E6091] text-xs text-[#1E6091]" onClick={() => handleSave()}>
+            <Save size={15} /> Enregistrer
           </Button>
           {form.status !== "published" && (
-            <Button size="small" variant="contained" startIcon={<PublishIcon sx={{ fontSize: 15 }} />}
-              onClick={() => handleSave(true)}
-              sx={{ fontSize: 12, bgcolor: "#059669", "&:hover": { bgcolor: "#047857" }, fontWeight: 600 }}>
-              Publier
+            <Button size="sm" className="bg-emerald-600 text-xs hover:bg-emerald-700 hover:opacity-100" onClick={() => handleSave(true)}>
+              <Upload size={15} /> Publier
             </Button>
           )}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* Builder body */}
-      <Box sx={{ display: "flex", height: "calc(100vh / var(--ui-zoom) - 128px)", bgcolor: "var(--bg-page)" }}>
+      <div className="flex bg-background" style={{ height: "calc(100vh / var(--ui-zoom) - 128px)" }}>
 
         {/* LEFT: Field palette */}
-        <Box sx={{ width: 220, borderRight: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
-          overflowY: "auto", flexShrink: 0 }}>
-          <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #F1F5F9" }}>
-            <Typography fontSize={11} fontWeight={700} color="text.secondary"
-              textTransform="uppercase" letterSpacing={0.5}>
-              Ajouter un champ
-            </Typography>
-          </Box>
-          <Box sx={{ px: 1.5, py: 1.5 }}>
+        <div className="w-[220px] shrink-0 overflow-y-auto border-r border-border bg-surface">
+          <div className="border-b border-border px-4 py-3"><span className="text-[11px] font-bold uppercase tracking-[0.5px] text-muted-foreground">Ajouter un champ</span></div>
+          <div className="p-3">
             {GROUPS.map((group) => (
-              <Box key={group} mb={1.5}>
-                <Typography fontSize={10} fontWeight={700} color="text.secondary"
-                  textTransform="uppercase" letterSpacing={0.4} mb={0.8} px={0.5}>{group}</Typography>
-                <Stack gap={0.6}>
+              <div key={group} className="mb-3">
+                <div className="mb-2 px-1 text-[10px] font-bold uppercase tracking-[0.4px] text-muted-foreground">{group}</div>
+                <div className="flex flex-col gap-1.5">
                   {FIELD_TYPES.filter((ft) => ft.group === group).map((ft) => (
                     <PaletteItem key={ft.type} ft={ft} onAdd={() => handleAddField(ft.type)} />
                   ))}
-                </Stack>
-              </Box>
+                </div>
+              </div>
             ))}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {/* CENTER: Canvas */}
-        <Box sx={{ flex: 1, overflowY: "auto", p: 3 }}>
+        <div className="flex-1 overflow-y-auto p-6">
           {/* Form metadata */}
-          <Paper sx={{ p: 2.5, borderRadius: 2, mb: 2.5, boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
-            <Typography fontSize={12} fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5} mb={1.5}>
-              Informations du formulaire
-            </Typography>
-            <Stack gap={2}>
-              <TextField label="Description" size="small" fullWidth multiline rows={2}
-                value={form.description} onChange={(e) => updateForm({ description: e.target.value })}
-                placeholder="Décrivez l'objectif de ce formulaire…"
-                sx={{ "& label": { fontSize: 12 }, "& textarea": { fontSize: 13 } }} />
-              <Box display="flex" gap={2} flexWrap="wrap">
-                <FormControl size="small" sx={{ minWidth: 180 }}>
-                  <InputLabel sx={{ fontSize: 12 }}>Catégorie</InputLabel>
-                  <Select label="Catégorie" value={form.category} onChange={(e) => updateForm({ category: e.target.value as FormCategory })} sx={{ fontSize: 13 }}>
+          <div className="mb-5 rounded-lg bg-surface p-5 shadow-[0_1px_6px_rgba(0,0,0,0.06)]">
+            <div className={`${sectionTitle} mb-3`}>Informations du formulaire</div>
+            <div className="flex flex-col gap-4">
+              <Field label="Description">
+                <Textarea rows={2} value={form.description} onChange={(e) => updateForm({ description: e.target.value })} placeholder="Décrivez l'objectif de ce formulaire…" className="text-[13px]" />
+              </Field>
+              <div className="flex flex-wrap items-end gap-4">
+                <Field label="Catégorie" className="min-w-44">
+                  <Select value={form.category} onChange={(e) => updateForm({ category: e.target.value as FormCategory })} className="text-[13px]">
                     {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
-                      <MenuItem key={k} value={k} sx={{ fontSize: 13 }}>{v}</MenuItem>
+                      <option key={k} value={k}>{v}</option>
                     ))}
                   </Select>
-                </FormControl>
-                <FormControlLabel control={
-                  <Switch checked={form.offlineSync} onChange={(e) => updateForm({ offlineSync: e.target.checked })}
-                    size="small" sx={{ "& .MuiSwitch-switchBase.Mui-checked": { color: "#7c3aed" },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { bgcolor: "#7c3aed" } }} />
-                } label={<Typography fontSize={13}>Synchronisation hors-ligne</Typography>} />
-              </Box>
-            </Stack>
-          </Paper>
+                </Field>
+                <label className="flex h-9 items-center gap-2">
+                  <Switch aria-label="Synchronisation hors-ligne" checked={form.offlineSync} onCheckedChange={(v) => updateForm({ offlineSync: v })} className={form.offlineSync ? "bg-[#7c3aed]" : ""} />
+                  <span className="text-[13px]">Synchronisation hors-ligne</span>
+                </label>
+              </div>
+            </div>
+          </div>
 
           {/* Fields canvas */}
-          <Box>
-            <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
-              <Typography fontSize={12} fontWeight={700} color="text.secondary" textTransform="uppercase" letterSpacing={0.5}>
-                Champs ({form.fields.length})
-              </Typography>
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <span className={sectionTitle}>Champs ({form.fields.length})</span>
               {selectedFieldId && (
-                <Chip label="Cliquer sur un champ pour le sélectionner" size="small"
-                  sx={{ fontSize: 10, bgcolor: "rgba(30,96,145,0.06)", color: STEEL }} />
+                <span className="rounded-full bg-[#1E6091]/[0.06] px-2 text-[10px] leading-5 text-[#1E6091]">Cliquer sur un champ pour le sélectionner</span>
               )}
-            </Box>
+            </div>
             {form.fields.length === 0 ? (
-              <Box sx={{ border: "2px dashed var(--border)", borderRadius: 2, p: 6, textAlign: "center" }}>
-                <Typography color="text.secondary" fontSize={14} mb={1}>
-                  Aucun champ ajouté
-                </Typography>
-                <Typography fontSize={12} color="text.secondary">
-                  Cliquez sur un type de champ dans le panneau de gauche pour commencer
-                </Typography>
-              </Box>
+              <div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
+                <p className="mb-2 text-sm text-muted-foreground">Aucun champ ajouté</p>
+                <p className="text-xs text-muted-foreground">Cliquez sur un type de champ dans le panneau de gauche pour commencer</p>
+              </div>
             ) : (
-              <Stack gap={1}>
+              <div className="flex flex-col gap-2">
                 {form.fields.map((field, idx) => (
                   <FieldCard
                     key={field.id} field={field}
@@ -655,48 +607,41 @@ export default function FormBuilderPage() {
                     isFirst={idx === 0} isLast={idx === form.fields.length - 1}
                   />
                 ))}
-              </Stack>
+              </div>
             )}
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {/* RIGHT: Field settings */}
-        <Box sx={{ width: selectedField ? 280 : 0, borderLeft: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
-          overflowY: "auto", flexShrink: 0, transition: "width .2s ease",
-          overflow: "hidden" }}>
+        <div className={`shrink-0 overflow-hidden border-l border-border bg-surface transition-[width] duration-200 ${selectedField ? "w-[280px]" : "w-0 border-l-0"}`}>
           {selectedField && (
-            <>
-              <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #F1F5F9",
-                display: "flex", alignItems: "center", gap: 1 }}>
-                <SettingsIcon sx={{ fontSize: 16, color: STEEL }} />
-                <Typography fontSize={11} fontWeight={700} color="text.secondary"
-                  textTransform="uppercase" letterSpacing={0.5} flex={1}>
-                  Propriétés
-                </Typography>
-                <IconButton size="small" onClick={() => setSelectedFieldId(null)} sx={{ p: 0.3 }}>
-                  <CloseIcon sx={{ fontSize: 14 }} />
-                </IconButton>
-              </Box>
-              <Box px={2} py={2}>
-                <FieldSettings field={selectedField}
+            <div className="h-full w-[280px] overflow-y-auto">
+              <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+                <Settings size={16} className="text-[#1E6091]" />
+                <span className="flex-1 text-[11px] font-bold uppercase tracking-[0.5px] text-muted-foreground">Propriétés</span>
+                <button type="button" aria-label="Fermer les propriétés" onClick={() => setSelectedFieldId(null)} className="cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"><X size={14} /></button>
+              </div>
+              <div className="px-4 py-4">
+                <FieldSettings
+                  field={selectedField}
                   // Champ "Type de lieu" du formulaire système : ses options
                   // sont le référentiel des types de lieux (même détection que
                   // syncCaptureConfigFromForm) — gérées en base, pas en statique.
                   locationTypeMode={form.id === SYSTEM_ID &&
                     (selectedField.id === "sys_f2" ||
                       (selectedField.type === "select" && selectedField.label.toLowerCase().includes("type")))}
-                  onChange={(patch) => handleUpdateField(selectedField.id, patch)} />
-              </Box>
-            </>
+                  onChange={(patch) => handleUpdateField(selectedField.id, patch)}
+                />
+              </div>
+            </div>
           )}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* Preview */}
       <PreviewDialog open={preview} onClose={() => setPreview(false)} form={form} />
 
-      <Snackbar open={!!snack} autoHideDuration={3000} onClose={() => setSnack("")}
-        message={snack} anchorOrigin={{ vertical: "bottom", horizontal: "center" }} />
+      <Snackbar open={!!snack} severity="success" autoHideMs={3000} onClose={() => setSnack("")}>{snack}</Snackbar>
     </>
   );
 }

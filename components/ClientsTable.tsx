@@ -1,31 +1,12 @@
-﻿"use client";
+"use client";
 
 import { ClientDto } from "@/lib/clients";
-import {
-  Avatar,
-  Box,
-  Checkbox,
-  CircularProgress,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import PersonPinCircleIcon from "@mui/icons-material/PersonPinCircle";
-import PhoneIcon from "@mui/icons-material/Phone";
+import { MapPinned, Pencil, Phone, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
-
-const NAVY  = "#0F3B5C";
-const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Panel, Th } from "@/components/ui/page-blocks";
 
 interface ClientsTableProps {
   clients: ClientDto[];
@@ -56,83 +37,55 @@ export function ClientsTable({
   const selectedSet = new Set(selectedIds);
   const allSelected = clients.length > 0 && clients.every((c) => selectedSet.has(c.id));
   const someSelected = clients.some((c) => selectedSet.has(c.id));
+  const columns = ["Client", "Code client", "Agence", "CAF attribue", "Contact", ...(canManage ? [""] : [])];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-    >
-      <TableContainer
-        component={Paper}
-        elevation={0}
-        sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}
-      >
-        <Table size="small">
-          <TableHead>
-            <TableRow>
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, ease: "easeOut" }}>
+      <Panel className="overflow-hidden">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-[#0F3B5C]">
               {canManage && (
-                <TableCell padding="checkbox" sx={{ bgcolor: NAVY, pl: 2, borderBottom: "none", width: 48 }}>
+                <Th className="w-12">
                   <Checkbox
-                    size="small"
+                    aria-label="Tout sélectionner"
                     checked={allSelected}
                     indeterminate={!allSelected && someSelected}
                     onChange={(e) => onToggleSelectAll?.(e.target.checked)}
-                    sx={{
-                      color: "rgba(255,255,255,0.35)",
-                      "&.Mui-checked, &.MuiCheckbox-indeterminate": { color: GOLD },
-                      padding: "4px",
-                    }}
                   />
-                </TableCell>
+                </Th>
               )}
-              <TableCell sx={{ bgcolor: NAVY, borderBottom: "none", width: 52, pl: 2 }} />
-              {["Client", "Code client", "Agence", "CAF attribue", "Contact", ...(canManage ? [""] : [])].map((label, i) => (
-                <TableCell
-                  key={i}
-                  align={i === 5 ? "right" : "left"}
-                  sx={{
-                    bgcolor: NAVY,
-                    color: "rgba(255,255,255,0.55)",
-                    fontWeight: 600,
-                    fontSize: 10.5,
-                    textTransform: "uppercase",
-                    letterSpacing: 1,
-                    borderBottom: "none",
-                    py: 1.75,
-                    pr: i === 5 ? 2.5 : undefined,
-                  }}
-                >
-                  {label}
-                </TableCell>
+              <Th className="w-[52px]" />
+              {columns.map((label, i) => (
+                <Th key={i} className={i === 5 ? "pr-5 text-right" : ""}>{label}</Th>
               ))}
-            </TableRow>
-          </TableHead>
+            </tr>
+          </thead>
 
-          <TableBody>
+          <tbody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 8, border: "none" }}>
-                  <Box display="flex" alignItems="center" justifyContent="center" gap={1.5}>
-                    <CircularProgress size={18} sx={{ color: STEEL }} />
-                    <Typography variant="body2" color="text.secondary">Chargement des clients...</Typography>
-                  </Box>
-                </TableCell>
-              </TableRow>
+              <tr>
+                <td colSpan={8} className="py-16 text-center">
+                  <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                    <Spinner className="text-[#1E6091]" /> Chargement des clients...
+                  </div>
+                </td>
+              </tr>
             ) : clients.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 8, border: "none" }}>
-                  <Box display="flex" flexDirection="column" alignItems="center" gap={1.5}>
-                    <Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <PersonPinCircleIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} />
-                    </Box>
-                    <Typography variant="body2" color="text.disabled">Aucun client trouve.</Typography>
-                  </Box>
-                </TableCell>
-              </TableRow>
+              <tr>
+                <td colSpan={8} className="py-16 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <span className="flex size-[52px] items-center justify-center rounded-full bg-muted text-border-strong">
+                      <MapPinned size={24} />
+                    </span>
+                    <span className="text-sm text-muted-foreground">Aucun client trouve.</span>
+                  </div>
+                </td>
+              </tr>
             ) : (
               clients.map((client, idx) => {
                 const isSelected = selectedSet.has(client.id);
+                const cell = `border-b border-border pl-4 ${isSelected ? "bg-[rgba(30,96,145,0.10)]" : "bg-surface"}`;
                 return (
                   <motion.tr
                     key={client.id}
@@ -140,122 +93,93 @@ export function ClientsTable({
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.15, delay: idx * 0.02 }}
                     style={{ display: "table-row" }}
+                    className="group"
                   >
                     {canManage && (
-                      <TableCell
-                        padding="checkbox"
-                        sx={{
-                          pl: 2,
-                          bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)",
-                          borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent",
-                          borderBottom: "1px solid var(--border)",
-                          transition: "all 0.12s",
-                        }}
-                      >
-                        <Checkbox
-                          size="small"
-                          checked={isSelected}
-                          onChange={() => onToggleSelect?.(client.id)}
-                          sx={{ "&.Mui-checked": { color: STEEL }, padding: "4px" }}
-                        />
-                      </TableCell>
+                      <td className={`py-2 transition-colors ${cell} border-l-[3px] ${isSelected ? "border-l-[#1E6091]" : "border-l-transparent"}`}>
+                        <Checkbox aria-label={`Sélectionner ${client.name}`} checked={isSelected} onChange={() => onToggleSelect?.(client.id)} />
+                      </td>
                     )}
 
-                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pl: 2 }}>
-                      <Avatar sx={{ width: 34, height: 34, bgcolor: NAVY, fontSize: 13, fontWeight: 700, letterSpacing: 0.3 }}>
+                    <td className={`py-2 ${cell}`}>
+                      <span className="flex size-[34px] items-center justify-center rounded-full bg-[#0F3B5C] text-[13px] font-bold tracking-wide text-white">
                         {initials(client.name)}
-                      </Avatar>
-                    </TableCell>
+                      </span>
+                    </td>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", py: 1.5 }}>
-                      <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>
-                        {client.name}
-                      </Typography>
-                    </TableCell>
+                    <td className={`py-3 ${cell}`}>
+                      <span className="text-sm font-semibold text-foreground">{client.name}</span>
+                    </td>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                      <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: STEEL, letterSpacing: 0.3, fontFamily: "monospace" }}>
-                          {client.codeClient}
-                        </Typography>
-                      </Box>
-                    </TableCell>
+                    <td className={`py-2 ${cell}`}>
+                      <span className="inline-flex rounded-[5px] border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-mono text-[11px] font-bold tracking-wide text-[#1E6091]">
+                        {client.codeClient}
+                      </span>
+                    </td>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                      <Typography variant="body2" sx={{ color: client.agenceClient ? "var(--text-primary)" : "var(--border-strong)", fontSize: 13 }}>
-                        {client.agenceClient ?? "—"}
-                      </Typography>
-                    </TableCell>
+                    <td className={`py-2 text-[13px] ${cell} ${client.agenceClient ? "text-foreground" : "text-border-strong"}`}>
+                      {client.agenceClient ?? "—"}
+                    </td>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
+                    <td className={`py-2 ${cell}`}>
                       {client.cafName || client.cafCode ? (
-                        <Box>
-                          <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2, color: "var(--text-primary)" }}>
-                            {client.cafName ?? client.cafCode}
-                          </Typography>
-                          {client.cafName && client.cafCode && (
-                            <Typography variant="caption" color="text.secondary">{client.cafCode}</Typography>
-                          )}
-                        </Box>
+                        <div>
+                          <div className="text-sm font-semibold leading-tight text-foreground">{client.cafName ?? client.cafCode}</div>
+                          {client.cafName && client.cafCode && <div className="text-xs text-muted-foreground">{client.cafCode}</div>}
+                        </div>
                       ) : (
-                        <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
+                        <span className="text-sm text-border-strong">—</span>
                       )}
-                    </TableCell>
+                    </td>
 
-                    <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
+                    <td className={`py-2 ${cell}`}>
                       {client.contactInfo ? (
-                        <Box display="flex" alignItems="center" gap={0.5}>
-                          <PhoneIcon sx={{ fontSize: 14, color: "var(--text-muted)" }} />
-                          <Typography variant="body2" sx={{ fontSize: 12, color: "var(--text-secondary)" }}>{client.contactInfo}</Typography>
-                        </Box>
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Phone size={14} /> {client.contactInfo}
+                        </span>
                       ) : (
-                        <Typography variant="body2" sx={{ color: "var(--border-strong)" }}>—</Typography>
+                        <span className="text-sm text-border-strong">—</span>
                       )}
-                    </TableCell>
+                    </td>
 
                     {canManage && (
-                      <TableCell align="right" sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pr: 2 }}>
-                        <Box
-                          display="flex"
-                          justifyContent="flex-end"
-                          gap={0.5}
-                          sx={{ opacity: 0.4, transition: "opacity 0.15s", "tr:hover &": { opacity: 1 } }}
-                        >
+                      <td className={`py-2 pr-4 ${cell}`}>
+                        <div className="flex justify-end gap-1 opacity-40 transition-opacity group-hover:opacity-100">
                           <Tooltip title="Modifier">
-                            <IconButton
-                              size="small"
+                            <button
+                              type="button"
+                              aria-label="Modifier"
                               onClick={() => onEdit?.(client)}
-                              sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}
+                              className="flex size-7 cursor-pointer items-center justify-center rounded-[5px] border-0 bg-transparent text-muted-foreground hover:bg-blue-50 hover:text-[#1E6091]"
                             >
-                              <EditOutlinedIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
+                              <Pencil size={16} />
+                            </button>
                           </Tooltip>
                           <Tooltip title="Supprimer">
-                            <IconButton
-                              size="small"
+                            <button
+                              type="button"
+                              aria-label="Supprimer"
                               onClick={() => onDelete?.(client)}
-                              sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}
+                              className="flex size-7 cursor-pointer items-center justify-center rounded-[5px] border-0 bg-transparent text-muted-foreground hover:bg-red-50 hover:text-red-600"
                             >
-                              <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-                            </IconButton>
+                              <Trash2 size={16} />
+                            </button>
                           </Tooltip>
-                        </Box>
-                      </TableCell>
+                        </div>
+                      </td>
                     )}
                   </motion.tr>
                 );
               })
             )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </Panel>
 
       {!loading && clients.length > 0 && (
-        <Box mt={1.5} display="flex" justifyContent="flex-end">
-          <Typography variant="caption" color="text.secondary">
-            {clients.length} client{clients.length > 1 ? "s" : ""}
-          </Typography>
-        </Box>
+        <div className="mt-3 flex justify-end text-xs text-muted-foreground">
+          {clients.length} client{clients.length > 1 ? "s" : ""}
+        </div>
       )}
     </motion.div>
   );

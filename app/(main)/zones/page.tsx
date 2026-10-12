@@ -1,36 +1,26 @@
-﻿"use client";
+"use client";
 
-import {
-  Alert, Avatar, Box, Button, Chip, Checkbox, CircularProgress,
-  Collapse, Container, Dialog, DialogActions, DialogContent,
-  DialogTitle, Divider, Grid, IconButton, InputAdornment, Paper,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  TextField, Tooltip, Typography,
-} from "@mui/material";
 import { fetchZones, Zone, createZone, updateZone, deleteZone } from "@/lib/zones";
 import { fetchAgences } from "@/lib/agences";
 import { downloadCsv } from "@/lib/csvExport";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import DownloadIcon from "@mui/icons-material/Download";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import CodeIcon from "@mui/icons-material/Code";
-import ClearIcon from "@mui/icons-material/Clear";
-import AddIcon from "@mui/icons-material/Add";
-import MapIcon from "@mui/icons-material/Map";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import SearchIcon from "@mui/icons-material/Search";
-import AddLocationAltIcon from "@mui/icons-material/AddLocationAlt";
-import LayersIcon from "@mui/icons-material/Layers";
+import {
+  Code, Download, FileUp, Layers, ListFilter, Map as MapIcon, MapPinPlus, Pencil, Plus, Search, Trash2, TriangleAlert, X,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { PaginationBar } from "@/components/PaginationBar";
+import { Button } from "@/components/ui/button";
+import { Input, Field } from "@/components/ui/input";
+import { Alert } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Spinner } from "@/components/ui/spinner";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 
 const NAVY  = "#0F3B5C";
 const STEEL = "#1E6091";
-const GOLD  = "#3C8047";
+
 
 // ── Onglet Zones ─────────────────────────────────────────────────────────────
 function ZonesTab() {
@@ -172,251 +162,367 @@ function ZonesTab() {
   return (
     <>
       {/* Action bar */}
-      <Box sx={{ px: 3, py: 1.5, borderBottom: "1px solid var(--border)", background: "var(--bg-surface-alt)", display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+      <div className="flex flex-wrap items-center gap-3 border-b border-border bg-surface-alt px-6 py-3">
         <Tooltip title="Exporter les zones en CSV">
-          <Button variant="outlined" size="small" startIcon={<DownloadIcon />}
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => downloadCsv(filteredZones, [{ key: "code", label: "Code" }, { key: "name", label: "Nom" }], "zones.csv")}
-            sx={{ fontWeight: 600 }}>
-            Exporter CSV
+          >
+            <Download size={15} /> Exporter CSV
           </Button>
         </Tooltip>
-        <Button variant="outlined" size="small" startIcon={<UploadFileIcon />}
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedImportRows([]); setImportFileName(null); }}
-          sx={{ fontWeight: 600 }}>
-          Importer CSV
+        >
+          <FileUp size={15} /> Importer CSV
         </Button>
-        <Box flex={1} />
-        <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={openCreate}
-          sx={{ bgcolor: GOLD, color: "#fff", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" } }}>
-          Ajouter une zone
+        <div className="flex-1" />
+        <Button size="sm" className="bg-[#3C8047] hover:bg-[#2A5C34] hover:opacity-100" onClick={openCreate}>
+          <Plus size={15} /> Ajouter une zone
         </Button>
-      </Box>
+      </div>
 
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+      <div className="mx-auto w-full max-w-[1536px] px-6 py-6">
         {!isLoading && zones.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
-            <Grid container spacing={2} mb={3}>
+            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[
-                { label: "Total zones", value: zones.length, accent: NAVY, icon: <LayersIcon sx={{ fontSize: 20 }} /> },
-                { label: "Affichées", value: filteredZones.length, accent: STEEL, icon: <MapIcon sx={{ fontSize: 20 }} /> },
-                { label: "Zones avec agences", value: zones.filter((z) => (agencesPerZone.get(z.id) ?? 0) > 0).length, accent: "#059669", icon: <LayersIcon sx={{ fontSize: 20 }} /> },
-                { label: "Zones sans agence", value: zones.filter((z) => (agencesPerZone.get(z.id) ?? 0) === 0).length, accent: "var(--text-muted)", icon: <MapIcon sx={{ fontSize: 20 }} /> },
+                { label: "Total zones", value: zones.length, accent: NAVY, icon: <Layers size={20} /> },
+                { label: "Affichées", value: filteredZones.length, accent: STEEL, icon: <MapIcon size={20} /> },
+                { label: "Zones avec agences", value: zones.filter((z) => (agencesPerZone.get(z.id) ?? 0) > 0).length, accent: "#059669", icon: <Layers size={20} /> },
+                { label: "Zones sans agence", value: zones.filter((z) => (agencesPerZone.get(z.id) ?? 0) === 0).length, accent: "var(--text-muted)", icon: <MapIcon size={20} /> },
               ].map((kpi, i) => (
-                <Grid item xs={6} sm={3} key={i}>
-                  <Box sx={{ borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)", px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2, position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(15,59,92,0.05)", "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" }, transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" } }}>
-                    <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
-                    <Box>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpi.value}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500}>{kpi.label}</Typography>
-                    </Box>
-                  </Box>
-                </Grid>
+                <div
+                  key={i}
+                  className="relative flex items-center gap-4 overflow-hidden rounded-xl border border-border bg-surface px-5 py-5 shadow-[0_1px_3px_rgba(15,59,92,0.05)] transition-shadow hover:shadow-[0_4px_16px_rgba(15,59,92,0.1)]"
+                >
+                  <span className="absolute inset-y-0 left-0 w-1 rounded-l-sm" style={{ background: kpi.accent }} />
+                  <span
+                    className="flex size-11 shrink-0 items-center justify-center rounded-[10px] text-white"
+                    style={{ background: kpi.accent, boxShadow: `0 4px 12px color-mix(in srgb, ${kpi.accent} 27%, transparent)` }}
+                  >
+                    {kpi.icon}
+                  </span>
+                  <div>
+                    <div className="text-2xl font-extrabold leading-none tracking-tight" style={{ color: kpi.accent }}>{kpi.value}</div>
+                    <div className="mt-1 text-xs font-medium text-muted-foreground">{kpi.label}</div>
+                  </div>
+                </div>
               ))}
-            </Grid>
+            </div>
           </motion.div>
         )}
 
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)" }}>
-          <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
-            <TextField
-              size="small" placeholder="Rechercher par code ou nom de zone..."
-              value={search} onChange={(e) => setSearch(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
-                endAdornment: search ? <InputAdornment position="end"><IconButton size="small" onClick={() => setSearch("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-              }}
-            />
-            <Button size="small" startIcon={<FilterListIcon />} onClick={() => setFiltersOpen((v) => !v)}
-              variant={filtersOpen ? "contained" : "outlined"}
-              sx={filtersOpen ? { bgcolor: NAVY, color: "white", fontWeight: 600, borderRadius: 2, "&:hover": { bgcolor: STEEL } } : { fontWeight: 600, borderRadius: 2, borderColor: "var(--border)", color: "var(--text-secondary)" }}>
-              Dates{activeDateFilters > 0 && <Chip label={activeDateFilters} size="small" sx={{ ml: 1, height: 18, fontSize: 11, fontWeight: 700, bgcolor: "rgba(255,255,255,0.25)", color: "inherit" }} />}
+        <div className="mb-5 rounded-xl border border-border bg-surface p-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-60 flex-1">
+              <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher par code ou nom de zone..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 pr-9"
+              />
+              {search && (
+                <button
+                  type="button"
+                  aria-label="Effacer la recherche"
+                  onClick={() => setSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            <Button
+              size="sm"
+              variant={filtersOpen ? "default" : "outline"}
+              className={filtersOpen ? "hover:bg-[#1E6091] hover:opacity-100" : "text-muted-foreground"}
+              onClick={() => setFiltersOpen((v) => !v)}
+            >
+              <ListFilter size={15} /> Dates
+              {activeDateFilters > 0 && <span className="ml-1 rounded-full bg-white/25 px-1.5 text-[11px] font-bold">{activeDateFilters}</span>}
             </Button>
             {(search || activeDateFilters > 0) && (
-              <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={() => { setSearch(""); setFilterStartDate(""); setFilterEndDate(""); }}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13 }}>
-                Effacer
+              <Button
+                size="sm"
+                variant="ghost"
+                className="font-medium text-muted-foreground"
+                onClick={() => { setSearch(""); setFilterStartDate(""); setFilterEndDate(""); }}
+              >
+                <X size={15} /> Effacer
               </Button>
             )}
-          </Box>
-          <Collapse in={filtersOpen}>
-            <Box display="flex" gap={1.5} mt={1.5} pt={1.5} sx={{ borderTop: "1px solid var(--border)" }} flexWrap="wrap">
-              <TextField label="Du" type="date" size="small" InputLabelProps={{ shrink: true }} value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} sx={{ minWidth: 160 }} />
-              <TextField label="Au" type="date" size="small" InputLabelProps={{ shrink: true }} value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} sx={{ minWidth: 160 }} />
-            </Box>
-          </Collapse>
-        </Paper>
+          </div>
+          {filtersOpen && (
+            <div className="mt-3 flex flex-wrap gap-3 border-t border-border pt-3">
+              <Field label="Du" className="min-w-40">
+                <Input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} />
+              </Field>
+              <Field label="Au" className="min-w-40">
+                <Input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} />
+              </Field>
+            </div>
+          )}
+        </div>
 
-        {isError && <Alert severity="error" sx={{ mb: 3 }}>Impossible de charger les zones. {error instanceof Error ? error.message : null}</Alert>}
-        {actionError && <Alert severity="error" sx={{ mb: 3 }}>{actionError}</Alert>}
+        {isError && <Alert severity="error" className="mb-6">Impossible de charger les zones. {error instanceof Error ? error.message : null}</Alert>}
+        {actionError && <Alert severity="error" className="mb-6">{actionError}</Alert>}
 
         {selectedZoneIds.length > 0 && (
-          <Box sx={{ mb: 2, px: 2.5, py: 1.5, borderRadius: 2, bgcolor: "#FFF7ED", border: "1px solid #FED7AA", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Typography variant="body2" fontWeight={600} sx={{ color: "#92400E" }}>{selectedZoneIds.length} zone{selectedZoneIds.length > 1 ? "s" : ""} sélectionnée{selectedZoneIds.length > 1 ? "s" : ""}</Typography>
-            <Box display="flex" gap={1}>
-              <Button size="small" color="inherit" onClick={() => setSelectedZoneIds([])} sx={{ fontSize: 12 }}>Désélectionner</Button>
-              <Button size="small" variant="contained" color="error" startIcon={<DeleteOutlineIcon />} onClick={() => setBulkDeleteOpen(true)}>Supprimer ({selectedZoneIds.length})</Button>
-            </Box>
-          </Box>
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 dark:border-orange-900 dark:bg-orange-950/40">
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+              {selectedZoneIds.length} zone{selectedZoneIds.length > 1 ? "s" : ""} sélectionnée{selectedZoneIds.length > 1 ? "s" : ""}
+            </span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" className="text-xs" onClick={() => setSelectedZoneIds([])}>Désélectionner</Button>
+              <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                <Trash2 size={15} /> Supprimer ({selectedZoneIds.length})
+              </Button>
+            </div>
+          </div>
         )}
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}>
-          <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2.5, border: "1px solid var(--border)", overflow: "hidden" }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell padding="checkbox" sx={{ bgcolor: NAVY, pl: 2, borderBottom: "none", width: 48 }}>
-                    <Checkbox size="small" checked={allVisibleSelected} indeterminate={!allVisibleSelected && someVisibleSelected}
+          <div className="overflow-hidden rounded-xl border border-border bg-surface">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-[#0F3B5C]">
+                  <th className="w-12 py-3.5 pl-4 text-left">
+                    <Checkbox
+                      aria-label="Tout sélectionner"
+                      checked={allVisibleSelected}
+                      indeterminate={!allVisibleSelected && someVisibleSelected}
                       onChange={(e) => setSelectedZoneIds(e.target.checked ? paginatedZones.map((z) => z.id) : [])}
-                      sx={{ color: "rgba(255,255,255,0.35)", "&.Mui-checked, &.MuiCheckbox-indeterminate": { color: GOLD }, padding: "4px" }} />
-                  </TableCell>
-                  <TableCell sx={{ bgcolor: NAVY, borderBottom: "none", width: 52, pl: 2 }} />
+                    />
+                  </th>
+                  <th className="w-[52px]" />
                   {["Code zone", "Nom de la zone", "Agences", ""].map((label, i) => (
-                    <TableCell key={i} align={i === 3 ? "right" : i === 2 ? "center" : "left"}
-                      sx={{ bgcolor: NAVY, color: "rgba(255,255,255,0.55)", fontWeight: 600, fontSize: 10.5, textTransform: "uppercase", letterSpacing: 1, borderBottom: "none", py: 1.75, pr: i === 3 ? 2.5 : undefined }}>
+                    <th
+                      key={i}
+                      className={`py-3.5 text-[10.5px] font-semibold uppercase tracking-[1px] text-white/55 ${i === 3 ? "pr-5 text-right" : i === 2 ? "text-center" : "text-left"}`}
+                    >
                       {label}
-                    </TableCell>
+                    </th>
                   ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
+                </tr>
+              </thead>
+              <tbody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}><Box display="flex" alignItems="center" justifyContent="center" gap={1.5}><CircularProgress size={18} sx={{ color: STEEL }} /><Typography variant="body2" color="text.secondary">Chargement des zones...</Typography></Box></TableCell></TableRow>
+                  <tr>
+                    <td colSpan={5} className="py-16 text-center">
+                      <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                        <Spinner className="text-[#1E6091]" /> Chargement des zones...
+                      </div>
+                    </td>
+                  </tr>
                 ) : filteredZones.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 8, border: "none" }}><Box display="flex" flexDirection="column" alignItems="center" gap={1.5}><Box sx={{ width: 52, height: 52, borderRadius: "50%", bgcolor: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}><MapIcon sx={{ fontSize: 24, color: "var(--border-strong)" }} /></Box><Typography variant="body2" color="text.disabled">{search || activeDateFilters > 0 ? "Aucune zone ne correspond." : "Aucune zone enregistrée."}</Typography></Box></TableCell></TableRow>
+                  <tr>
+                    <td colSpan={5} className="py-16 text-center">
+                      <div className="flex flex-col items-center gap-3">
+                        <span className="flex size-[52px] items-center justify-center rounded-full bg-muted text-border-strong">
+                          <MapIcon size={24} />
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {search || activeDateFilters > 0 ? "Aucune zone ne correspond." : "Aucune zone enregistrée."}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
                 ) : (
                   paginatedZones.map((z, idx) => {
                     const isSelected = selectedZoneSet.has(z.id);
+                    const cnt = agencesPerZone.get(z.id) ?? 0;
+                    const cell = `border-b border-border ${isSelected ? "bg-[rgba(30,96,145,0.10)]" : "bg-surface"}`;
                     return (
-                      <motion.tr key={z.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15, delay: idx * 0.02 }} style={{ display: "table-row" }}>
-                        <TableCell padding="checkbox" sx={{ pl: 2, bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderLeft: isSelected ? `3px solid ${STEEL}` : "3px solid transparent", borderBottom: "1px solid var(--border)", transition: "all 0.12s" }}>
-                          <Checkbox size="small" checked={isSelected} onChange={() => toggleZoneSelection(z.id)} sx={{ "&.Mui-checked": { color: STEEL }, padding: "4px" }} />
-                        </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pl: 2 }}>
-                          <Avatar sx={{ width: 34, height: 34, bgcolor: NAVY }}><MapIcon sx={{ fontSize: 17, color: "rgba(255,255,255,0.7)" }} /></Avatar>
-                        </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                          <Box sx={{ display: "inline-flex", px: 1.25, py: 0.4, borderRadius: 1.25, bgcolor: "#EFF6FF", border: "1px solid #BFDBFE" }}>
-                            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: 11, color: STEEL, letterSpacing: 0.3 }}>{z.code}</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                          <Typography variant="body2" fontWeight={600} sx={{ color: "var(--text-primary)" }}>{z.name}</Typography>
-                        </TableCell>
-                        <TableCell align="center" sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}>
-                          {(() => { const cnt = agencesPerZone.get(z.id) ?? 0; return cnt > 0 ? <Chip label={cnt} size="small" sx={{ height: 20, fontSize: 11, fontWeight: 700, bgcolor: `${STEEL}15`, color: STEEL }} /> : <Typography variant="caption" sx={{ color: "var(--border-strong)" }}>—</Typography>; })()}
-                        </TableCell>
-                        <TableCell align="right" sx={{ bgcolor: isSelected ? "rgba(30,96,145,0.10)" : "var(--bg-surface)", borderBottom: "1px solid var(--border)", pr: 2 }}>
-                          <Box display="flex" justifyContent="flex-end" gap={0.5} sx={{ opacity: 0.4, transition: "opacity 0.15s", "tr:hover &": { opacity: 1 } }}>
+                      <motion.tr
+                        key={z.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.15, delay: idx * 0.02 }}
+                        style={{ display: "table-row" }}
+                        className="group"
+                      >
+                        <td className={`py-2 pl-4 transition-colors ${cell} border-l-[3px] ${isSelected ? "border-l-[#1E6091]" : "border-l-transparent"}`}>
+                          <Checkbox aria-label={`Sélectionner ${z.name}`} checked={isSelected} onChange={() => toggleZoneSelection(z.id)} />
+                        </td>
+                        <td className={`py-2 pl-4 ${cell}`}>
+                          <span className="flex size-[34px] items-center justify-center rounded-full bg-[#0F3B5C] text-white/70">
+                            <MapIcon size={17} />
+                          </span>
+                        </td>
+                        <td className={`py-2 ${cell}`}>
+                          <span className="inline-flex rounded-[5px] border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold tracking-wide text-[#1E6091]">
+                            {z.code}
+                          </span>
+                        </td>
+                        <td className={`py-2 ${cell}`}>
+                          <span className="text-sm font-semibold text-foreground">{z.name}</span>
+                        </td>
+                        <td className={`py-2 text-center ${cell}`}>
+                          {cnt > 0 ? (
+                            <span className="inline-flex h-5 items-center rounded-full bg-[#1E6091]/10 px-2 text-[11px] font-bold text-[#1E6091]">{cnt}</span>
+                          ) : (
+                            <span className="text-xs text-border-strong">—</span>
+                          )}
+                        </td>
+                        <td className={`py-2 pr-4 ${cell}`}>
+                          <div className="flex justify-end gap-1 opacity-40 transition-opacity group-hover:opacity-100">
                             <Tooltip title="Modifier">
-                              <IconButton size="small" onClick={() => openEdit(z)} sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: STEEL, bgcolor: "#EFF6FF" } }}>
-                                <EditOutlinedIcon sx={{ fontSize: 16 }} />
-                              </IconButton>
+                              <button
+                                type="button"
+                                aria-label="Modifier"
+                                onClick={() => openEdit(z)}
+                                className="flex size-7 cursor-pointer items-center justify-center rounded-[5px] border-0 bg-transparent text-muted-foreground hover:bg-blue-50 hover:text-[#1E6091]"
+                              >
+                                <Pencil size={16} />
+                              </button>
                             </Tooltip>
                             <Tooltip title="Supprimer">
-                              <IconButton size="small" onClick={() => setDeleteTarget(z)} sx={{ color: "var(--text-muted)", width: 28, height: 28, borderRadius: 1.25, "&:hover": { color: "#dc2626", bgcolor: "#FEF2F2" } }}>
-                                <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-                              </IconButton>
+                              <button
+                                type="button"
+                                aria-label="Supprimer"
+                                onClick={() => setDeleteTarget(z)}
+                                className="flex size-7 cursor-pointer items-center justify-center rounded-[5px] border-0 bg-transparent text-muted-foreground hover:bg-red-50 hover:text-red-600"
+                              >
+                                <Trash2 size={16} />
+                              </button>
                             </Tooltip>
-                          </Box>
-                        </TableCell>
+                          </div>
+                        </td>
                       </motion.tr>
                     );
                   })
                 )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
 
           {!isLoading && filteredZones.length > 0 && (
             <PaginationBar page={zonePage} totalPages={zoneTotalPages} total={filteredZones.length} pageSize={zonePageSize} onPageChange={setZonePage} onPageSizeChange={(s) => { setZonePageSize(s); setZonePage(1); }} />
           )}
         </motion.div>
-      </Container>
+      </div>
 
       {/* Zone dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}>{editing ? <MapIcon sx={{ color: GOLD, fontSize: 20 }} /> : <AddLocationAltIcon sx={{ color: GOLD, fontSize: 20 }} />}</Avatar>
-            <Typography variant="h6" fontWeight={700}>{editing ? "Modifier la zone" : "Nouvelle zone"}</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2.5, pb: 1 }}>
-          <Grid container spacing={1.5}>
-            <Grid item xs={12} sm={5}><TextField label="Code zone *" fullWidth size="small" value={code} onChange={(e) => setCode(e.target.value)} placeholder="ex: ZN-CENTRE" helperText="Identifiant unique de la zone" /></Grid>
-            <Grid item xs={12} sm={7}><TextField label="Nom de la zone *" fullWidth size="small" value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Zone Centre-Ville" /></Grid>
-            {formError && <Grid item xs={12}><Alert severity="error">{formError}</Alert></Grid>}
-          </Grid>
+      <Dialog open={dialogOpen} onOpenChange={(o) => !o && setDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={editing ? <MapIcon size={20} /> : <MapPinPlus size={20} />}>{editing ? "Modifier la zone" : "Nouvelle zone"}</DialogHeader>
+          <DialogBody>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+              <Field label="Code zone *" help="Identifiant unique de la zone" className="sm:col-span-5">
+                <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="ex: ZN-CENTRE" />
+              </Field>
+              <Field label="Nom de la zone *" className="sm:col-span-7">
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Zone Centre-Ville" />
+              </Field>
+              {formError && <Alert severity="error" className="sm:col-span-12">{formError}</Alert>}
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleSave} disabled={!code.trim() || !name.trim() || createMutation.isPending || updateMutation.isPending} className="hover:bg-[#1E6091] hover:opacity-100">
+              {editing ? "Enregistrer" : "Créer la zone"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={handleSave} variant="contained" disabled={!code.trim() || !name.trim() || createMutation.isPending || updateMutation.isPending} sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            {editing ? "Enregistrer" : "Créer la zone"}
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* Bulk delete */}
-      <Dialog open={bulkDeleteOpen} onClose={() => setBulkDeleteOpen(false)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}><Box display="flex" alignItems="center" gap={1.5}><Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}><WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} /></Avatar><Typography variant="h6" fontWeight={700}>Supprimer la sélection</Typography></Box></DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary">Vous allez supprimer <Typography component="span" fontWeight={700} color="text.primary">{selectedZoneIds.length} zone{selectedZoneIds.length > 1 ? "s" : ""}</Typography>. La suppression sera refusée pour les zones encore liées.</Typography>
+      <Dialog open={bulkDeleteOpen} onOpenChange={(o) => !o && setBulkDeleteOpen(false)}>
+        <DialogContent size="xs" aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer la sélection</DialogHeader>
+          <DialogBody className="text-sm text-muted-foreground">
+            Vous allez supprimer <strong className="text-foreground">{selectedZoneIds.length} zone{selectedZoneIds.length > 1 ? "s" : ""}</strong>. La suppression sera refusée pour les zones encore liées.
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkDeleteOpen(false)}>Annuler</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending || selectedZoneIds.length === 0}
+              onClick={async () => {
+                setActionError(null);
+                const ids = [...selectedZoneIds];
+                const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id)));
+                const failed = results.filter((r) => r.status === "rejected").length;
+                if (failed > 0) setActionError(`${failed} suppression(s) ont échoué.`);
+                setBulkDeleteOpen(false);
+                setSelectedZoneIds([]);
+              }}
+            >
+              <Trash2 size={15} /> Supprimer la sélection
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setBulkDeleteOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={async () => { setActionError(null); const ids = [...selectedZoneIds]; const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id))); const failed = results.filter((r) => r.status === "rejected").length; if (failed > 0) setActionError(`${failed} suppression(s) ont échoué.`); setBulkDeleteOpen(false); setSelectedZoneIds([]); }} color="error" variant="contained" disabled={deleteMutation.isPending || selectedZoneIds.length === 0} startIcon={<DeleteOutlineIcon />}>
-            Supprimer la sélection
-          </Button>
-        </DialogActions>
       </Dialog>
 
       {/* Delete single */}
-      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}><Box display="flex" alignItems="center" gap={1.5}><Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}><WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} /></Avatar><Typography variant="h6" fontWeight={700}>Supprimer la zone</Typography></Box></DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary">Vous êtes sur le point de supprimer la zone <Typography component="span" fontWeight={700} color="text.primary">{deleteTarget?.name}</Typography> ({deleteTarget?.code}). La suppression sera refusée si des agences sont encore rattachées.</Typography>
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent size="xs" aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer la zone</DialogHeader>
+          <DialogBody className="text-sm text-muted-foreground">
+            Vous êtes sur le point de supprimer la zone <strong className="text-foreground">{deleteTarget?.name}</strong> ({deleteTarget?.code}). La suppression sera refusée si des agences sont encore rattachées.
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Annuler</Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleteMutation.isPending}>
+              <Trash2 size={15} /> Supprimer
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDeleteTarget(null)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={confirmDelete} color="error" variant="contained" disabled={deleteMutation.isPending} startIcon={<DeleteOutlineIcon />}>Supprimer</Button>
-        </DialogActions>
       </Dialog>
 
       {/* Import CSV */}
-      <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: GOLD }} />
-        <DialogTitle sx={{ pb: 1 }}><Box display="flex" alignItems="center" gap={1.5}><Avatar sx={{ width: 36, height: 36, bgcolor: NAVY }}><UploadFileIcon sx={{ color: GOLD, fontSize: 20 }} /></Avatar><Typography variant="h6" fontWeight={700}>Importer des zones via CSV</Typography></Box></DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
-            <Box display="flex" alignItems="center" gap={1} mb={1}><CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} /><Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>Format attendu</Typography></Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>code,name</Typography>
-          </Box>
-          <Button component="label" variant="outlined" startIcon={<UploadFileIcon />} sx={{ borderRadius: 2 }}>Choisir un fichier CSV<input type="file" accept=".csv,text/csv" hidden onChange={handleZonesCsvFile} /></Button>
-          {importFileName && <Box mt={2}><Chip label={importFileName} size="small" icon={<UploadFileIcon />} color="warning" variant="outlined" /></Box>}
-          {parsedImportRows.length > 0 && <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }}><b>{parsedImportRows.length} zone{parsedImportRows.length > 1 ? "s" : ""}</b> prêtes à être importées.</Alert>}
-          {importError && <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{importError}</Alert>}
+      <Dialog open={importDialogOpen} onOpenChange={(o) => !o && setImportDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={<FileUp size={20} />}>Importer des zones via CSV</DialogHeader>
+          <DialogBody>
+            <div className="mb-5 rounded-lg border border-border bg-muted/40 p-4">
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <Code size={16} /> Format attendu
+              </div>
+              <code className="block rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs">code,name</code>
+            </div>
+            <label className="inline-flex">
+              <span className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border-strong bg-surface px-4 text-sm font-semibold hover:bg-muted">
+                <FileUp size={15} /> Choisir un fichier CSV
+              </span>
+              <input type="file" accept=".csv,text/csv" hidden onChange={handleZonesCsvFile} />
+            </label>
+            {importFileName && (
+              <div className="mt-4">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 px-2.5 py-0.5 text-xs text-amber-700 dark:text-amber-300">
+                  <FileUp size={13} /> {importFileName}
+                </span>
+              </div>
+            )}
+            {parsedImportRows.length > 0 && (
+              <Alert severity="success" className="mt-4">
+                <b>{parsedImportRows.length} zone{parsedImportRows.length > 1 ? "s" : ""}</b> prêtes à être importées.
+              </Alert>
+            )}
+            {importError && <Alert severity="error" className="mt-4">{importError}</Alert>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>Annuler</Button>
+            <Button
+              disabled={!parsedImportRows.length || importMutation.isPending}
+              className="hover:bg-[#1E6091] hover:opacity-100"
+              onClick={async () => {
+                if (!parsedImportRows.length) return;
+                setImportError(null);
+                try { await importMutation.mutateAsync(parsedImportRows); }
+                catch (err: any) { setImportError(err?.message ?? "Import impossible."); }
+              }}
+            >
+              {importMutation.isPending ? <Spinner className="size-4" /> : <FileUp size={15} />}
+              Lancer l&apos;import ({parsedImportRows.length})
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setImportDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button onClick={async () => { if (!parsedImportRows.length) return; setImportError(null); try { await importMutation.mutateAsync(parsedImportRows); } catch (err: any) { setImportError(err?.message ?? "Import impossible."); } }}
-            variant="contained" disabled={!parsedImportRows.length || importMutation.isPending}
-            startIcon={importMutation.isPending ? <CircularProgress size={16} sx={{ color: "white" }} /> : <UploadFileIcon />}
-            sx={{ bgcolor: NAVY, "&:hover": { bgcolor: STEEL } }}>
-            Lancer l&apos;import ({parsedImportRows.length})
-          </Button>
-        </DialogActions>
       </Dialog>
     </>
   );
@@ -428,20 +534,20 @@ function ZonesTab() {
 // lieu" (panneau Propriétés), qui pilote le même référentiel /location-types.
 export default function ReferentielsPage() {
   return (
-    <Box>
+    <div>
       {/* Header */}
-      <Box sx={{ background: `linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)`, borderBottom: `3px solid ${GOLD}`, px: 4, py: 2.5, color: "white" }}>
-        <Box display="flex" alignItems="center" gap={1.5}>
-          <MapIcon sx={{ color: GOLD, fontSize: 30 }} />
-          <Box>
-            <Typography variant="h5" fontWeight={700} color="white">Référentiels</Typography>
-            <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>Zones géographiques</Typography>
-          </Box>
-        </Box>
-      </Box>
+      <div className="border-b-[3px] border-[#3C8047] px-8 py-5 text-white" style={{ background: "linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)" }}>
+        <div className="flex items-center gap-3">
+          <MapIcon size={30} className="text-[#3C8047]" />
+          <div>
+            <h1 className="text-2xl font-bold leading-tight text-white">Référentiels</h1>
+            <span className="text-xs text-white/55">Zones géographiques</span>
+          </div>
+        </div>
+      </div>
 
       <ZonesTab />
-    </Box>
+    </div>
   );
 }
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ClientsTable } from "@/components/ClientsTable";
 import {
@@ -17,60 +17,25 @@ import { downloadCsv } from "@/lib/csvExport";
 import { fetchMe } from "@/lib/auth";
 import { normalizeRole } from "@/lib/roles";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Autocomplete,
-  Alert,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  Collapse,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Grid,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Paper,
-  Tab,
-  Tabs,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import DownloadIcon from "@mui/icons-material/Download";
-import AddIcon from "@mui/icons-material/Add";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import PersonPinCircleIcon from "@mui/icons-material/PersonPinCircle";
-import GroupsIcon from "@mui/icons-material/Groups";
-import BadgeIcon from "@mui/icons-material/Badge";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
-import PhoneEnabledIcon from "@mui/icons-material/PhoneEnabled";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import CodeIcon from "@mui/icons-material/Code";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { Code, Download, FileUp, IdCard, ListFilter, MapPinned, PhoneCall, Plus, Search, Trash2, TriangleAlert, UserPlus, Users, UserX, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, ChangeEvent, useMemo, useEffect } from "react";
 import { PaginationBar } from "@/components/PaginationBar";
 import { fetchAgences, Agence } from "@/lib/agences";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { Input, Field, Textarea } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Tooltip } from "@/components/ui/tooltip";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { HeaderButton, KpiTile, PageContainer, PageHeader, Panel } from "@/components/ui/page-blocks";
 
 function useDebounce<T>(value: T, delay = 350): T {
   const [d, setD] = useState(value);
   useEffect(() => { const t = setTimeout(() => setD(value), delay); return () => clearTimeout(t); }, [value, delay]);
   return d;
 }
-
-const CLIENTS_NAVY = "#0F3B5C";
-const CLIENTS_STEEL = "#1E6091";
-const CLIENTS_GOLD = "#3C8047";
 
 export default function ClientsPage() {
   const queryClient = useQueryClient();
@@ -378,182 +343,118 @@ export default function ClientsPage() {
     }
   };
 
+  const kpis = [
+    { label: "Total clients", value: globalStats?.total ?? 0, accent: "#0F3B5C", icon: <Users size={22} /> },
+    { label: "Avec CAF attribue", value: globalStats?.withCaf ?? 0, accent: "#1E6091", icon: <IdCard size={22} /> },
+    { label: "Sans CAF", value: globalStats?.withoutCaf ?? 0, accent: "var(--text-muted)", icon: <UserX size={22} /> },
+    { label: "Avec contact", value: globalStats?.withContact ?? 0, accent: "#3C8047", icon: <PhoneCall size={22} /> },
+  ];
+
   return (
     <>
-      <Box sx={{ background: "linear-gradient(135deg, var(--banner-from) 0%, var(--banner-to) 100%)", borderBottom: "3px solid #3C8047", px: 4, py: 2.5, color: "white", display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-        <PersonPinCircleIcon sx={{ color: "#3C8047", fontSize: 30, flexShrink: 0 }} />
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography variant="h5" fontWeight={700} color="white">Clients</Typography>
-          <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.55)" }}>
-            Portefeuille clients du tenant — gestion, attribution CAF et import CSV
-          </Typography>
-        </Box>
-        <Box display="flex" gap={1.5} flexWrap="wrap">
-                <Tooltip title="Exporter les clients filtrés en CSV (jusqu'à 1000 lignes)">
-                  <Button
-                    variant="outlined" startIcon={<DownloadIcon />}
-                    onClick={handleExportCsv}
-                    disabled={exporting}
-                    sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}
-                  >
-                    {exporting ? "Export…" : "Exporter CSV"}
-                  </Button>
-                </Tooltip>
-                {canManageClients && (
-                  <Button
-                    variant="outlined" startIcon={<UploadFileIcon />}
-                    onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedRows([]); setSelectedFileName(null); }}
-                    sx={{ borderColor: "rgba(255,255,255,0.6)", color: "white", fontWeight: 600, "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" } }}
-                  >
-                    Importer CSV
-                  </Button>
-                )}
-                {canManageClients && (
-                  <Button
-                    variant="contained" startIcon={<AddIcon />} onClick={openCreateDialog}
-                    sx={{ bgcolor: "#3C8047", color: "#0F3B5C", fontWeight: 700, "&:hover": { bgcolor: "#2A5C34" }, boxShadow: "0 4px 14px rgba(0,0,0,0.15)" }}
-                  >
-                    Ajouter un client
-                  </Button>
-                )}
-              </Box>
-      </Box>
+      <PageHeader icon={<MapPinned size={30} />} title="Clients" subtitle="Portefeuille clients du tenant — gestion, attribution CAF et import CSV">
+        <div className="flex flex-wrap gap-3">
+          <Tooltip title="Exporter les clients filtrés en CSV (jusqu'à 1000 lignes)">
+            <HeaderButton onClick={handleExportCsv} disabled={exporting}><Download size={16} /> {exporting ? "Export…" : "Exporter CSV"}</HeaderButton>
+          </Tooltip>
+          {canManageClients && (
+            <HeaderButton onClick={() => { setImportDialogOpen(true); setImportError(null); setParsedRows([]); setSelectedFileName(null); }}>
+              <FileUp size={16} /> Importer CSV
+            </HeaderButton>
+          )}
+          {canManageClients && (
+            <Button className="bg-[#3C8047] shadow-lg hover:bg-[#2A5C34] hover:opacity-100" onClick={openCreateDialog}><Plus size={16} /> Ajouter un client</Button>
+          )}
+        </div>
+      </PageHeader>
 
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-
+      <PageContainer>
         {(globalStats || !globalStatsQuery.isLoading) && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}>
-            <Grid container spacing={2} mb={3}>
-              {[
-                { label: "Total clients", value: globalStats?.total ?? 0, accent: "#0F3B5C", icon: <GroupsIcon sx={{ fontSize: 22 }} /> },
-                { label: "Avec CAF attribue", value: globalStats?.withCaf ?? 0, accent: "#1E6091", icon: <BadgeIcon sx={{ fontSize: 22 }} /> },
-                { label: "Sans CAF", value: globalStats?.withoutCaf ?? 0, accent: "var(--text-muted)", icon: <PersonOffIcon sx={{ fontSize: 22 }} /> },
-                { label: "Avec contact", value: globalStats?.withContact ?? 0, accent: "#3C8047", icon: <PhoneEnabledIcon sx={{ fontSize: 22 }} /> },
-              ].map((kpi, i) => (
-                <Grid item xs={6} sm={3} key={i}>
-                  <Box sx={{
-                    borderRadius: 3, border: "1px solid var(--border)", bgcolor: "var(--bg-surface)",
-                    px: 2.5, py: 2.5, display: "flex", alignItems: "center", gap: 2,
-                    position: "relative", overflow: "hidden",
-                    boxShadow: "0 1px 3px rgba(15,59,92,0.05)",
-                    "&::before": { content: '""', position: "absolute", left: 0, top: 0, bottom: 0, width: 4, bgcolor: kpi.accent, borderRadius: "3px 0 0 3px" },
-                    transition: "box-shadow 0.2s", "&:hover": { boxShadow: "0 4px 16px rgba(15,59,92,0.1)" },
-                  }}>
-                    <Avatar sx={{ width: 44, height: 44, bgcolor: kpi.accent, color: "white", borderRadius: 2.5, boxShadow: `0 4px 12px ${kpi.accent}44`, flexShrink: 0 }}>{kpi.icon}</Avatar>
-                    <Box>
-                      <Typography variant="h5" fontWeight={800} sx={{ color: kpi.accent, lineHeight: 1, letterSpacing: -0.5 }}>{kpi.value}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ lineHeight: 1.3 }}>{kpi.label}</Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
+            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {kpis.map((kpi, i) => <KpiTile key={i} label={kpi.label} value={kpi.value} accent={kpi.accent} icon={kpi.icon} />)}
+            </div>
           </motion.div>
         )}
 
-        <Paper elevation={0} sx={{ border: "1px solid var(--border)", borderRadius: 2.5, p: 2, mb: 2.5, bgcolor: "var(--bg-surface)", boxShadow: "0 1px 4px rgba(15,59,92,0.04)" }}>
-          <Box display="flex" alignItems="center" gap={1.5} flexWrap="wrap">
-            <TextField
-              size="small" placeholder="Rechercher par nom ou code client..."
-              value={filterName} onChange={(e) => setFilterName(e.target.value)}
-              sx={{ flex: 1, minWidth: 240, "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)", transition: "background .15s", "&:hover": { bgcolor: "var(--bg-surface)" }, "&.Mui-focused": { bgcolor: "var(--bg-surface)" }, "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#1E6091" }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#1E6091", borderWidth: 1.5 } } }}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "var(--text-muted)", fontSize: 18 }} /></InputAdornment>,
-                endAdornment: filterName ? <InputAdornment position="end"><IconButton size="small" onClick={() => setFilterName("")}><ClearIcon sx={{ fontSize: 16 }} /></IconButton></InputAdornment> : undefined,
-              }}
-            />
-            <Button
-              size="small" startIcon={<FilterListIcon />}
-              onClick={() => setFiltersOpen((v) => !v)}
-              variant={filtersOpen ? "contained" : "outlined"}
-              sx={filtersOpen
-                ? { bgcolor: "#0F3B5C", color: "white", fontWeight: 600, borderRadius: 2, "&:hover": { bgcolor: "#1E6091" } }
-                : { fontWeight: 600, borderRadius: 2, borderColor: "var(--border)", color: "var(--text-secondary)", "&:hover": { borderColor: "#1E6091", bgcolor: "#F1F5F9" } }}
-            >
-              Filtres avancés{activeFilters > 0 && <Chip label={activeFilters} size="small" sx={{ ml: 1, height: 18, fontSize: 11, fontWeight: 700, bgcolor: "rgba(255,255,255,0.25)", color: "inherit" }} />}
+        <Panel className="mb-5 p-4 shadow-[0_1px_4px_rgba(15,59,92,0.04)]">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-60 flex-1">
+              <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Rechercher par nom ou code client..." value={filterName} onChange={(e) => setFilterName(e.target.value)} className="pl-10 pr-9" />
+              {filterName && (
+                <button type="button" aria-label="Effacer la recherche" onClick={() => setFilterName("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-full border-0 bg-transparent p-1 text-muted-foreground hover:bg-muted"><X size={16} /></button>
+              )}
+            </div>
+            <Button size="sm" variant={filtersOpen ? "default" : "outline"} className={filtersOpen ? "hover:bg-[#1E6091] hover:opacity-100" : "text-muted-foreground"} onClick={() => setFiltersOpen((v) => !v)}>
+              <ListFilter size={15} /> Filtres avancés
+              {activeFilters > 0 && <span className="ml-1 rounded-full bg-white/25 px-1.5 text-[11px] font-bold">{activeFilters}</span>}
             </Button>
             {activeFilters > 0 && (
-              <Button size="small" startIcon={<ClearIcon sx={{ fontSize: 15 }} />} onClick={clearFilters}
-                sx={{ fontWeight: 500, borderRadius: 2, color: "var(--text-secondary)", fontSize: 13, "&:hover": { bgcolor: "#F1F5F9" } }}>
-                Effacer ({activeFilters})
-              </Button>
+              <Button size="sm" variant="ghost" className="font-medium text-muted-foreground" onClick={clearFilters}><X size={15} /> Effacer ({activeFilters})</Button>
             )}
-          </Box>
-          <Collapse in={filtersOpen}>
-            <Box sx={{ borderTop: "1px solid #F1F5F9", mt: 1.5, pt: 1.5 }}>
-              <Grid container spacing={1.5}>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField label="Code client" size="small" fullWidth value={filterCode} onChange={(e) => setFilterCode(e.target.value)}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <Autocomplete size="small" options={agenceFilterOptions} value={selectedAgenceFilterOption} onChange={(_, v) => setFilterAgence(v?.value ?? "")}
-                    getOptionLabel={(o) => o.label} isOptionEqualToValue={(o, v) => o.value === v.value} clearOnEscape
-                    renderInput={(params) => <TextField {...params} label="Agence" size="small" fullWidth placeholder="Toutes les agences" sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />} />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <Autocomplete size="small" options={cafFilterOptions} value={selectedCafFilterOption} onChange={(_, v) => setFilterCaf(v?.value ?? "")}
-                    getOptionLabel={(o) => o.label} isOptionEqualToValue={(o, v) => o.value === v.value} clearOnEscape
-                    renderInput={(params) => <TextField {...params} label="CAF" size="small" fullWidth placeholder="Tous les CAFs" sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />} />
-                </Grid>
-                <Grid item xs={6} sm={3} md={1.5}>
-                  <TextField label="Du" type="date" size="small" fullWidth InputLabelProps={{ shrink: true }} value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />
-                </Grid>
-                <Grid item xs={6} sm={3} md={1.5}>
-                  <TextField label="Au" type="date" size="small" fullWidth InputLabelProps={{ shrink: true }} value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)}
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2, bgcolor: "var(--bg-page)" } }} />
-                </Grid>
-              </Grid>
-            </Box>
-          </Collapse>
-          {!isLoading && (
-            <Box display="flex" gap={1} mt={1.5} pt={1} sx={{ borderTop: "1px solid #F1F5F9" }} alignItems="center">
-              <Typography variant="caption" color="text.secondary">
-                {serverTotal.toLocaleString("fr-FR")} client{serverTotal !== 1 ? "s" : ""} au total
-                {hasClientSideOnlyFilters ? ` · ${filteredClients.length} affiché(s) sur cette page` : ""}
-                {isFetching ? " · actualisation…" : ""}
-              </Typography>
-            </Box>
+          </div>
+          {filtersOpen && (
+            <div className="mt-3 border-t border-border pt-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <Field label="Code client"><Input value={filterCode} onChange={(e) => setFilterCode(e.target.value)} /></Field>
+                <Field label="Agence">
+                  <Combobox
+                    options={agenceFilterOptions}
+                    value={selectedAgenceFilterOption}
+                    onChange={(v) => setFilterAgence(v?.value ?? "")}
+                    getKey={(o) => o.value}
+                    getLabel={(o) => o.label}
+                    placeholder="Toutes les agences"
+                  />
+                </Field>
+                <Field label="CAF">
+                  <Combobox
+                    options={cafFilterOptions}
+                    value={selectedCafFilterOption}
+                    onChange={(v) => setFilterCaf(v?.value ?? "")}
+                    getKey={(o) => o.value}
+                    getLabel={(o) => o.label}
+                    placeholder="Tous les CAFs"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Du"><Input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} /></Field>
+                  <Field label="Au"><Input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} /></Field>
+                </div>
+              </div>
+            </div>
           )}
-        </Paper>
+          {!isLoading && (
+            <div className="mt-3 flex items-center gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
+              {serverTotal.toLocaleString("fr-FR")} client{serverTotal !== 1 ? "s" : ""} au total
+              {hasClientSideOnlyFilters ? ` · ${filteredClients.length} affiché(s) sur cette page` : ""}
+              {isFetching ? " · actualisation…" : ""}
+            </div>
+          )}
+        </Panel>
 
-        
         {duplicateCount > 0 && (
-          <Alert severity="warning" sx={{ mb: 2, borderRadius: 2 }} action={
-            <Button size="small" color="inherit" onClick={() => setFilterDuplicatesOnly((v) => !v)} sx={{ fontWeight: 700, fontSize: 11 }}>
+          <Alert severity="warning" className="mb-4 flex items-center justify-between gap-3">
+            <span><b>{duplicateCount} client{duplicateCount > 1 ? "s" : ""}</b> avec un code duplique detecte{duplicateCount > 1 ? "s" : ""} — verifiez et fusionnez les doublons.</span>
+            <Button size="sm" variant="ghost" className="h-7 shrink-0 text-[11px] font-bold" onClick={() => setFilterDuplicatesOnly((v) => !v)}>
               {filterDuplicatesOnly ? "Tout afficher" : "Voir les doublons"}
             </Button>
-          }>
-            <b>{duplicateCount} client{duplicateCount > 1 ? "s" : ""}</b> avec un code duplique detecte{duplicateCount > 1 ? "s" : ""} — verifiez et fusionnez les doublons.
           </Alert>
         )}
 
-        {isError && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            Impossible de charger les clients.{" "}
-            {error instanceof Error ? error.message : null}
-          </Alert>
-        )}
-        {actionError && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {actionError}
-          </Alert>
-        )}
+        {isError && <Alert severity="error" className="mb-6">Impossible de charger les clients. {error instanceof Error ? error.message : null}</Alert>}
+        {actionError && <Alert severity="error" className="mb-6">{actionError}</Alert>}
 
-        
         {canManageClients && selectedCount > 0 && (
-          <Box sx={{ mb: 2, px: 2.5, py: 1.5, borderRadius: 2, bgcolor: "#FFF7ED", border: "1px solid #FED7AA", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Typography variant="body2" fontWeight={600} sx={{ color: "#92400E" }}>
-              {selectedCount} client{selectedCount > 1 ? "s" : ""} selectionne{selectedCount > 1 ? "s" : ""}
-            </Typography>
-            <Box display="flex" gap={1}>
-              <Button size="small" color="inherit" onClick={clearSelection} sx={{ fontSize: 12 }}>Deselectionner</Button>
-              <Button size="small" variant="contained" color="error" startIcon={<DeleteOutlineIcon />} onClick={() => setBulkDeleteOpen(true)}>
-                Supprimer ({selectedCount})
-              </Button>
-            </Box>
-          </Box>
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 px-5 py-3 dark:border-orange-900 dark:bg-orange-950/40">
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-200">{selectedCount} client{selectedCount > 1 ? "s" : ""} selectionne{selectedCount > 1 ? "s" : ""}</span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost" className="text-xs" onClick={clearSelection}>Deselectionner</Button>
+              <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}><Trash2 size={15} /> Supprimer ({selectedCount})</Button>
+            </div>
+          </div>
         )}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}>
           <ClientsTable
@@ -575,281 +476,160 @@ export default function ClientsPage() {
             onPageSizeChange={(s) => { setClientPageSize(s); setClientPage(1); }}
           />
         </motion.div>
-      </Container>
+      </PageContainer>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: "#3C8047" }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#0F3B5C" }}>
-              {editing ? <PersonPinCircleIcon sx={{ color: "#3C8047", fontSize: 20 }} /> : <PersonAddIcon sx={{ color: "#3C8047", fontSize: 20 }} />}
-            </Avatar>
-            <Typography variant="h6" fontWeight={700}>
-              {editing ? "Modifier le client" : "Nouveau client"}
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2.5, pb: 1 }}>
-          <Grid container spacing={1.5}>
-            <Grid item xs={12} sm={5}>
-              <TextField
-                label="Code client *" fullWidth size="small"
-                value={codeClient} onChange={(e) => setCodeClient(e.target.value)}
-                disabled={!!editing}
-                placeholder="ex: APL-CLT-0100"
-                helperText={editing ? "Non modifiable après création" : "Identifiant unique du client"}
-              />
-            </Grid>
-            <Grid item xs={12} sm={7}>
-              <TextField
-                label="Nom du client *" fullWidth size="small"
-                value={name} onChange={(e) => setName(e.target.value)}
-                placeholder="ex: Jean Dupont"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                select label="CAF attribué" fullWidth size="small"
-                value={cafCode}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setCafCode(val);
-                  const selected = availableCafsRaw.find((c) => c.code === val);
-                  if (selected?.agence) setAgenceClient(selected.agence);
-                  else setAgenceClient("");
-                }}
-                helperText="Sélectionnez le CAF responsable de ce client."
-              >
-                <MenuItem value="">Aucun CAF</MenuItem>
-                {availableCafsRaw.map((c) => (
-                  <MenuItem key={c.code} value={c.code}>{c.name} ({c.code})</MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Agence" fullWidth size="small"
-                value={agenceClient} disabled
-                helperText="Déduite automatiquement à partir du CAF sélectionné."
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Contact (téléphone / email)" fullWidth size="small"
-                value={contactInfo} onChange={(e) => setContactInfo(e.target.value)}
-                placeholder="ex: +237 6 00 00 00 00 ou client@example.com"
-                multiline minRows={2}
-              />
-            </Grid>
-            {formError && (
-              <Grid item xs={12}>
-                <Alert severity="error">{formError}</Alert>
-              </Grid>
+      <Dialog open={dialogOpen} onOpenChange={(o) => !o && setDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={editing ? <MapPinned size={20} /> : <UserPlus size={20} />}>{editing ? "Modifier le client" : "Nouveau client"}</DialogHeader>
+          <DialogBody>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+              <Field label="Code client *" help={editing ? "Non modifiable après création" : "Identifiant unique du client"} className="sm:col-span-5">
+                <Input value={codeClient} onChange={(e) => setCodeClient(e.target.value)} disabled={!!editing} placeholder="ex: APL-CLT-0100" />
+              </Field>
+              <Field label="Nom du client *" className="sm:col-span-7">
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="ex: Jean Dupont" />
+              </Field>
+              <Field label="CAF attribué" help="Sélectionnez le CAF responsable de ce client." className="sm:col-span-12">
+                <Select
+                  value={cafCode}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCafCode(val);
+                    const selected = availableCafsRaw.find((c) => c.code === val);
+                    if (selected?.agence) setAgenceClient(selected.agence);
+                    else setAgenceClient("");
+                  }}
+                >
+                  <option value="">Aucun CAF</option>
+                  {availableCafsRaw.map((c) => <option key={c.code} value={c.code}>{c.name} ({c.code})</option>)}
+                </Select>
+              </Field>
+              <Field label="Agence" help="Déduite automatiquement à partir du CAF sélectionné." className="sm:col-span-12">
+                <Input value={agenceClient} disabled readOnly />
+              </Field>
+              <Field label="Contact (téléphone / email)" className="sm:col-span-12">
+                <Textarea rows={2} value={contactInfo} onChange={(e) => setContactInfo(e.target.value)} placeholder="ex: +237 6 00 00 00 00 ou client@example.com" />
+              </Field>
+              {formError && <Alert severity="error" className="sm:col-span-12">{formError}</Alert>}
+            </div>
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
+            <Button onClick={handleSave} disabled={!codeClient.trim() || !name.trim() || createMutation.isPending || updateMutation.isPending} className="hover:bg-[#1E6091] hover:opacity-100">
+              {editing ? "Enregistrer les modifications" : "Créer le client"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={importDialogOpen} onOpenChange={(o) => !o && setImportDialogOpen(false)}>
+        <DialogContent size="sm" aria-describedby={undefined}>
+          <DialogHeader icon={<FileUp size={20} />}>Importer des clients via CSV</DialogHeader>
+          <DialogBody>
+            <div className="mb-5 rounded-lg border border-border bg-muted/40 p-4">
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground"><Code size={16} /> Format attendu (ligne d&apos;en-têtes)</div>
+              <code className="mb-3 block rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs">code_client,name,agence_client,caf_code,contact_info</code>
+              <p className="text-xs leading-8 text-muted-foreground">
+                ... <strong>code_client</strong> — obligatoire (ex&nbsp;: <code>APL-CLT-0100</code>)<br />
+                ... <strong>name</strong> — obligatoire (ex&nbsp;: <code>Jean Dupont</code>)<br />
+                ... <strong>agence_client</strong> — optionnel<br />
+                ... <strong>caf_code</strong> — optionnel (ex&nbsp;: <code>001-CAF-TEST</code>)<br />
+                ... <strong>contact_info</strong> — optionnel (téléphone ou email)
+              </p>
+            </div>
+            <label className="inline-flex">
+              <span className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-border-strong bg-surface px-4 text-sm font-semibold hover:bg-muted"><FileUp size={15} /> Choisir un fichier CSV</span>
+              <input type="file" accept=".csv,text/csv" hidden onChange={handleCsvFileChange} />
+            </label>
+            {selectedFileName && (
+              <div className="mt-4"><span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400 px-2.5 py-0.5 text-xs text-amber-700 dark:text-amber-300"><FileUp size={13} /> {selectedFileName}</span></div>
             )}
-          </Grid>
-        </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button
-            onClick={handleSave} variant="contained"
-            disabled={!codeClient.trim() || !name.trim() || createMutation.isPending || updateMutation.isPending}
-            sx={{ bgcolor: "#0F3B5C", "&:hover": { bgcolor: "#1E6091" } }}
-          >
-            {editing ? "Enregistrer les modifications" : "Créer le client"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      
-      <Dialog open={importDialogOpen} onClose={() => setImportDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, overflow: "hidden" } }}>
-        <Box sx={{ height: 4, bgcolor: "#3C8047" }} />
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#0F3B5C" }}>
-              <UploadFileIcon sx={{ color: "#3C8047", fontSize: 20 }} />
-            </Avatar>
-            <Typography variant="h6" fontWeight={700}>Importer des clients via CSV</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Box sx={{ borderRadius: 2, bgcolor: "grey.50", border: "1px solid", borderColor: "divider", p: 2, mb: 2.5 }}>
-            <Box display="flex" alignItems="center" gap={1} mb={1}>
-              <CodeIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Format attendu (ligne d&apos;en-têtes)
-              </Typography>
-            </Box>
-            <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: 12, bgcolor: "var(--bg-surface)", borderRadius: 1, px: 1.5, py: 1, border: "1px solid", borderColor: "divider", mb: 1.5 }}>
-              code_client,name,agence_client,caf_code,contact_info
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, lineHeight: 2 }}>
-              ... <strong>code_client</strong> — obligatoire (ex&nbsp;: <code>APL-CLT-0100</code>)<br />
-              ... <strong>name</strong> — obligatoire (ex&nbsp;: <code>Jean Dupont</code>)<br />
-              ... <strong>agence_client</strong> — optionnel<br />
-              ... <strong>caf_code</strong> — optionnel (ex&nbsp;: <code>001-CAF-TEST</code>)<br />
-              ... <strong>contact_info</strong> — optionnel (téléphone ou email)
-            </Typography>
-          </Box>
-
-          <Button component="label" variant="outlined" startIcon={<UploadFileIcon />} sx={{ borderRadius: 2 }}>
-            Choisir un fichier CSV
-            <input type="file" accept=".csv,text/csv" hidden onChange={handleCsvFileChange} />
-          </Button>
-
-          {selectedFileName && (
-            <Box mt={2} display="flex" alignItems="center" gap={1}>
-              <Chip label={selectedFileName} size="small" icon={<UploadFileIcon />} color="warning" variant="outlined" />
-            </Box>
-          )}
-          {parsedRows.length > 0 && (
-            <Alert severity="success" sx={{ mt: 2, borderRadius: 2 }}>
-              <strong>{parsedRows.length} client{parsedRows.length > 1 ? "s" : ""}</strong> prêt{parsedRows.length > 1 ? "s" : ""} à être importé{parsedRows.length > 1 ? "s" : ""}.
-            </Alert>
-          )}
-          {importError && (
-            <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>{importError}</Alert>
-          )}
-        </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setImportDialogOpen(false)} variant="outlined" color="inherit">Annuler</Button>
-          <Button
-            onClick={async () => {
-              if (!parsedRows.length) return;
-              setImportError(null);
-              setActionError(null);
-              try {
-                await importMutation.mutateAsync(parsedRows);
-              } catch (err) {
-                setImportError(
-                  err instanceof Error
-                    ? err.message
-                    : "Import impossible. Vérifiez les lignes du fichier CSV.",
-                );
-              }
-            }}
-            variant="contained"
-            disabled={!parsedRows.length || importMutation.isPending}
-            startIcon={<UploadFileIcon />}
-            sx={{ bgcolor: "#0F3B5C", "&:hover": { bgcolor: "#1E6091" } }}
-          >
-            Lancer l&apos;import ({parsedRows.length})
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      
-      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}>
-              <WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} />
-            </Avatar>
-            <Typography variant="h6" fontWeight={700}>Supprimer le client</Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Vous êtes sur le point de supprimer le client{" "}
-            <Typography component="span" fontWeight={700} color="text.primary">{deleteTarget?.name}</Typography>{" "}
-            <Typography component="span" color="text.secondary">({deleteTarget?.codeClient})</Typography>.
-            Cette action est irréversible. Toutes les localisations de ce client
-            seront également supprimées.
-          </Typography>
-        </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setDeleteTarget(null)} variant="outlined" color="inherit">Annuler</Button>
-          <Button
-            onClick={async () => {
-              if (deleteTarget?.id != null) {
+            {parsedRows.length > 0 && (
+              <Alert severity="success" className="mt-4"><strong>{parsedRows.length} client{parsedRows.length > 1 ? "s" : ""}</strong> prêt{parsedRows.length > 1 ? "s" : ""} à être importé{parsedRows.length > 1 ? "s" : ""}.</Alert>
+            )}
+            {importError && <Alert severity="error" className="mt-4">{importError}</Alert>}
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>Annuler</Button>
+            <Button
+              disabled={!parsedRows.length || importMutation.isPending}
+              className="hover:bg-[#1E6091] hover:opacity-100"
+              onClick={async () => {
+                if (!parsedRows.length) return;
+                setImportError(null);
                 setActionError(null);
                 try {
-                  await deleteMutation.mutateAsync(deleteTarget.id);
-                  setDeleteTarget(null);
+                  await importMutation.mutateAsync(parsedRows);
                 } catch (err) {
-                  setActionError(
-                    err instanceof Error
-                      ? err.message
-                      : "Suppression impossible pour ce client.",
-                  );
+                  setImportError(err instanceof Error ? err.message : "Import impossible. Vérifiez les lignes du fichier CSV.");
                 }
-              }
-            }}
-            color="error" variant="contained"
-            disabled={deleteMutation.isPending}
-            startIcon={<DeleteOutlineIcon />}
-          >
-            Supprimer
-          </Button>
-        </DialogActions>
+              }}
+            >
+              <FileUp size={15} /> Lancer l&apos;import ({parsedRows.length})
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
-      
-      <Dialog
-        open={bulkDeleteOpen}
-        onClose={() => setBulkDeleteOpen(false)}
-        fullWidth
-        maxWidth="xs"
-        PaperProps={{ sx: { borderRadius: 3 } }}
-      >
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Avatar sx={{ width: 36, height: 36, bgcolor: "#fee2e2" }}>
-              <WarningAmberIcon sx={{ color: "#ef4444", fontSize: 20 }} />
-            </Avatar>
-            <Typography variant="h6" fontWeight={700}>
-              Supprimer la sélection
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <Divider />
-        <DialogContent sx={{ pt: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Vous allez supprimer{" "}
-            <Typography component="span" fontWeight={700} color="text.primary">
-              {selectedCount} client{selectedCount > 1 ? "s" : ""}
-            </Typography>
-            . Cette action est irréversible.
-          </Typography>
-        </DialogContent>
-        <Divider />
-        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
-          <Button onClick={() => setBulkDeleteOpen(false)} variant="outlined" color="inherit">
-            Annuler
-          </Button>
-          <Button
-            color="error"
-            variant="contained"
-            startIcon={<DeleteOutlineIcon />}
-            disabled={deleteMutation.isPending || selectedCount === 0}
-            onClick={async () => {
-              setActionError(null);
-              try {
-                const ids = [...selectedClientIds];
-                const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id)));
-                const failed = results.filter((r) => r.status === "rejected").length;
-                if (failed > 0) {
-                  setActionError(`${failed} suppression(s) ont échoué. Vérifiez les dépendances côté backend.`);
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent size="xs" accent={false} aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer le client</DialogHeader>
+          <DialogBody className="text-sm text-muted-foreground">
+            Vous êtes sur le point de supprimer le client <strong className="text-foreground">{deleteTarget?.name}</strong> ({deleteTarget?.codeClient}).
+            Cette action est irréversible. Toutes les localisations de ce client seront également supprimées.
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Annuler</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending}
+              onClick={async () => {
+                if (deleteTarget?.id != null) {
+                  setActionError(null);
+                  try {
+                    await deleteMutation.mutateAsync(deleteTarget.id);
+                    setDeleteTarget(null);
+                  } catch (err) {
+                    setActionError(err instanceof Error ? err.message : "Suppression impossible pour ce client.");
+                  }
                 }
-                setBulkDeleteOpen(false);
-                setSelectedClientIds([]);
-              } catch (err) {
-                setActionError(
-                  err instanceof Error
-                    ? err.message
-                    : "Suppression multiple impossible.",
-                );
-              }
-            }}
-          >
-            Supprimer la sélection
-          </Button>
-        </DialogActions>
+              }}
+            >
+              <Trash2 size={15} /> Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={bulkDeleteOpen} onOpenChange={(o) => !o && setBulkDeleteOpen(false)}>
+        <DialogContent size="xs" accent={false} aria-describedby={undefined}>
+          <DialogHeader tone="danger" icon={<TriangleAlert size={20} />}>Supprimer la sélection</DialogHeader>
+          <DialogBody className="text-sm text-muted-foreground">
+            Vous allez supprimer <strong className="text-foreground">{selectedCount} client{selectedCount > 1 ? "s" : ""}</strong>. Cette action est irréversible.
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkDeleteOpen(false)}>Annuler</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending || selectedCount === 0}
+              onClick={async () => {
+                setActionError(null);
+                try {
+                  const ids = [...selectedClientIds];
+                  const results = await Promise.allSettled(ids.map((id) => deleteMutation.mutateAsync(id)));
+                  const failed = results.filter((r) => r.status === "rejected").length;
+                  if (failed > 0) setActionError(`${failed} suppression(s) ont échoué. Vérifiez les dépendances côté backend.`);
+                  setBulkDeleteOpen(false);
+                  setSelectedClientIds([]);
+                } catch (err) {
+                  setActionError(err instanceof Error ? err.message : "Suppression multiple impossible.");
+                }
+              }}
+            >
+              <Trash2 size={15} /> Supprimer la sélection
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );
